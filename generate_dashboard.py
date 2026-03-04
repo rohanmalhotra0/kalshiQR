@@ -360,10 +360,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     </div>
 
     <div class="hedge-summary">
-      <strong>Hedge recommendation:</strong> Buy <strong>{h_star:,} contracts</strong> of the Kalshi unemployment market (e.g., &quot;Will US unemployment exceed {hedge_threshold:.1f}%?&quot;). At <strong>${contract_price:.2f} per contract</strong>, total upfront cost is <strong>${total_cost:,.0f}</strong>. Each contract pays $1 if the event occurs, $0 otherwise — so if unemployment exceeds the threshold, you receive <strong>${h_star:,}</strong> to offset income loss. Target coverage: ~6 months salary (expected unemployment loss; BLS mean duration ~20 weeks).
-      <p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.9;">Hedge triggers in <strong>{hedge_payout_rate:.1f}%</strong> of simulated paths (when max unemployment &gt; {hedge_threshold:.1f}%).</p>
-      {f'<p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.9;">Note: Mean (with hedge) &gt; Mean (no hedge) may indicate the contract is priced below the true probability (market mispricing). In efficient markets, E(hedged) ≤ E(unhedged) because hedges cost money.</p>' if rh.mean > rn.mean else ''}
-      {f'<p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.9;">Variance reduction is negative: the hedge trigger (unemployment &gt; {hedge_threshold:.1f}%) may not correlate strongly with individual job loss. Consider contracts on initial jobless claims or tech layoffs for better correlation.</p>' if out.get('variance_reduction_pct', 0) < 0 else ''}
+      <strong>Hedge:</strong> Buy <strong>{h_star:,} contracts</strong> (&quot;Will US unemployment exceed {hedge_threshold:.1f}%?&quot;) at ${contract_price:.2f} each → cost <strong>${total_cost:,.0f}</strong>, payout <strong>${h_star:,}</strong> if triggered. Triggers in <strong>{hedge_payout_rate:.1f}%</strong> of paths. Target: ~6 months salary.
     </div>
 
     <div class="chart-grid">
