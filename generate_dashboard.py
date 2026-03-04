@@ -121,7 +121,12 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     inputs_str = ", ".join(f"{k}={v}" for k, v in inputs.items()) if inputs else ""
     contract_price = out.get("contract_price", 0.30)
     hedge_threshold = out.get("hedge_threshold", 8.0)
-    h_star = int(out.get("optimal_contracts", out.get("optimal_hedge_ratio", 0)))
+    # Use pipeline output only; derive from salary if missing (same formula as pipeline)
+    n_contracts = out.get("n_contracts") or out.get("optimal_contracts")
+    if not n_contracts:
+        salary = out.get("inputs", {}).get("salary")
+        n_contracts = int(salary * 6 / 12) if salary else 0  # 6 months coverage
+    h_star = int(n_contracts) if n_contracts else 0
     total_cost = h_star * contract_price
     hedge_payout_rate = 100 * sum(1 for r in results if r.hedge_payoff > 0) / len(results) if results else 0
 
@@ -305,6 +310,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     <div class="navbar-links">
       <a href="paper.html">Paper</a>
       <a href="quiz.html">Quiz</a>
+      <a href="live-demo.html">Live Demo</a>
       <a href="documentation.html">Documentation</a>
       <a href="about.html">Our Teams</a>
     </div>

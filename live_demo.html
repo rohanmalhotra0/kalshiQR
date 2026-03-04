@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Demo — Job Loss Hedging Model</title>
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --surface: #18181c;
+      --surface2: #222228;
+      --text: #e4e4e7;
+      --text-muted: #8b8b94;
+      --accent: #6366f1;
+      --accent2: #22c55e;
+      --border: #2d2d35;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; }
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+    .navbar a:hover { color: var(--accent); }
+    .navbar .brand { font-weight: 600; color: var(--text); }
+    .navbar-links { display: flex; gap: 1.5rem; }
+    .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .step-card h2 { font-size: 1rem; color: var(--accent); margin-bottom: 0.75rem; }
+    .step-card .formula {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      background: var(--surface2);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+    }
+    .step-card .output {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      color: var(--accent2);
+    }
+    .step-card .calc, .step-card .inputs { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .step-card .calc strong, .step-card .inputs strong { color: var(--text); }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; }
+    input, select { width: 100%; padding: 0.6rem 0.8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.95rem; }
+    button { padding: 0.75rem 1.5rem; background: var(--accent); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; font-family: inherit; }
+    button:hover { filter: brightness(1.1); }
+    .loading { opacity: 0.6; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="brand">Job Loss Hedging</a>
+    <div class="navbar-links">
+      <a href="/paper">Paper</a>
+      <a href="/quiz">Quiz</a>
+      <a href="/live-demo">Live Demo</a>
+      <a href="/documentation">Documentation</a>
+      <a href="/about">Our Teams</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Live Demo</h1>
+    <p class="subtitle">Step-by-step math from the paper. All values computed in real time from your inputs.</p>
+
+    <form method="POST" action="/live-demo" class="form-grid">
+      <div>
+        <label>Industry</label>
+        <select name="industry">{{ industry_options }}</select>
+      </div>
+      <div>
+        <label>Company Size</label>
+        <select name="company_size">{{ company_options }}</select>
+      </div>
+      <div>
+        <label>Job Level</label>
+        <select name="job_level">{{ job_options }}</select>
+      </div>
+      <div>
+        <label>Salary ($)</label>
+        <input type="number" name="salary" value="{{ salary }}" min="30000" max="1000000" step="5000">
+      </div>
+      <div>
+        <label>Paths</label>
+        <input type="number" name="n_paths" value="{{ n_paths }}" min="500" max="10000" step="500">
+      </div>
+      <div>
+        <label>Horizon (years)</label>
+        <input type="number" name="horizon_years" value="{{ horizon_years }}" min="1" max="30">
+      </div>
+      <div style="align-self:end;">
+        <button type="submit">Run live demo</button>
+      </div>
+    </form>
+
+    {{ steps_html }}
+  </div>
+</body>
+</html>

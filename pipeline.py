@@ -95,10 +95,11 @@ def run_pipeline(
         except Exception:
             pass
 
-    # Hedge size: ~6 months salary (expected unemployment loss)
-    # BLS: mean unemployment duration ~20 weeks; target coverage for 6 months
+    # Hedge size: derived from salary (target ~6 months coverage; each contract pays $1)
+    # BLS mean unemployment duration ~20 weeks; 6 months = 26 weeks ≈ 0.5 * annual salary
+    COVERAGE_MONTHS = 6
     if n_contracts is None:
-        n_contracts = int(salary * 0.5)  # ~$60k for $120k salary
+        n_contracts = int(salary * COVERAGE_MONTHS / 12)
 
     # Lambda as function of (t, unemployment_path)
     def get_lam(t: int, u_path: np.ndarray) -> float:
