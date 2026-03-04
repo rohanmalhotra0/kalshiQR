@@ -203,6 +203,11 @@ def favicon():
     return send_from_directory(Path(__file__).parent, "favicon.png", mimetype="image/png")
 
 
+@app.route("/live_demo_pipeline.js")
+def live_demo_js():
+    return send_from_directory(Path(__file__).parent, "live_demo_pipeline.js", mimetype="application/javascript")
+
+
 @app.route("/apple-touch-icon.png")
 def apple_touch_icon():
     return send_from_directory(Path(__file__).parent, "apple-touch-icon.png", mimetype="image/png")
@@ -211,6 +216,14 @@ def apple_touch_icon():
 @app.route("/currentModel.pdf")
 def send_pdf():
     return send_from_directory(Path(__file__).parent, "currentModel.pdf")
+
+
+@app.route("/dashboard.html")
+def dashboard():
+    path = Path(__file__).parent / "dashboard.html"
+    if not path.exists():
+        return "Dashboard not found. Run generate_dashboard.py first.", 404
+    return send_from_directory(Path(__file__).parent, "dashboard.html", mimetype="text/html")
 
 
 @app.route("/")
@@ -226,38 +239,32 @@ def live_demo():
     company_size = request.form.get("company_size", "startup") if request.method == "POST" else "startup"
     job_level = request.form.get("job_level", "entry") if request.method == "POST" else "entry"
     salary = float(request.form.get("salary", 120000) or 120000) if request.method == "POST" else 120000
-    n_paths = int(request.form.get("n_paths", 2000) or 2000) if request.method == "POST" else 2000
+    n_paths = int(request.form.get("n_paths", 1500) or 1500) if request.method == "POST" else 1500
     horizon_years = int(request.form.get("horizon_years", 10) or 10) if request.method == "POST" else 10
-
-    steps_html = ""
-    industry_options = company_options = job_options = ""
 
     from render_live_demo import render_steps_html, render_demo_options
 
-    if request.method == "POST":
-        try:
-            from pipeline_steps import run_pipeline_steps
+    industry_options, company_options, job_options = render_demo_options(industry, company_size, job_level)
+    steps_html = ""
 
-            data = run_pipeline_steps(
-                fred_api_key=os.environ.get("FRED_API_KEY"),
-                n_paths=n_paths,
-                horizon_years=horizon_years,
-                salary=salary,
-                industry=industry,
-                company_size=company_size,
-                job_level=job_level,
-                tenure_years=1.0,
-                seed=42,
-            )
-            steps_html = render_steps_html(data["steps"])
-            industry_options, company_options, job_options = render_demo_options(industry, company_size, job_level)
-        except Exception as e:
-            import traceback
-            steps_html = f'<p style="color:#ef4444;">Error: {e}</p><pre style="font-size:0.8rem;overflow:auto;">{traceback.format_exc()}</pre>'
-            industry_options, company_options, job_options = render_demo_options(industry, company_size, job_level)
-    else:
-        industry_options, company_options, job_options = render_demo_options(industry, company_size, job_level)
-        steps_html = '<p class="subtitle">Enter parameters above and click "Run live demo" to see each step of the model.</p>'
+    try:
+        from pipeline_steps import run_pipeline_steps
+
+        data = run_pipeline_steps(
+            fred_api_key=os.environ.get("FRED_API_KEY"),
+            n_paths=n_paths,
+            horizon_years=horizon_years,
+            salary=salary,
+            industry=industry,
+            company_size=company_size,
+            job_level=job_level,
+            tenure_years=1.0,
+            seed=42,
+        )
+        steps_html = render_steps_html(data["steps"])
+    except Exception as e:
+        import traceback
+        steps_html = f'<p style="color:#ef4444;">Error: {e}</p><pre style="font-size:0.8rem;overflow:auto;">{traceback.format_exc()}</pre>'
 
     template = (Path(__file__).parent / "live_demo.html").read_text(encoding="utf-8")
     return render_template_string(

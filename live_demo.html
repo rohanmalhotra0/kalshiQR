@@ -81,9 +81,9 @@
 
   <div class="container">
     <h1>Live Demo</h1>
-    <p class="subtitle">See how the model works, step by step. Change your inputs and run again — everything updates in real time.</p>
+    <p class="subtitle">See how the model works, step by step. Change any input — results update instantly in your browser.</p>
 
-    <form method="POST" action="/live-demo" class="form-grid">
+    <form id="live-demo-form" class="form-grid" onsubmit="return false;">
       <div>
         <label>Industry</label>
         <select name="industry">{{ industry_options }}</select>
@@ -102,18 +102,71 @@
       </div>
       <div>
         <label>Paths</label>
-        <input type="number" name="n_paths" value="{{ n_paths }}" min="500" max="10000" step="500">
+        <input type="number" name="n_paths" value="{{ n_paths }}" min="500" max="5000" step="500">
       </div>
       <div>
         <label>Horizon (years)</label>
         <input type="number" name="horizon_years" value="{{ horizon_years }}" min="1" max="30">
       </div>
-      <div style="align-self:end;">
-        <button type="submit">Run live demo</button>
+      <div style="align-self:end; display:flex; flex-direction:column; gap:0.5rem;">
+        <button type="button" id="run-btn">Run</button>
+        <a href="dashboard.html" style="font-size:0.8rem; color:var(--accent);">View full dashboard</a>
       </div>
     </form>
 
-    {{ steps_html }}
+    <div id="steps-container">{{ steps_html }}</div>
+
+    <script src="live_demo_pipeline.js"></script>
+    <script>
+      (function() {
+        var form = document.getElementById('live-demo-form');
+        var container = document.getElementById('steps-container');
+        var runBtn = document.getElementById('run-btn');
+        var debounceTimer;
+
+        function getOpts() {
+          var fd = new FormData(form);
+          return {
+            industry: fd.get('industry') || 'tech',
+            company_size: fd.get('company_size') || 'startup',
+            job_level: fd.get('job_level') || 'entry',
+            salary: parseFloat(fd.get('salary')) || 120000,
+            n_paths: parseInt(fd.get('n_paths'), 10) || 1500,
+            horizon_years: parseInt(fd.get('horizon_years'), 10) || 10,
+            seed: 42
+          };
+        }
+
+        function run() {
+          runBtn.disabled = true;
+          runBtn.textContent = 'Running…';
+          container.style.opacity = '0.6';
+          setTimeout(function() {
+            try {
+              var opts = getOpts();
+              var data = LiveDemoPipeline.runPipelineSteps(opts);
+              container.innerHTML = LiveDemoPipeline.renderStepsHtml(data.steps);
+            } catch (e) {
+              container.innerHTML = '<p style="color:#ef4444;">Error: ' + e.message + '</p>';
+            }
+            container.style.opacity = '1';
+            runBtn.disabled = false;
+            runBtn.textContent = 'Run';
+          }, 0);
+        }
+
+        function debouncedRun() {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(run, 150);
+        }
+
+        form.addEventListener('change', debouncedRun);
+        form.querySelectorAll('input').forEach(function(inp) {
+          inp.addEventListener('input', debouncedRun);
+        });
+        runBtn.addEventListener('click', run);
+      })();
+    </script>
   </div>
 </body>
 </html>

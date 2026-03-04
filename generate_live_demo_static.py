@@ -34,11 +34,6 @@ def main():
     html = html.replace("{{ n_paths }}", "1500")
     html = html.replace("{{ horizon_years }}", "10")
     html = html.replace("{{ steps_html }}", steps_html)
-    # Static: form is display-only; link to dashboard for full results
-    html = html.replace('method="POST" action="/live-demo"', '')
-    html = html.replace('action="/live-demo"', '')
-    html = html.replace('<button type="submit">Run live demo</button>',
-                        '<p class="subtitle" style="margin-top:0.5rem;">Sample run with defaults. For custom inputs, run <code>python app.py</code> and visit /live-demo.</p><a href="dashboard.html" class="btn btn-primary" style="display:inline-block;margin-top:0.5rem;">View full dashboard</a>')
     html = html.replace('href="/paper"', 'href="paper.html"')
     html = html.replace('href="/quiz"', 'href="quiz.html"')
     html = html.replace('href="/live-demo"', 'href="live-demo.html"')
