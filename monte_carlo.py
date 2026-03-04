@@ -59,12 +59,17 @@ def simulate_macro_path(
     return u
 
 
+# Mean unemployment duration (weeks) - BLS data ~20 weeks
+MEAN_UNEMPLOYMENT_DURATION_WEEKS = 20.0
+
+
 def run_monte_carlo(
     get_lambda_fn: Callable[[int, np.ndarray], float],
     contract_price: float,
     n_contracts: int,
     hedge_threshold: float = 6.0,
     config: Optional[MonteCarloConfig] = None,
+    mean_unemployment_duration: float = MEAN_UNEMPLOYMENT_DURATION_WEEKS,
 ) -> tuple[list[PathResult], np.ndarray, np.ndarray]:
     """
     Run full Monte Carlo simulation.
@@ -75,6 +80,7 @@ def run_monte_carlo(
         n_contracts: number of hedge contracts
         hedge_threshold: hedge pays if mean(unemployment) > threshold
         config: simulation config
+        mean_unemployment_duration: mean weeks unemployed before reemployment
 
     Returns:
         results: list of PathResult
@@ -91,6 +97,8 @@ def run_monte_carlo(
 
     for i in range(cfg.n_paths):
         seed_i = cfg.seed + i if cfg.seed is not None else None
+        if seed_i is not None:
+            np.random.seed(seed_i)
 
         # Step 1: Simulate macro
         u_path = simulate_macro_path(
@@ -99,33 +107,33 @@ def run_monte_carlo(
             seed=seed_i,
         )
 
-        # Step 2 & 3 & 4: Poisson + salary
+        # Step 2 & 3 & 4: Poisson + salary + reemployment (1 → 0 → 1)
         employed = np.ones(cfg.horizon_weeks)
-        income = 0.0
         job_loss_week = None
-
-        for t in range(cfg.horizon_weeks):
-            lam = get_lambda_fn(t, u_path) * 1.0
-            if employed[t - 1] if t > 0 else 1:
+        total_loss = 0.0
+        t = 0
+        while t < cfg.horizon_weeks:
+            if employed[t]:
+                lam = get_lambda_fn(t, u_path) * 1.0
                 jump = np.random.poisson(lam) > 0
                 if jump:
-                    employed[t:] = 0
-                    job_loss_week = t
-                    break
-                income += cfg.salary_weekly
-            else:
-                break
+                    job_loss_week = t if job_loss_week is None else job_loss_week
+                    duration = int(np.ceil(np.random.exponential(mean_unemployment_duration)))
+                    duration = max(1, min(duration, cfg.horizon_weeks - t))
+                    end_unemp = min(t + duration, cfg.horizon_weeks)
+                    employed[t:end_unemp] = 0
+                    total_loss += duration * cfg.salary_weekly
+                    t = end_unemp
+                    continue
+            t += 1
 
-        # Income lost (from job loss to end)
-        if job_loss_week is not None:
-            loss = (cfg.horizon_weeks - job_loss_week) * cfg.salary_weekly
-        else:
-            loss = 0.0
+        income = sum(cfg.salary_weekly for w in range(cfg.horizon_weeks) if employed[w])
+        loss = total_loss
 
         # Step 5: Hedge payoff
-        # Hedge pays when unemployment exceeds threshold (correlated with job loss)
-        # Use max unemployment over horizon - more sensitive to spikes
-        u_max = np.max(u_path)
+        # Hedge pays when max unemployment > threshold (recession spike)
+        # Target payout ~15-25% of paths (Unemployment > 6.5% happens in stress periods)
+        u_max = float(np.max(u_path))
         hedge_pays = u_max > hedge_threshold
         payoff = (n_contracts * 1.0) if hedge_pays else 0.0
 
@@ -185,7 +193,7 @@ def compute_risk_metrics(
     tail_prob_50pct_drop = float(np.mean(incomes < drop_50))
 
     # Job loss probability
-    tail_prob_job_loss = float(np.mean(np.array(job_loss_weeks) is not None))
+    tail_prob_job_loss = float(np.mean([w is not None for w in job_loss_weeks]))
 
     return RiskMetrics(
         mean=mean,

@@ -67,11 +67,11 @@ def run_pipeline(
     ind_risk = industry_risk_from_personal(industry, company_size, job_level)
     rate = 4.0  # baseline interest rate
 
-    # Hazard model (use defaults if no FRED data)
+    # Hazard model: defaults for ~5-10% annual job loss (λ ≈ 0.001 weekly)
     params = HazardModelParams(
-        beta0=-5.0,
-        beta_unemployment=0.06,
-        beta_industry=0.2,
+        beta0=-6.0,
+        beta_unemployment=0.05,
+        beta_industry=0.15,
         beta_interest_rate=0.01,
     )
     if fred_api_key:
@@ -87,16 +87,18 @@ def run_pipeline(
             data = load_model_inputs(fred_api_key=fred_api_key, personal=personal)
             X, y = build_training_data(data["macro_state"])
             fitted = fit_hazard_model(X, y)
-            # Sanity check: reject params that would give >5% weekly hazard (absurd job loss)
-            test_lam = get_lambda(fitted, 5.0, 0.5, 4.0)
-            if test_lam < 0.05:
+            # Reject FRED params if they imply absurd job loss (e.g. beta0 > 0 => p ≈ 1)
+            from hazard_model import predict_job_loss_prob
+            test_p = predict_job_loss_prob(fitted, 5.0, 0.5, 4.0)
+            if fitted.beta0 < -2 and test_p < 0.1:
                 params = fitted
         except Exception:
             pass
 
-    # Hedge size: ~6 months salary at $1/contract
+    # Hedge size: ~5 months salary coverage (expected unemployment loss)
+    # Realistic: 20 weeks avg duration, ~20% job loss over 10y => ~$25k-50k
     if n_contracts is None:
-        n_contracts = int(salary * 0.5)
+        n_contracts = int(salary * 0.25)  # ~$30k for $120k salary
 
     # Lambda as function of (t, unemployment_path)
     def get_lam(t: int, u_path: np.ndarray) -> float:
@@ -115,7 +117,7 @@ def run_pipeline(
         get_lam,
         contract_price=contract_price,
         n_contracts=n_contracts,
-        hedge_threshold=7.0,
+        hedge_threshold=7.5,  # Pays when max unemployment > 7.5% (recession indicator)
         config=cfg,
     )
     baseline = cfg.horizon_weeks * cfg.salary_weekly
@@ -145,7 +147,7 @@ def run_pipeline(
         "incomes_with_hedge": total_with_hedge,
         "results": results,
         "contract_price": contract_price,
-        "hedge_threshold": 7.0,
+        "hedge_threshold": 7.5,
         "inputs": {
             "industry": industry,
             "company_size": company_size,

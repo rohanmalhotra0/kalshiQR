@@ -87,11 +87,11 @@ def fit_hazard_model(
     Uses Newton-Raphson / gradient descent for MLE.
     """
     if len(X) == 0 or len(y) == 0:
-        # Default: ~2% annual job-loss probability => λ ≈ 0.0004/week
+        # Default: ~5-10% annual job-loss => λ ≈ 0.001/week
         return HazardModelParams(
-            beta0=-5.0,
-            beta_unemployment=0.06,
-            beta_industry=0.2,
+            beta0=-6.0,
+            beta_unemployment=0.05,
+            beta_industry=0.15,
             beta_interest_rate=0.01,
         )
 
@@ -168,8 +168,9 @@ def get_lambda(
     p = predict_job_loss_prob(params, unemployment, industry_risk, interest_rate)
     if period == "weekly":
         lam = prob_to_weekly_hazard(p)
-        # Cap at ~2% weekly (realistic max: ~65% job loss over 10 years)
-        return float(min(lam, 0.02))
+        # Cap at 0.5% weekly (realistic: annual job loss ~5-20%)
+        # λ ≈ 0.001-0.005 weekly => 1 - exp(-0.005*52) ≈ 23% max annual
+        return float(min(lam, 0.005))
     return p  # monthly probability directly
 
 

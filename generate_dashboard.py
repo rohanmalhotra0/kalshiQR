@@ -94,7 +94,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     inputs = inputs or out.get("inputs", {})
     inputs_str = ", ".join(f"{k}={v}" for k, v in inputs.items()) if inputs else ""
     contract_price = out.get("contract_price", 0.30)
-    hedge_threshold = out.get("hedge_threshold", 7.0)
+    hedge_threshold = out.get("hedge_threshold", 7.5)
     h_star = int(round(out["optimal_hedge_ratio"]))
     total_cost = h_star * contract_price
 
