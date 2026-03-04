@@ -90,6 +90,13 @@
       color: var(--accent); }
     .metric-card.green .value { color: var(--accent2); }
     .metric-card.amber .value { color: var(--accent3); }
+    .metric-card .metric-desc {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      line-height: 1.3;
+      opacity: 0.9;
+    }
     .chart-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
@@ -137,12 +144,36 @@
     </header>
 
     <div class="metrics-row">
-      <div class="metric-card"><h3>Mean (no hedge)</h3><div class="value">$658,542</div></div>
-      <div class="metric-card"><h3>Mean (with hedge)</h3><div class="value green">$673,902</div></div>
-      <div class="metric-card"><h3>ES 5% (worst case)</h3><div class="value">$21,692 → $34,246</div></div>
-      <div class="metric-card"><h3>P(drop &gt; 50%)</h3><div class="value amber">49.2% → 48.4%</div></div>
-      <div class="metric-card"><h3>Optimal h*</h3><div class="value">11,377 contracts</div></div>
-      <div class="metric-card"><h3>Hazard β₀</h3><div class="value">-5.000</div></div>
+      <div class="metric-card">
+        <h3>Mean (no hedge)</h3>
+        <div class="value">$658,542</div>
+        <p class="metric-desc">Average total income over the horizon without buying any hedge contracts.</p>
+      </div>
+      <div class="metric-card">
+        <h3>Mean (with hedge)</h3>
+        <div class="value green">$673,902</div>
+        <p class="metric-desc">Average total income after buying the recommended hedge contracts (includes cost and payouts).</p>
+      </div>
+      <div class="metric-card">
+        <h3>ES 5% (worst case)</h3>
+        <div class="value">$21,692 → $34,246</div>
+        <p class="metric-desc">Expected Shortfall: average income in the worst 5% of outcomes. Higher after hedge = better protection.</p>
+      </div>
+      <div class="metric-card">
+        <h3>P(drop &gt; 50%)</h3>
+        <div class="value amber">49.2% → 48.4%</div>
+        <p class="metric-desc">Probability your income drops by more than 50% vs full employment. Lower after hedge = less tail risk.</p>
+      </div>
+      <div class="metric-card">
+        <h3>Optimal h*</h3>
+        <div class="value">11,377 contracts</div>
+        <p class="metric-desc">Recommended number of Kalshi contracts to buy (minimum-variance hedge ratio).</p>
+      </div>
+      <div class="metric-card">
+        <h3>Hazard β₀</h3>
+        <div class="value">-5.000</div>
+        <p class="metric-desc">Intercept in the job-loss hazard model. More negative = lower baseline job-loss risk.</p>
+      </div>
     </div>
 
     <div class="hedge-summary">
@@ -178,7 +209,7 @@
     </div>
 
     <footer>
-      <p><a href="currentModel.pdf" style="color:var(--accent);">Paper (PDF)</a> · <a href="https://github.com/nyu-bnf/modelKalshi" style="color:var(--accent);">GitHub</a> · <a href="/" style="color:var(--accent);">← Change inputs & run again</a></p>
+      <p><a href="currentModel.pdf" style="color:var(--accent);">Paper (PDF)</a> · <a href="https://github.com/nyu-bnf/modelKalshi" style="color:var(--accent);">GitHub</a> · <a href="./" style="color:var(--accent);">← Change inputs & run again</a></p>
       <p style="margin-top:0.5rem;">Made by NYU BnF</p>
     </footer>
   </div>

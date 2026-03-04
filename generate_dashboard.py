@@ -190,6 +190,13 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       color: var(--accent); }}
     .metric-card.green .value {{ color: var(--accent2); }}
     .metric-card.amber .value {{ color: var(--accent3); }}
+    .metric-card .metric-desc {{
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      line-height: 1.3;
+      opacity: 0.9;
+    }}
     .chart-grid {{
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
@@ -237,12 +244,36 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     </header>
 
     <div class="metrics-row">
-      <div class="metric-card"><h3>Mean (no hedge)</h3><div class="value">${rn.mean:,.0f}</div></div>
-      <div class="metric-card"><h3>Mean (with hedge)</h3><div class="value green">${rh.mean:,.0f}</div></div>
-      <div class="metric-card"><h3>ES 5% (worst case)</h3><div class="value">${rn.expected_shortfall_5pct:,.0f} → ${rh.expected_shortfall_5pct:,.0f}</div></div>
-      <div class="metric-card"><h3>P(drop &gt; 50%)</h3><div class="value amber">{rn.tail_prob_50pct_drop:.1%} → {rh.tail_prob_50pct_drop:.1%}</div></div>
-      <div class="metric-card"><h3>Optimal h*</h3><div class="value">{h_star:,} contracts</div></div>
-      <div class="metric-card"><h3>Hazard β₀</h3><div class="value">{params.beta0:.3f}</div></div>
+      <div class="metric-card">
+        <h3>Mean (no hedge)</h3>
+        <div class="value">${rn.mean:,.0f}</div>
+        <p class="metric-desc">Average total income over the horizon without buying any hedge contracts.</p>
+      </div>
+      <div class="metric-card">
+        <h3>Mean (with hedge)</h3>
+        <div class="value green">${rh.mean:,.0f}</div>
+        <p class="metric-desc">Average total income after buying the recommended hedge contracts (includes cost and payouts).</p>
+      </div>
+      <div class="metric-card">
+        <h3>ES 5% (worst case)</h3>
+        <div class="value">${rn.expected_shortfall_5pct:,.0f} → ${rh.expected_shortfall_5pct:,.0f}</div>
+        <p class="metric-desc">Expected Shortfall: average income in the worst 5% of outcomes. Higher after hedge = better protection.</p>
+      </div>
+      <div class="metric-card">
+        <h3>P(drop &gt; 50%)</h3>
+        <div class="value amber">{rn.tail_prob_50pct_drop:.1%} → {rh.tail_prob_50pct_drop:.1%}</div>
+        <p class="metric-desc">Probability your income drops by more than 50% vs full employment. Lower after hedge = less tail risk.</p>
+      </div>
+      <div class="metric-card">
+        <h3>Optimal h*</h3>
+        <div class="value">{h_star:,} contracts</div>
+        <p class="metric-desc">Recommended number of Kalshi contracts to buy (minimum-variance hedge ratio).</p>
+      </div>
+      <div class="metric-card">
+        <h3>Hazard β₀</h3>
+        <div class="value">{params.beta0:.3f}</div>
+        <p class="metric-desc">Intercept in the job-loss hazard model. More negative = lower baseline job-loss risk.</p>
+      </div>
     </div>
 
     <div class="hedge-summary">
