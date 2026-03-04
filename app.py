@@ -10,7 +10,7 @@ from pathlib import Path
 from config import load_config
 load_config()
 
-from flask import Flask, render_template_string, request
+from flask import Flask, render_template_string, request, send_from_directory
 
 app = Flask(__name__)
 
@@ -77,16 +77,37 @@ FORM_HTML = """
       50% { width: 70%; margin-left: 15%; }
       100% { width: 0%; margin-left: 0; }
     }
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+    .navbar a:hover { color: var(--accent); }
+    .navbar .brand { font-weight: 600; color: var(--text); }
+    .navbar-links { display: flex; gap: 1.5rem; }
   </style>
 </head>
 <body>
+  <nav class="navbar">
+    <a href="/" class="brand">Job Loss Hedging</a>
+    <div class="navbar-links">
+      <a href="/paper">Paper</a>
+      <a href="/">Rerun tests</a>
+      <a href="/about">Our Teams</a>
+    </div>
+  </nav>
+
   <div id="loading" class="loading-overlay">
     <p>Running Monte Carlo simulation…</p>
     <div class="loadbar"><div class="loadbar-fill"></div></div>
     <p style="font-size:0.8rem;">This may take 15–30 seconds</p>
   </div>
 
-  <div class="container">
+  <div class="container" style="margin-top:0;">
     <h1>Job Loss Hedging Model</h1>
     <p class="subtitle">Enter your profile to run a Monte Carlo simulation</p>
 
@@ -150,6 +171,25 @@ FORM_HTML = """
 </body>
 </html>
 """
+
+
+@app.route("/paper")
+@app.route("/paper.html")
+def paper():
+    path = Path(__file__).parent / "paper.html"
+    return path.read_text(encoding="utf-8") if path.exists() else "Paper not found", 404
+
+
+@app.route("/about")
+@app.route("/about.html")
+def about():
+    path = Path(__file__).parent / "about.html"
+    return path.read_text(encoding="utf-8") if path.exists() else "About not found", 404
+
+
+@app.route("/currentModel.pdf")
+def send_pdf():
+    return send_from_directory(Path(__file__).parent, "currentModel.pdf")
 
 
 @app.route("/", methods=["GET", "POST"])

@@ -226,6 +226,18 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       line-height: 1.5;
     }}
     .chart-note strong {{ color: var(--text); }}
+    .navbar {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }}
+    .navbar a {{ color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }}
+    .navbar a:hover {{ color: var(--accent); }}
+    .navbar .brand {{ font-weight: 600; color: var(--text); }}
+    .navbar-links {{ display: flex; gap: 1.5rem; }}
     footer {{
       padding: 2rem 0;
       text-align: center;
@@ -236,6 +248,15 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
   </style>
 </head>
 <body>
+  <nav class="navbar">
+    <a href="./" class="brand">Job Loss Hedging</a>
+    <div class="navbar-links">
+      <a href="paper.html">Paper</a>
+      <a href="./">Rerun tests</a>
+      <a href="about.html">Our Teams</a>
+    </div>
+  </nav>
+
   <div class="container">
     <header>
       <h1>Job Loss Hedging Model</h1>

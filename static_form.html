@@ -32,9 +32,30 @@
     .note { font-size: 0.8rem; color: var(--text-muted); margin-top: 2rem; }
     footer { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; font-size: 0.8rem; color: var(--text-muted); }
     footer a { color: var(--accent); }
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+    .navbar a:hover { color: var(--accent); }
+    .navbar .brand { font-weight: 600; color: var(--text); }
+    .navbar-links { display: flex; gap: 1.5rem; }
   </style>
 </head>
 <body>
+  <nav class="navbar">
+    <a href="./" class="brand">Job Loss Hedging</a>
+    <div class="navbar-links">
+      <a href="paper.html">Paper</a>
+      <a href="./">Rerun tests</a>
+      <a href="about.html">Our Teams</a>
+    </div>
+  </nav>
+
   <div class="container">
     <h1>Job Loss Hedging Model</h1>
     <p class="subtitle">Enter your profile to run a Monte Carlo simulation</p>
