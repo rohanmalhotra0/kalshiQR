@@ -22,6 +22,8 @@ FORM_HTML = """
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Job Loss Hedging — Inputs</title>
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -193,6 +195,16 @@ def documentation():
 def about():
     path = Path(__file__).parent / "about.html"
     return path.read_text(encoding="utf-8") if path.exists() else "About not found", 404
+
+
+@app.route("/favicon.png")
+def favicon():
+    return send_from_directory(Path(__file__).parent, "favicon.png", mimetype="image/png")
+
+
+@app.route("/apple-touch-icon.png")
+def apple_touch_icon():
+    return send_from_directory(Path(__file__).parent, "apple-touch-icon.png", mimetype="image/png")
 
 
 @app.route("/currentModel.pdf")
