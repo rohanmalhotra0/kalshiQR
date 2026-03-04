@@ -21,7 +21,7 @@ FORM_HTML = """
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Job Loss Hedging — Inputs</title>
+  <title>NYU BnF x Kalshi — Hedge your income against job loss</title>
   <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -95,13 +95,13 @@ FORM_HTML = """
 </head>
 <body>
   <nav class="navbar">
-    <a href="/" class="brand">Job Loss Hedging</a>
+    <a href="/" class="brand">NYU BnF x Kalshi</a>
     <div class="navbar-links">
       <a href="/paper">Paper</a>
       <a href="/quiz">Quiz</a>
       <a href="/live-demo">Live Demo</a>
       <a href="/documentation">Documentation</a>
-      <a href="/about">Our Teams</a>
+      <a href="/about">Our Team</a>
     </div>
   </nav>
 
@@ -112,7 +112,7 @@ FORM_HTML = """
   </div>
 
   <div class="container" style="margin-top:0;">
-    <h1>Job Loss Hedging Model</h1>
+    <h1>Hedge your income against job loss</h1>
     <p class="subtitle">Enter your profile to run a Monte Carlo simulation</p>
 
     <form method="POST" action="/quiz" class="form-grid">

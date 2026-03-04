@@ -135,7 +135,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Job Loss Hedging Model — Dashboard</title>
+  <title>NYU BnF x Kalshi — Dashboard</title>
   <link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
@@ -306,99 +306,99 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
 </head>
 <body>
   <nav class="navbar">
-    <a href="./" class="brand">Job Loss Hedging</a>
+    <a href="./" class="brand">NYU BnF x Kalshi</a>
     <div class="navbar-links">
       <a href="paper.html">Paper</a>
       <a href="quiz.html">Quiz</a>
       <a href="live-demo.html">Live Demo</a>
       <a href="documentation.html">Documentation</a>
-      <a href="about.html">Our Teams</a>
+      <a href="about.html">Our Team</a>
     </div>
   </nav>
 
   <div class="container">
     <header>
-      <h1>Job Loss Hedging Model</h1>
+      <h1>Hedge your income against job loss</h1>
       <p class="subtitle">Monte Carlo simulation — {len(incomes_no):,} paths, {len(results[0].unemployment_path) // 52} year horizon</p>
       <p class="subtitle" style="margin-top:0.25rem;font-size:0.8rem;">{inputs_str}</p>
     </header>
 
     <div class="model-assumptions">
-      <strong>Model structure:</strong> Employment state E_t ∈ {{0,1}} with transitions employed → unemployed → employed. Unemployment duration T ~ Exp(μ), μ = 20 weeks (BLS). Job loss via Poisson hazard λ_t driven by macro unemployment. Hedge: binary Kalshi contracts on unemployment threshold.
+      <strong>How we model your career:</strong> You're either employed or unemployed. If you lose your job, you're typically back to work within ~5 months (based on government data). Job loss risk rises when unemployment is high. The hedge pays out when US unemployment exceeds a set level.
     </div>
 
     <div class="metrics-row">
       <div class="metric-card">
-        <h3>Mean (no hedge)</h3>
+        <h3>Average income (no protection)</h3>
         <div class="value">${rn.mean:,.0f}</div>
-        <p class="metric-desc">Average total income over the horizon without hedge contracts.</p>
+        <p class="metric-desc">What you'd earn on average over {out.get('inputs', {}).get('horizon_years', 10)} years if you never buy any hedge.</p>
       </div>
       <div class="metric-card">
-        <h3>Mean (with hedge)</h3>
+        <h3>Average income (with hedge)</h3>
         <div class="value green">${rh.mean:,.0f}</div>
-        <p class="metric-desc">Average total income with hedge (cost + payouts).</p>
+        <p class="metric-desc">What you'd earn on average after buying the hedge (includes what you pay upfront and any payouts you receive).</p>
       </div>
       <div class="metric-card">
-        <h3>ES 5% (worst case)</h3>
+        <h3>Worst 5% of outcomes</h3>
         <div class="value">${rn.expected_shortfall_5pct:,.0f} → ${rh.expected_shortfall_5pct:,.0f}</div>
-        <p class="metric-desc"><strong>ES</strong> = Expected Shortfall. Average income in the worst 5% of outcomes.</p>
+        <p class="metric-desc">In the unluckiest 5% of scenarios, this is how much you'd earn on average. Higher is better.</p>
       </div>
       <div class="metric-card">
-        <h3>P(drop &gt; 50%)</h3>
+        <h3>Chance of big income drop</h3>
         <div class="value amber">{rn.tail_prob_50pct_drop:.1%} → {rh.tail_prob_50pct_drop:.1%}</div>
-        <p class="metric-desc">Probability income drops &gt;50% vs full employment.</p>
+        <p class="metric-desc">How often your income falls by more than half compared to never losing your job.</p>
       </div>
       <div class="metric-card">
-        <h3>Recommended contracts</h3>
+        <h3>Contracts to buy</h3>
         <div class="value">{h_star:,}</div>
-        <p class="metric-desc">~6 months salary coverage. Each pays $1 if unemployment exceeds threshold.</p>
+        <p class="metric-desc">We recommend enough to cover ~6 months of pay. Each contract pays $1 if unemployment gets high enough.</p>
       </div>
       <div class="metric-card">
-        <h3>Variance reduction</h3>
+        <h3>Income stability</h3>
         <div class="value {'green' if out.get('variance_reduction_pct', 0) > 0 else 'amber'}">{out.get('variance_reduction_pct', 0):.1f}%</div>
-        <p class="metric-desc">(Var no hedge − Var hedge) / Var no hedge. Negative = hedge adds variance.</p>
+        <p class="metric-desc">How much the hedge smooths your income. Positive = more stable. Negative = hedge can add ups and downs.</p>
       </div>
       <div class="metric-card">
-        <h3>Hazard β₀</h3>
+        <h3>Your job-loss risk level</h3>
         <div class="value">{params.beta0:.3f}</div>
-        <p class="metric-desc">Hazard model intercept. More negative = lower baseline job-loss risk.</p>
+        <p class="metric-desc">A number from our model. More negative = lower chance of losing your job overall.</p>
       </div>
     </div>
 
     <div class="hedge-summary">
-      <strong>Hedge:</strong> Buy <strong>{h_star:,} contracts</strong> (&quot;Will US unemployment exceed {hedge_threshold:.1f}%?&quot;) at ${contract_price:.2f} each → cost <strong>${total_cost:,.0f}</strong>, payout <strong>${h_star:,}</strong> if triggered. Triggers in <strong>{hedge_payout_rate:.1f}%</strong> of paths. Target: ~6 months salary.
+      <strong>Bottom line:</strong> Buy <strong>{h_star:,} contracts</strong> that pay out if US unemployment exceeds {hedge_threshold:.1f}%. You pay <strong>${total_cost:,.0f}</strong> upfront. If unemployment gets that high, you receive <strong>${h_star:,}</strong> — enough to cover about 6 months of pay. In our simulation, that happens in <strong>{hedge_payout_rate:.1f}%</strong> of scenarios.
     </div>
 
     <div class="chart-grid">
       <div class="chart-card" style="grid-column: 1 / -1;">
-        <h2>Figure 1: Income Distribution (Probability Density)</h2>
+        <h2>What your income could look like over 10 years</h2>
         <div id="chart1" class="chart"></div>
-        <p class="chart-note">Overlaid density histograms with vertical lines: Mean (no hedge) ${rn.mean:,.0f}, Mean (with hedge) ${rh.mean:,.0f}, Full employment ${baseline:,.0f}. P(drop&gt;50%) = {rn.tail_prob_50pct_drop:.1%} → {rh.tail_prob_50pct_drop:.1%}.</p>
+        <p class="chart-note">Purple = no hedge. Green = with hedge. The vertical lines show average income in each case. Most people cluster near full employment (gray line); some paths have job loss and lower income.</p>
       </div>
       <div class="chart-card">
-        <h2>Figure 2: CDF — P(Income ≤ x)</h2>
+        <h2>Chance your income stays below a given amount</h2>
         <div id="chart2" class="chart"></div>
-        <p class="chart-note">Cumulative distribution. Read P(income &lt; 800k) or P(income &lt; 600k) directly from the curve.</p>
+        <p class="chart-note">Follow the curve: at $800k, you can read the chance your total income is below that. Lower curve = hedge helps protect you.</p>
       </div>
       <div class="chart-card">
-        <h2>Figure 3: Survival Curve — P(Still Employed)</h2>
+        <h2>How many people still have a job each year</h2>
         <div id="chart3" class="chart"></div>
-        <p class="chart-note">Fraction of paths still employed at each year. Mean job loss year: {avg_year_loss:.1f}.</p>
+        <p class="chart-note">Starts at 100%. Drops as people lose jobs. On average, job loss happens around year {avg_year_loss:.1f} when it does occur.</p>
       </div>
       <div class="chart-card">
-        <h2>Figure 4: Hedge Payoff Activation</h2>
+        <h2>When does the hedge pay out?</h2>
         <div id="chart4" class="chart"></div>
-        <p class="chart-note">Distribution of max unemployment per path. Vertical line at threshold {hedge_threshold:.1f}%. Hedge pays in {hedge_payout_rate:.1f}% of paths.</p>
+        <p class="chart-note">This shows how high unemployment gets in each scenario. The green line is our trigger: when unemployment goes above {hedge_threshold:.1f}%, the hedge pays. That happens in {hedge_payout_rate:.1f}% of our simulations.</p>
       </div>
       <div class="chart-card">
-        <h2>Job Loss Timing (Density)</h2>
+        <h2>When do people lose their jobs?</h2>
         <div id="chart5" class="chart"></div>
-        <p class="chart-note"><strong>Paths with job loss:</strong> {n_job_losses:,} ({pct_job_loss:.1f}%) · Mean year: {avg_year_loss:.1f} · Median year: {median_year_loss:.1f}.</p>
+        <p class="chart-note">{n_job_losses:,} out of {n_paths:,} simulated careers ({pct_job_loss:.1f}%) had at least one job loss. When it happened, the average was around year {avg_year_loss:.1f}.</p>
       </div>
       <div class="chart-card" style="grid-column: 1 / -1;">
-        <h2>Sample Unemployment Paths</h2>
+        <h2>Example unemployment paths we simulated</h2>
         <div id="chart6" class="chart" style="height: 360px;"></div>
-        <p class="chart-note"><strong>Mean unemployment:</strong> {mean_u:.2f}% · First 20 of {n_paths:,} paths.</p>
+        <p class="chart-note">Each line is one possible future for US unemployment. When it spikes, job loss is more likely. Average across all paths: {mean_u:.2f}%.</p>
       </div>
     </div>
 
@@ -427,8 +427,8 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       ],
       layout: {{
         ...commonLayout,
-        xaxis: {{ ...commonLayout.xaxis, title: 'Income ($)', range: [0, {x_max}] }},
-        yaxis: {{ ...commonLayout.yaxis, title: 'Probability Density' }},
+        xaxis: {{ ...commonLayout.xaxis, title: 'Total income over 10 years ($)', range: [0, {x_max}] }},
+        yaxis: {{ ...commonLayout.yaxis, title: 'How often this happens' }},
         barmode: 'overlay',
         bargap: 0.05,
         shapes: [
@@ -453,8 +453,8 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       ],
       layout: {{
         ...commonLayout,
-        xaxis: {{ ...commonLayout.xaxis, title: 'Income ($)' }},
-        yaxis: {{ ...commonLayout.yaxis, title: 'P(Income ≤ x)', range: [0, 1.02] }}
+        xaxis: {{ ...commonLayout.xaxis, title: 'Total income ($)' }},
+        yaxis: {{ ...commonLayout.yaxis, title: 'Chance income is below this amount', range: [0, 1.02] }}
       }},
       config: {{ responsive: true }}
     }};
@@ -466,14 +466,14 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         y: {json.dumps(survival_probs)},
         type: 'scatter',
         mode: 'lines+markers',
-        name: 'P(still employed)',
+        name: 'Still employed',
         line: {{ color: '#f59e0b', width: 2 }},
         marker: {{ size: 6 }}
       }}],
       layout: {{
         ...commonLayout,
         xaxis: {{ ...commonLayout.xaxis, title: 'Year', tickformat: ',.0f' }},
-        yaxis: {{ ...commonLayout.yaxis, title: 'P(Still Employed) (%)', range: [0, 105] }},
+        yaxis: {{ ...commonLayout.yaxis, title: '% still employed', range: [0, 105] }},
         showlegend: false
       }},
       config: {{ responsive: true }}
@@ -490,10 +490,10 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       }}],
       layout: {{
         ...commonLayout,
-        xaxis: {{ ...commonLayout.xaxis, title: 'Max unemployment (%)' }},
-        yaxis: {{ ...commonLayout.yaxis, title: 'Probability Density' }},
+        xaxis: {{ ...commonLayout.xaxis, title: 'Highest unemployment reached (%)' }},
+        yaxis: {{ ...commonLayout.yaxis, title: 'How often' }},
         shapes: [{{ type: 'line', x0: {hedge_threshold}, x1: {hedge_threshold}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dash', color: '#22c55e', width: 2 }} }}],
-        annotations: [{{ x: {hedge_threshold}, y: 1, yref: 'paper', text: 'Threshold', showarrow: false, font: {{ size: 9, color: '#22c55e' }}, xanchor: 'left' }}],
+        annotations: [{{ x: {hedge_threshold}, y: 1, yref: 'paper', text: 'Hedge pays when above this', showarrow: false, font: {{ size: 9, color: '#22c55e' }}, xanchor: 'left' }}],
         showlegend: false
       }},
       config: {{ responsive: true }}
@@ -533,7 +533,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       layout: {{
         ...commonLayout,
         xaxis: {{ ...commonLayout.xaxis, title: 'Week' }},
-        yaxis: {{ ...commonLayout.yaxis, title: 'Unemployment (%)' }},
+        yaxis: {{ ...commonLayout.yaxis, title: 'US unemployment rate (%)' }},
         showlegend: false
       }},
       config: {{ responsive: true }}

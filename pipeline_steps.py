@@ -48,8 +48,8 @@ def run_pipeline_steps(
 
     # Step 1: Personal inputs
     steps.append({
-        "title": "Step 1: Personal Inputs",
-        "formula": "Inputs from your profile",
+        "title": "Step 1: Your profile",
+        "formula": "We start with your job, salary, and how far ahead you want to plan.",
         "inputs": {
             "industry": industry,
             "company_size": company_size,
@@ -65,10 +65,10 @@ def run_pipeline_steps(
     # Step 2: Industry risk
     ind_risk = industry_risk_from_personal(industry, company_size, job_level)
     steps.append({
-        "title": "Step 2: Industry Risk Score",
-        "formula": "ind_risk = f(industry, company_size, job_level) ∈ [0, 1]",
+        "title": "Step 2: Your job-loss risk level",
+        "formula": "Tech startups and entry-level roles tend to have higher layoff risk than government or executive roles.",
         "inputs": {"industry": industry, "company_size": company_size, "job_level": job_level},
-        "output": f"ind_risk = {ind_risk:.4f}",
+        "output": f"Your risk score: {ind_risk:.2f} (0 = safest, 1 = riskiest)",
     })
 
     # Step 3: Hazard model params
@@ -97,8 +97,8 @@ def run_pipeline_steps(
 
     u_sample = 4.0
     steps.append({
-        "title": "Step 3: Hazard Model Parameters",
-        "formula": "P(JobLoss) = σ(β₀ + β₁·U_t + β₂·ind_risk + β₃·r_t)",
+        "title": "Step 3: How we estimate job-loss chance",
+        "formula": "Job loss is more likely when unemployment is high, interest rates change, and your industry is risky. We use a standard model (logistic regression) to combine these.",
         "params": {
             "beta0": params.beta0,
             "beta_unemployment": params.beta_unemployment,
@@ -112,23 +112,23 @@ def run_pipeline_steps(
     x = params.beta0 + params.beta_unemployment * u_sample + params.beta_industry * ind_risk + params.beta_interest_rate * rate
     p_monthly = float(1 / (1 + np.exp(-np.clip(x, -500, 500))))
     steps.append({
-        "title": "Step 4: Hazard Calculation (example: U=4%, r=4%)",
-        "formula": "x = β₀ + β₁·U + β₂·ind_risk + β₃·r  →  P = σ(x) = 1/(1+e⁻ˣ)",
+        "title": "Step 4: Your monthly job-loss chance (example)",
+        "formula": "Plugging in typical numbers (4% unemployment, 4% interest rate), we get your chance of losing your job in any given month.",
         "calc": {
             "x": x,
             "p_monthly": p_monthly,
         },
-        "output": f"x = {x:.4f}  →  P(JobLoss, monthly) = {p_monthly:.6f}",
+        "output": f"About {p_monthly*100:.2f}% chance per month (very low — most people keep their job)",
     })
 
     # Step 5: Weekly λ
     lam = prob_to_weekly_hazard(p_monthly)
     lam_capped = min(lam, 0.005)
     steps.append({
-        "title": "Step 5: Weekly Hazard Rate λ",
-        "formula": "λ = -log(1 - P_monthly) / 4.33  (weeks per month); capped at 0.5%/week",
+        "title": "Step 5: Weekly job-loss chance",
+        "formula": "We convert monthly chance to weekly so we can simulate week-by-week. This drives how often job loss happens in our simulation.",
         "calc": {"lambda_raw": lam, "lambda_capped": lam_capped},
-        "output": f"λ = {lam_capped:.6f} per week",
+        "output": f"About {lam_capped*100:.2f}% chance per week",
     })
 
     # Step 6: Monte Carlo
@@ -164,8 +164,8 @@ def run_pipeline_steps(
     hedge_trigger_pct = 100 * hedge_payout_count / n_paths
 
     steps.append({
-        "title": "Step 6: Monte Carlo Simulation",
-        "formula": "For each path: simulate U(t), compute λ(t), Poisson job loss, reemployment T~Exp(20 wk)",
+        "title": "Step 6: Simulating thousands of possible careers",
+        "formula": f"We run {n_paths:,} different scenarios. In each one, unemployment moves up and down, you might lose your job (and get rehired after ~5 months), and we track your total income.",
         "inputs": {
             "n_paths": n_paths,
             "horizon_weeks": cfg.horizon_weeks,
@@ -187,28 +187,28 @@ def run_pipeline_steps(
     h_star = optimal_hedge_ratio(losses, hedge_binary)
 
     steps.append({
-        "title": "Step 7: Optimal Hedge Ratio h*",
-        "formula": "h* = Cov(Loss, Hedge) / Var(Hedge)",
+        "title": "Step 7: How well does the hedge match your risk?",
+        "formula": "We compare your income loss to when the hedge pays. If they line up (you lose income when unemployment spikes), the hedge helps. The math: covariance of loss and hedge payout, divided by hedge variance.",
         "calc": {
             "cov_loss_hedge": cov_lh,
             "var_hedge": var_h,
             "h_star": h_star,
         },
-        "output": f"h* = {cov_lh:.2f} / {var_h:.4f} = {h_star:.2f}",
+        "output": f"Optimal hedge ratio: {h_star:.1f} (how many contracts best offset your risk)",
     })
 
     # Step 8: Hedge recommendation
     total_cost = n_contracts * contract_price
     steps.append({
-        "title": "Step 8: Hedge Recommendation",
-        "formula": "n_contracts = salary × (6/12); cost = n × price; payout = n if U_max > threshold",
+        "title": "Step 8: What to buy",
+        "formula": "We recommend enough contracts to cover ~6 months of pay (typical unemployment spell). You pay upfront; if unemployment gets high enough, you get a payout.",
         "output": {
-            "n_contracts": n_contracts,
-            "contract_price": contract_price,
-            "total_cost": total_cost,
-            "payout_if_triggered": n_contracts,
-            "hedge_threshold": hedge_threshold,
-            "hedge_trigger_pct": hedge_trigger_pct,
+            "Contracts to buy": n_contracts,
+            "Price per contract": f"${contract_price:.2f}",
+            "Total upfront cost": f"${total_cost:,.0f}",
+            "Payout if triggered": f"${n_contracts:,}",
+            "Triggers when unemployment exceeds": f"{hedge_threshold:.1f}%",
+            "Chance it triggers in our simulation": f"{hedge_trigger_pct:.1f}%",
         },
     })
 
