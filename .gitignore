@@ -1,0 +1,7 @@
+# Local env with API keys (never commit)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
