@@ -11,7 +11,7 @@ load_config()
 
 def main():
     from pipeline_steps import run_pipeline_steps
-    from render_live_demo import render_steps_html, render_demo_options
+    from render_live_demo import render_steps_html, render_demo_options, render_bottom_line
 
     data = run_pipeline_steps(
         n_paths=1500,
@@ -22,10 +22,10 @@ def main():
         job_level="entry",
         seed=42,
     )
-    steps_html = render_steps_html(data["steps"])
+    steps_html = render_steps_html(data["steps"]) + render_bottom_line(data["steps"])
     industry_options, company_options, job_options = render_demo_options("tech", "startup", "entry")
 
-    template = Path(__file__).parent / "live_demo.html"
+    template = Path(__file__).parent / "templates" / "live_demo.html"
     html = template.read_text(encoding="utf-8")
     html = html.replace("{{ industry_options }}", industry_options)
     html = html.replace("{{ company_options }}", company_options)

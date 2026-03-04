@@ -44,18 +44,17 @@ jobs:
         run: |
           rm -rf site
           mkdir -p site
-          # index.html = landing. quiz.html = form. dashboard.html = results.
-          cp landing.html site/index.html
-          cp quiz.html site/quiz.html
+          cp pages/landing.html site/index.html
+          cp pages/quiz.html site/quiz.html
           cp dashboard.html site/dashboard.html
-          cp paper.html site/paper.html
-          cp documentation.html site/documentation.html
-          cp about.html site/about.html
+          cp pages/paper.html site/paper.html
+          cp pages/documentation.html site/documentation.html
+          cp pages/about.html site/about.html
           cp live-demo.html site/live-demo.html
-          cp live_demo_pipeline.js site/live_demo_pipeline.js
-          [ -f currentModel.pdf ] && cp currentModel.pdf site/ || true
-          [ -f favicon.png ] && cp favicon.png site/ || true
-          [ -f apple-touch-icon.png ] && cp apple-touch-icon.png site/ || true
+          cp static/live_demo_pipeline.js site/
+          cp static/favicon.png site/
+          cp static/apple-touch-icon.png site/
+          cp paper/currentModel.pdf site/
           touch site/.nojekyll
           grep -q "Get Started" site/index.html && echo "OK: index.html is the landing page"
 

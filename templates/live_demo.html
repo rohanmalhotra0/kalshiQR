@@ -145,7 +145,8 @@
             try {
               var opts = getOpts();
               var data = LiveDemoPipeline.runPipelineSteps(opts);
-              container.innerHTML = LiveDemoPipeline.renderStepsHtml(data.steps);
+              container.innerHTML = LiveDemoPipeline.renderStepsHtml(data.steps) +
+                (data.bottomLine ? LiveDemoPipeline.renderBottomLine(data.bottomLine) : '');
             } catch (e) {
               container.innerHTML = '<p style="color:#ef4444;">Error: ' + e.message + '</p>';
             }
@@ -165,6 +166,18 @@
           inp.addEventListener('input', debouncedRun);
         });
         runBtn.addEventListener('click', run);
+
+        var params = new URLSearchParams(window.location.search);
+        if (params.toString()) {
+          ['industry', 'company_size', 'job_level', 'salary', 'n_paths', 'horizon_years'].forEach(function(name) {
+            var v = params.get(name);
+            if (v) {
+              var el = form.elements[name];
+              if (el) { el.value = v; if (el.tagName === 'SELECT') el.dispatchEvent(new Event('change')); }
+            }
+          });
+          run();
+        }
       })();
     </script>
   </div>

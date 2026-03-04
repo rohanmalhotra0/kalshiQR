@@ -112,10 +112,27 @@
           <input type="number" name="horizon_years" value="10" min="1" max="30">
         </div>
       </div>
-      <a href="dashboard.html" class="btn btn-primary">View sample dashboard</a>
+      <div class="row">
+        <button type="button" id="run-btn" class="btn btn-primary">Run with my inputs</button>
+        <a href="dashboard.html" class="btn" style="background:var(--surface);color:var(--text);border:1px solid var(--border);">View sample ($120k)</a>
+      </div>
     </form>
 
-    <p class="note">This page shows a pre-generated sample. For custom simulations with your inputs, clone the repo and run <code>python app.py</code>, or deploy the app to Render.</p>
+    <p class="note">"Run with my inputs" uses your salary and profile — contract count scales with your pay (e.g. $200k → 100,000 contracts). Sample dashboard is fixed at $120k.</p>
+
+    <script>
+      document.getElementById('run-btn').addEventListener('click', function() {
+        var form = document.getElementById('inputs-form');
+        var params = new URLSearchParams();
+        ['industry', 'company_size', 'job_level', 'tenure_years', 'salary', 'n_paths', 'horizon_years'].forEach(function(name) {
+          var el = form.elements[name];
+          if (el && el.value) params.set(name, el.value);
+        });
+        var nPaths = parseInt(form.elements.n_paths?.value || 5000, 10);
+        params.set('n_paths', Math.min(5000, Math.max(500, nPaths)));
+        window.location.href = 'live-demo.html?' + params.toString();
+      });
+    </script>
 
     <footer>
       <p><a href="currentModel.pdf">Paper (PDF)</a> · <a href="https://github.com/nyu-bnf/modelKalshi">GitHub</a></p>

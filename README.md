@@ -2,7 +2,7 @@
 
 A Monte Carlo framework for hedging personal income risk using prediction market contracts (e.g., Kalshi). The model simulates job-loss events via a macro-sensitive hazard process and evaluates how unemployment-linked contracts reduce tail risk in income distributions.
 
-**Paper:** [currentModel.pdf](currentModel.pdf) — *Hedging Personal Income Risk Using Prediction Markets* (Jayachandran, Lin, Malhotra)
+**Paper:** [paper/currentModel.pdf](paper/currentModel.pdf) — *Hedging Personal Income Risk Using Prediction Markets* (Jayachandran, Lin, Malhotra)
 
 ---
 
@@ -69,6 +69,48 @@ Kalshi contracts are binary (\$1 if event occurs, \$0 otherwise). The minimum-va
 $$
 h^* = \frac{\text{Cov}(\text{Loss}, \text{Hedge})}{\text{Var}(\text{Hedge})}
 $$
+
+---
+
+## Project Structure
+
+```
+modelKalshi/
+├── app.py                    # Flask web app
+├── pipeline.py               # Main pipeline
+├── pipeline_steps.py         # Step-by-step for live demo
+├── hazard_model.py           # Job-loss hazard model
+├── monte_carlo.py            # Monte Carlo simulation
+├── hedge_model.py            # Kalshi hedge logic
+├── data_fetcher.py           # FRED/BLS data
+├── kalshi_client.py          # Kalshi API
+├── config.py                 # Env config
+├── generate_dashboard.py     # Build dashboard HTML
+├── generate_live_demo_static.py
+├── render_live_demo.py       # Live demo HTML renderer
+├── run_model.py              # CLI runner
+├── stochastic_model.py       # Poisson/stochastic helpers
+├── templates/                # Flask templates
+│   └── live_demo.html
+├── pages/                    # Static HTML pages
+│   ├── landing.html
+│   ├── quiz.html
+│   ├── paper.html
+│   ├── documentation.html
+│   └── about.html
+├── static/                   # Assets
+│   ├── favicon.png
+│   ├── apple-touch-icon.png
+│   └── live_demo_pipeline.js
+├── paper/                    # Model paper
+│   ├── currentModel.tex
+│   └── currentModel.pdf
+├── docs/                     # Additional docs
+│   └── README_data.md
+├── dashboard.html            # Generated
+├── live-demo.html            # Generated
+└── requirements.txt
+```
 
 ---
 

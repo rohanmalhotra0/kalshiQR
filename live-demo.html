@@ -121,7 +121,9 @@
 <div class="step-card"><h2>Step 5: Weekly job-loss chance</h2><div class="formula">We convert monthly chance to weekly so we can simulate week-by-week. This drives how often job loss happens in our simulation.</div><div class="calc"><strong>lambda_raw:</strong> 0.000491 <strong>lambda_capped:</strong> 0.000491 </div><div class="output">→ About 0.05% chance per week</div></div>
 <div class="step-card"><h2>Step 6: Simulating thousands of possible careers</h2><div class="formula">We run 1,500 different scenarios. In each one, unemployment moves up and down, you might lose your job (and get rehired after ~5 months), and we track your total income.</div><div class="inputs"><strong>n_paths:</strong> 1,500 <strong>horizon_weeks:</strong> 520 <strong>baseline_income:</strong> 1,200,000 </div><div class="output">job_loss_rate_pct: 23.8000<br>mean_income_no_hedge: 1,187,564.62<br>mean_income_with_hedge: 1,180,124.62<br>hedge_trigger_pct: 17.6000<br></div></div>
 <div class="step-card"><h2>Step 7: How well does the hedge match your risk?</h2><div class="formula">We compare your income loss to when the hedge pays. If they line up (you lose income when unemployment spikes), the hedge helps. The math: covariance of loss and hedge payout, divided by hedge variance.</div><div class="calc"><strong>cov_loss_hedge:</strong> -28.646790 <strong>var_hedge:</strong> 0.145024 <strong>h_star:</strong> -197.531375 </div><div class="output">→ Optimal hedge ratio: -197.5 (how many contracts best offset your risk)</div></div>
-<div class="step-card"><h2>Step 8: What to buy</h2><div class="formula">We recommend enough contracts to cover ~6 months of pay (typical unemployment spell). You pay upfront; if unemployment gets high enough, you get a payout.</div><div class="output">Contracts to buy: 60,000.00<br>Price per contract: $0.30<br>Total upfront cost: $18,000<br>Payout if triggered: $60,000<br>Triggers when unemployment exceeds: 8.0%<br>Chance it triggers in our simulation: 17.6%<br></div></div></div>
+<div class="step-card"><h2>Step 8: What to buy</h2><div class="formula">We recommend enough contracts to cover ~6 months of pay (typical unemployment spell). You pay upfront; if unemployment gets high enough, you get a payout.</div><div class="output">Contracts to buy: 60,000.00<br>Price per contract: $0.30<br>Total upfront cost: $18,000<br>Payout if triggered: $60,000<br>Triggers when unemployment exceeds: 8.0%<br>Chance it triggers in our simulation: 17.6%<br></div></div><div class="hedge-summary" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-top:1rem;font-size:0.95rem;line-height:1.6;">
+<strong>Bottom line:</strong> Buy <strong>60,000 contracts</strong> that pay out if US unemployment exceeds 8.0%. You pay <strong>$18,000</strong> upfront. If unemployment gets that high, you receive <strong>$60,000</strong> — enough to cover about 6 months of pay. In our simulation, that happens in <strong>17.6%</strong> of scenarios.
+</div></div>
 
     <script src="live_demo_pipeline.js"></script>
     <script>
@@ -152,7 +154,8 @@
             try {
               var opts = getOpts();
               var data = LiveDemoPipeline.runPipelineSteps(opts);
-              container.innerHTML = LiveDemoPipeline.renderStepsHtml(data.steps);
+              container.innerHTML = LiveDemoPipeline.renderStepsHtml(data.steps) +
+                (data.bottomLine ? LiveDemoPipeline.renderBottomLine(data.bottomLine) : '');
             } catch (e) {
               container.innerHTML = '<p style="color:#ef4444;">Error: ' + e.message + '</p>';
             }
@@ -172,6 +175,18 @@
           inp.addEventListener('input', debouncedRun);
         });
         runBtn.addEventListener('click', run);
+
+        var params = new URLSearchParams(window.location.search);
+        if (params.toString()) {
+          ['industry', 'company_size', 'job_level', 'salary', 'n_paths', 'horizon_years'].forEach(function(name) {
+            var v = params.get(name);
+            if (v) {
+              var el = form.elements[name];
+              if (el) { el.value = v; if (el.tagName === 'SELECT') el.dispatchEvent(new Event('change')); }
+            }
+          });
+          run();
+        }
       })();
     </script>
   </div>

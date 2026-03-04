@@ -282,7 +282,10 @@
       },
     });
 
-    return { steps };
+    return {
+      steps,
+      bottomLine: { nContracts, totalCost, hedgeTriggerPct, hedgeThreshold },
+    };
   }
 
   function renderStepsHtml(steps) {
@@ -335,8 +338,24 @@
     return parts.join('\n');
   }
 
+  function renderBottomLine(bl) {
+    if (!bl) return '';
+    const n = bl.nContracts;
+    const cost = Math.round(bl.totalCost);
+    const pct = bl.hedgeTriggerPct.toFixed(1);
+    const thresh = bl.hedgeThreshold;
+    return (
+      '<div class="hedge-summary" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-top:1rem;font-size:0.95rem;line-height:1.6;">' +
+      '<strong>Bottom line:</strong> Buy <strong>' + n.toLocaleString() + ' contracts</strong> that pay out if US unemployment exceeds ' + thresh + '%. ' +
+      'You pay <strong>$' + cost.toLocaleString() + '</strong> upfront. If unemployment gets that high, you receive <strong>$' + n.toLocaleString() + '</strong> — ' +
+      'enough to cover about 6 months of pay. In our simulation, that happens in <strong>' + pct + '%</strong> of scenarios.' +
+      '</div>'
+    );
+  }
+
   global.LiveDemoPipeline = {
     runPipelineSteps,
     renderStepsHtml,
+    renderBottomLine,
   };
 })(typeof window !== 'undefined' ? window : this);

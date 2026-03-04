@@ -4,4 +4,14 @@
 # Python
 __pycache__/
 *.py[cod]
+*.pyo
 .venv/
+venv/
+
+# LaTeX build artifacts (keep .tex and .pdf)
+paper/*.aux
+paper/*.log
+paper/missfont.log
+
+# Build output
+site/

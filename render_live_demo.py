@@ -62,6 +62,32 @@ def render_steps_html(steps: list) -> str:
     return '\n'.join(html_parts) if html_parts else '<p class="subtitle">Enter parameters above and click Run to see the step-by-step math.</p>'
 
 
+def render_bottom_line(steps: list) -> str:
+    """Render the 'Bottom line' hedge summary from step 8 data."""
+    for s in steps:
+        if s.get("title") == "Step 8: What to buy" and isinstance(s.get("output"), dict):
+            o = s["output"]
+            n = o.get("Contracts to buy", 0)
+            if isinstance(n, (int, float)):
+                n_int = int(n)
+            else:
+                try:
+                    n_int = int(float(str(n).replace(",", "")))
+                except (ValueError, TypeError):
+                    n_int = 0
+            cost_str = o.get("Total upfront cost", "$0")
+            try:
+                cost_int = int(float(str(cost_str).replace("$", "").replace(",", "")))
+            except (ValueError, TypeError):
+                cost_int = 0
+            pct = str(o.get("Chance it triggers in our simulation", "0%")).replace("%", "").strip()
+            thresh = str(o.get("Triggers when unemployment exceeds", "8%")).replace("%", "").strip()
+            return f'''<div class="hedge-summary" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-top:1rem;font-size:0.95rem;line-height:1.6;">
+<strong>Bottom line:</strong> Buy <strong>{n_int:,} contracts</strong> that pay out if US unemployment exceeds {thresh}%. You pay <strong>${cost_int:,}</strong> upfront. If unemployment gets that high, you receive <strong>${n_int:,}</strong> — enough to cover about 6 months of pay. In our simulation, that happens in <strong>{pct}%</strong> of scenarios.
+</div>'''
+    return ""
+
+
 def render_demo_options(industry: str, company_size: str, job_level: str) -> tuple:
     """Generate select options with current values selected."""
     industries = ["tech", "finance", "healthcare", "government"]

@@ -180,42 +180,48 @@ FORM_HTML = """
 @app.route("/paper")
 @app.route("/paper.html")
 def paper():
-    path = Path(__file__).parent / "paper.html"
-    return path.read_text(encoding="utf-8") if path.exists() else "Paper not found", 404
+    path = Path(__file__).parent / "pages" / "paper.html"
+    if path.exists():
+        return path.read_text(encoding="utf-8")
+    return "Paper not found", 404
 
 
 @app.route("/documentation")
 @app.route("/documentation.html")
 def documentation():
-    path = Path(__file__).parent / "documentation.html"
-    return path.read_text(encoding="utf-8") if path.exists() else "Documentation not found", 404
+    path = Path(__file__).parent / "pages" / "documentation.html"
+    if path.exists():
+        return path.read_text(encoding="utf-8")
+    return "Documentation not found", 404
 
 
 @app.route("/about")
 @app.route("/about.html")
 def about():
-    path = Path(__file__).parent / "about.html"
-    return path.read_text(encoding="utf-8") if path.exists() else "About not found", 404
+    path = Path(__file__).parent / "pages" / "about.html"
+    if path.exists():
+        return path.read_text(encoding="utf-8")
+    return "About not found", 404
 
 
 @app.route("/favicon.png")
 def favicon():
-    return send_from_directory(Path(__file__).parent, "favicon.png", mimetype="image/png")
+    return send_from_directory(Path(__file__).parent / "static", "favicon.png", mimetype="image/png")
 
 
 @app.route("/live_demo_pipeline.js")
 def live_demo_js():
-    return send_from_directory(Path(__file__).parent, "live_demo_pipeline.js", mimetype="application/javascript")
+    return send_from_directory(Path(__file__).parent / "static", "live_demo_pipeline.js", mimetype="application/javascript")
 
 
 @app.route("/apple-touch-icon.png")
 def apple_touch_icon():
-    return send_from_directory(Path(__file__).parent, "apple-touch-icon.png", mimetype="image/png")
+    return send_from_directory(Path(__file__).parent / "static", "apple-touch-icon.png", mimetype="image/png")
 
 
 @app.route("/currentModel.pdf")
 def send_pdf():
-    return send_from_directory(Path(__file__).parent, "currentModel.pdf")
+    return send_from_directory(Path(__file__).parent / "paper", "currentModel.pdf")
 
 
 @app.route("/dashboard.html")
@@ -223,13 +229,15 @@ def dashboard():
     path = Path(__file__).parent / "dashboard.html"
     if not path.exists():
         return "Dashboard not found. Run generate_dashboard.py first.", 404
-    return send_from_directory(Path(__file__).parent, "dashboard.html", mimetype="text/html")
+    return send_from_directory(Path(__file__).parent, "dashboard.html", mimetype="text/html")  # generated at root
 
 
 @app.route("/")
 def index():
-    path = Path(__file__).parent / "landing.html"
-    return path.read_text(encoding="utf-8") if path.exists() else "Landing not found", 404
+    path = Path(__file__).parent / "pages" / "landing.html"
+    if path.exists():
+        return path.read_text(encoding="utf-8")
+    return "Landing not found", 404
 
 
 @app.route("/live-demo", methods=["GET", "POST"])
@@ -266,7 +274,7 @@ def live_demo():
         import traceback
         steps_html = f'<p style="color:#ef4444;">Error: {e}</p><pre style="font-size:0.8rem;overflow:auto;">{traceback.format_exc()}</pre>'
 
-    template = (Path(__file__).parent / "live_demo.html").read_text(encoding="utf-8")
+    template = (Path(__file__).parent / "templates" / "live_demo.html").read_text(encoding="utf-8")
     return render_template_string(
         template,
         industry_options=industry_options,
