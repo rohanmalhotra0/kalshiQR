@@ -150,15 +150,10 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       margin-top: 0.25rem;
     }}
     .metrics-row {{
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-      align-items: stretch;
-    }}
-    .metrics-row .metric-card {{
-      flex: 1;
-      min-width: 140px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
     }}
     .hedge-summary {{
       background: var(--surface2);
@@ -173,32 +168,42 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     .metric-card {{
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.25rem;
-      transition: border-color 0.2s;
+      border-radius: 10px;
+      padding: 1.25rem 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }}
-    .metric-card:hover {{ border-color: var(--accent); }}
+    .metric-card:hover {{
+      border-color: rgba(99, 102, 241, 0.5);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }}
     .metric-card h3 {{
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: var(--text-muted);
-      margin-bottom: 0.5rem;
+      margin: 0;
+      line-height: 1.2;
     }}
     .metric-card .value {{
       font-family: 'JetBrains Mono', monospace;
-      font-size: 1.5rem;
+      font-size: 1.35rem;
       font-weight: 600;
-      color: var(--accent); }}
+      color: var(--accent);
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+    }}
     .metric-card.green .value {{ color: var(--accent2); }}
     .metric-card.amber .value {{ color: var(--accent3); }}
     .metric-card .metric-desc {{
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
-      margin-top: 0.35rem;
-      line-height: 1.3;
-      opacity: 0.9;
+      margin: 0;
+      line-height: 1.4;
+      opacity: 0.85;
     }}
     .chart-grid {{
       display: grid;
@@ -241,6 +246,13 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     .navbar a:hover {{ color: var(--accent); }}
     .navbar .brand {{ font-weight: 600; color: var(--text); }}
     .navbar-links {{ display: flex; gap: 1.5rem; }}
+    @media (max-width: 900px) {{
+      .metrics-row {{ grid-template-columns: repeat(2, 1fr); }}
+    }}
+    @media (max-width: 500px) {{
+      .metrics-row {{ grid-template-columns: 1fr; }}
+      .metric-card .value {{ font-size: 1.2rem; }}
+    }}
     footer {{
       padding: 2rem 0;
       text-align: center;
@@ -272,37 +284,37 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       <div class="metric-card">
         <h3>Mean (no hedge)</h3>
         <div class="value">${rn.mean:,.0f}</div>
-        <p class="metric-desc"><strong>Mean</strong> = average. Average total income over the horizon without buying any hedge contracts.</p>
+        <p class="metric-desc">Average total income over the horizon without hedge contracts.</p>
       </div>
       <div class="metric-card">
         <h3>Mean (with hedge)</h3>
         <div class="value green">${rh.mean:,.0f}</div>
-        <p class="metric-desc"><strong>Mean</strong> = average. Average total income after buying the recommended hedge contracts (includes cost and payouts).</p>
+        <p class="metric-desc">Average total income with hedge (cost + payouts).</p>
       </div>
       <div class="metric-card">
         <h3>ES 5% (worst case)</h3>
         <div class="value">${rn.expected_shortfall_5pct:,.0f} → ${rh.expected_shortfall_5pct:,.0f}</div>
-        <p class="metric-desc"><strong>ES</strong> = Expected Shortfall. Average income in the worst 5% of outcomes. Higher after hedge = better protection.</p>
+        <p class="metric-desc"><strong>ES</strong> = Expected Shortfall. Average income in the worst 5% of outcomes.</p>
       </div>
       <div class="metric-card">
         <h3>P(drop &gt; 50%)</h3>
         <div class="value amber">{rn.tail_prob_50pct_drop:.1%} → {rh.tail_prob_50pct_drop:.1%}</div>
-        <p class="metric-desc"><strong>P</strong> = probability. Chance your income drops by more than 50% vs full employment. Lower after hedge = less tail risk.</p>
+        <p class="metric-desc">Probability income drops &gt;50% vs full employment.</p>
       </div>
       <div class="metric-card">
         <h3>Recommended contracts</h3>
         <div class="value">{h_star:,}</div>
-        <p class="metric-desc"><strong>Target:</strong> ~6 months salary coverage (expected unemployment loss). Each contract pays $1 if unemployment exceeds threshold.</p>
+        <p class="metric-desc">~6 months salary coverage. Each pays $1 if unemployment exceeds threshold.</p>
       </div>
       <div class="metric-card">
         <h3>Variance reduction</h3>
         <div class="value {'green' if out.get('variance_reduction_pct', 0) > 0 else 'amber'}">{out.get('variance_reduction_pct', 0):.1f}%</div>
-        <p class="metric-desc"><strong>Var reduction</strong> = (Var(no hedge) − Var(hedge)) / Var(no hedge). Negative = hedge adds variance (weak correlation with job loss).</p>
+        <p class="metric-desc">(Var no hedge − Var hedge) / Var no hedge. Negative = hedge adds variance.</p>
       </div>
       <div class="metric-card">
         <h3>Hazard β₀</h3>
         <div class="value">{params.beta0:.3f}</div>
-        <p class="metric-desc"><strong>β₀</strong> = beta-nought, the intercept in the job-loss hazard model. More negative = lower baseline job-loss risk.</p>
+        <p class="metric-desc">Hazard model intercept. More negative = lower baseline job-loss risk.</p>
       </div>
     </div>
 
