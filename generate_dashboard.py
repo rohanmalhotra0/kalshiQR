@@ -254,7 +254,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     <a href="./" class="brand">Job Loss Hedging</a>
     <div class="navbar-links">
       <a href="paper.html">Paper</a>
-      <a href="./">Rerun tests</a>
+      <a href="quiz.html">Quiz</a>
       <a href="documentation.html">Documentation</a>
       <a href="about.html">Our Teams</a>
     </div>
@@ -333,7 +333,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     </div>
 
     <footer>
-      <p><a href="currentModel.pdf" style="color:var(--accent);">Paper (PDF)</a> · <a href="{GITHUB_REPO_URL}" style="color:var(--accent);">GitHub</a> · <a href="./" style="color:var(--accent);">← Change inputs & run again</a></p>
+      <p><a href="currentModel.pdf" style="color:var(--accent);">Paper (PDF)</a> · <a href="{GITHUB_REPO_URL}" style="color:var(--accent);">GitHub</a> · <a href="quiz.html" style="color:var(--accent);">← Run quiz again</a></p>
       <p style="margin-top:0.5rem;">Made by NYU BnF</p>
     </footer>
   </div>

@@ -98,9 +98,9 @@ FORM_HTML = """
     <a href="/" class="brand">Job Loss Hedging</a>
     <div class="navbar-links">
       <a href="/paper">Paper</a>
-      <a href="/">Rerun tests</a>
+      <a href="/quiz">Quiz</a>
       <a href="/documentation">Documentation</a>
-      <a href="/about">Our Team</a>
+      <a href="/about">Our Teams</a>
     </div>
   </nav>
 
@@ -114,7 +114,7 @@ FORM_HTML = """
     <h1>Job Loss Hedging Model</h1>
     <p class="subtitle">Enter your profile to run a Monte Carlo simulation</p>
 
-    <form method="POST" action="/" class="form-grid">
+    <form method="POST" action="/quiz" class="form-grid">
       <div>
         <label>Industry</label>
         <select name="industry">
@@ -212,8 +212,15 @@ def send_pdf():
     return send_from_directory(Path(__file__).parent, "currentModel.pdf")
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def index():
+    path = Path(__file__).parent / "landing.html"
+    return path.read_text(encoding="utf-8") if path.exists() else "Landing not found", 404
+
+
+@app.route("/quiz", methods=["GET", "POST"])
+@app.route("/quiz.html", methods=["GET", "POST"])
+def quiz():
     if request.method == "GET":
         return render_template_string(FORM_HTML, inputs={})
 

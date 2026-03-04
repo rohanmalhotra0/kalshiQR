@@ -41,8 +41,9 @@ jobs:
         run: |
           rm -rf site
           mkdir -p site
-          # index.html = form/quiz (landing page). dashboard.html = results.
-          cp static_form.html site/index.html
+          # index.html = landing. quiz.html = form. dashboard.html = results.
+          cp landing.html site/index.html
+          cp quiz.html site/quiz.html
           cp dashboard.html site/dashboard.html
           cp paper.html site/paper.html
           cp documentation.html site/documentation.html
@@ -51,7 +52,7 @@ jobs:
           [ -f favicon.png ] && cp favicon.png site/ || true
           [ -f apple-touch-icon.png ] && cp apple-touch-icon.png site/ || true
           touch site/.nojekyll
-          grep -q "Inputs" site/index.html && echo "OK: index.html is the form (quiz first)"
+          grep -q "Get Started" site/index.html && echo "OK: index.html is the landing page"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

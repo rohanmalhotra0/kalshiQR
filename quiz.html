@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Job Loss Hedging — Quiz</title>
+  <link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --surface: #18181c;
+      --text: #e4e4e7;
+      --text-muted: #8b8b94;
+      --accent: #6366f1;
+      --accent2: #22c55e;
+      --border: #2d2d35;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .container { max-width: 640px; margin: 0 auto; padding: 2rem; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+    .form-grid { display: grid; gap: 1.25rem; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    input, select { width: 100%; padding: 0.75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: inherit; font-size: 1rem; }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn { padding: 1rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; text-align: center; }
+    .btn-primary { background: var(--accent); color: white; width: 100%; margin-top: 0.5rem; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .note { font-size: 0.8rem; color: var(--text-muted); margin-top: 2rem; }
+    footer { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; font-size: 0.8rem; color: var(--text-muted); }
+    footer a { color: var(--accent); }
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+    .navbar a:hover { color: var(--accent); }
+    .navbar .brand { font-weight: 600; color: var(--text); }
+    .navbar-links { display: flex; gap: 1.5rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="./" class="brand">Job Loss Hedging</a>
+    <div class="navbar-links">
+      <a href="paper.html">Paper</a>
+      <a href="quiz.html">Quiz</a>
+      <a href="documentation.html">Documentation</a>
+      <a href="about.html">Our Teams</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Job Loss Hedging Model</h1>
+    <p class="subtitle">Enter your profile to run a Monte Carlo simulation</p>
+
+    <form class="form-grid" id="inputs-form">
+      <div>
+        <label>Industry</label>
+        <select name="industry">
+          <option value="tech" selected>Tech</option>
+          <option value="finance">Finance</option>
+          <option value="healthcare">Healthcare</option>
+          <option value="government">Government</option>
+        </select>
+      </div>
+      <div>
+        <label>Company Size</label>
+        <select name="company_size">
+          <option value="startup" selected>Startup</option>
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+      </div>
+      <div>
+        <label>Job Level</label>
+        <select name="job_level">
+          <option value="entry" selected>Entry</option>
+          <option value="manager">Manager</option>
+          <option value="exec">Executive</option>
+        </select>
+      </div>
+      <div>
+        <label>Tenure (years)</label>
+        <input type="number" name="tenure_years" value="1" min="0" max="30" step="0.5">
+      </div>
+      <div>
+        <label>Salary ($)</label>
+        <input type="number" name="salary" value="120000" min="30000" max="1000000" step="5000">
+      </div>
+      <div class="row">
+        <div>
+          <label>Paths</label>
+          <input type="number" name="n_paths" value="5000" min="1000" max="50000" step="1000">
+        </div>
+        <div>
+          <label>Horizon (years)</label>
+          <input type="number" name="horizon_years" value="10" min="1" max="30">
+        </div>
+      </div>
+      <a href="dashboard.html" class="btn btn-primary">View sample dashboard</a>
+    </form>
+
+    <p class="note">This page shows a pre-generated sample. For custom simulations with your inputs, clone the repo and run <code>python app.py</code>, or deploy the app to Render.</p>
+
+    <footer>
+      <p><a href="currentModel.pdf">Paper (PDF)</a> · <a href="https://github.com/nyu-bnf/modelKalshi">GitHub</a></p>
+      <p style="margin-top:0.5rem;">Made by NYU BnF</p>
+    </footer>
+  </div>
+</body>
+</html>
