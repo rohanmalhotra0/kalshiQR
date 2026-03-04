@@ -94,9 +94,10 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     inputs = inputs or out.get("inputs", {})
     inputs_str = ", ".join(f"{k}={v}" for k, v in inputs.items()) if inputs else ""
     contract_price = out.get("contract_price", 0.30)
-    hedge_threshold = out.get("hedge_threshold", 7.5)
-    h_star = int(round(out["optimal_hedge_ratio"]))
+    hedge_threshold = out.get("hedge_threshold", 8.0)
+    h_star = int(out.get("optimal_contracts", out.get("optimal_hedge_ratio", 0)))
     total_cost = h_star * contract_price
+    hedge_payout_rate = 100 * sum(1 for r in results if r.hedge_payoff > 0) / len(results) if results else 0
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -289,9 +290,14 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         <p class="metric-desc"><strong>P</strong> = probability. Chance your income drops by more than 50% vs full employment. Lower after hedge = less tail risk.</p>
       </div>
       <div class="metric-card">
-        <h3>Optimal h*</h3>
-        <div class="value">{h_star:,} contracts</div>
-        <p class="metric-desc"><strong>h*</strong> = optimal hedge ratio. Recommended number of Kalshi contracts to buy (minimum-variance hedge).</p>
+        <h3>Recommended contracts</h3>
+        <div class="value">{h_star:,}</div>
+        <p class="metric-desc"><strong>Target:</strong> ~6 months salary coverage (expected unemployment loss). Each contract pays $1 if unemployment exceeds threshold.</p>
+      </div>
+      <div class="metric-card">
+        <h3>Variance reduction</h3>
+        <div class="value {'green' if out.get('variance_reduction_pct', 0) > 0 else 'amber'}">{out.get('variance_reduction_pct', 0):.1f}%</div>
+        <p class="metric-desc"><strong>Var reduction</strong> = (Var(no hedge) − Var(hedge)) / Var(no hedge). Negative = hedge adds variance (weak correlation with job loss).</p>
       </div>
       <div class="metric-card">
         <h3>Hazard β₀</h3>
@@ -301,7 +307,10 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     </div>
 
     <div class="hedge-summary">
-      <strong>Hedge recommendation:</strong> Buy <strong>{h_star:,} contracts</strong> of the Kalshi unemployment market (e.g., &quot;Will US unemployment exceed {hedge_threshold:.1f}%?&quot;). At <strong>${contract_price:.2f} per contract</strong>, total upfront cost is <strong>${total_cost:,.0f}</strong>. Each contract pays $1 if the event occurs, $0 otherwise — so if unemployment exceeds the threshold, you receive ${h_star:,} to offset income loss.
+      <strong>Hedge recommendation:</strong> Buy <strong>{h_star:,} contracts</strong> of the Kalshi unemployment market (e.g., &quot;Will US unemployment exceed {hedge_threshold:.1f}%?&quot;). At <strong>${contract_price:.2f} per contract</strong>, total upfront cost is <strong>${total_cost:,.0f}</strong>. Each contract pays $1 if the event occurs, $0 otherwise — so if unemployment exceeds the threshold, you receive <strong>${h_star:,}</strong> to offset income loss. Target coverage: ~6 months salary (expected unemployment loss; BLS mean duration ~20 weeks).
+      <p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.9;">Hedge triggers in <strong>{hedge_payout_rate:.1f}%</strong> of simulated paths (when max unemployment &gt; {hedge_threshold:.1f}%).</p>
+      {f'<p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.9;">Note: Mean (with hedge) &gt; Mean (no hedge) may indicate the contract is priced below the true probability (market mispricing). In efficient markets, E(hedged) ≤ E(unhedged) because hedges cost money.</p>' if rh.mean > rn.mean else ''}
+      {f'<p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.9;">Variance reduction is negative: the hedge trigger (unemployment &gt; {hedge_threshold:.1f}%) may not correlate strongly with individual job loss. Consider contracts on initial jobless claims or tech layoffs for better correlation.</p>' if out.get('variance_reduction_pct', 0) < 0 else ''}
     </div>
 
     <div class="chart-grid">
@@ -323,7 +332,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       <div class="chart-card">
         <h2>Job Loss Timing</h2>
         <div id="chart4" class="chart"></div>
-        <p class="chart-note"><strong>Paths with job loss:</strong> {n_job_losses:,} ({pct_job_loss:.1f}%) · <strong>Avg year of loss:</strong> {avg_year_loss:.1f} — When job loss occurred across the {n_paths:,} simulated career paths.</p>
+        <p class="chart-note"><strong>Paths with job loss:</strong> {n_job_losses:,} ({pct_job_loss:.1f}%) · <strong>Avg year of loss:</strong> {avg_year_loss:.1f} — Job loss ≠ permanent unemployment: model assumes reemployment after mean ~20 weeks (BLS). When job loss occurred across the {n_paths:,} simulated career paths.</p>
       </div>
       <div class="chart-card" style="grid-column: 1 / -1;">
         <h2>Sample Unemployment Paths</h2>

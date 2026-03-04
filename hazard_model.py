@@ -87,11 +87,11 @@ def fit_hazard_model(
     Uses Newton-Raphson / gradient descent for MLE.
     """
     if len(X) == 0 or len(y) == 0:
-        # Default: ~5-10% annual job-loss => λ ≈ 0.001/week
+        # Default: ~20-30% job loss over 10y => λ ≈ 0.0005/week
         return HazardModelParams(
-            beta0=-6.0,
+            beta0=-6.5,
             beta_unemployment=0.05,
-            beta_industry=0.15,
+            beta_industry=0.12,
             beta_interest_rate=0.01,
         )
 

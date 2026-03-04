@@ -67,11 +67,11 @@ def run_pipeline(
     ind_risk = industry_risk_from_personal(industry, company_size, job_level)
     rate = 4.0  # baseline interest rate
 
-    # Hazard model: defaults for ~5-10% annual job loss (λ ≈ 0.001 weekly)
+    # Hazard model: defaults for ~20-30% job loss over 10y (λ ≈ 0.0005 weekly)
     params = HazardModelParams(
-        beta0=-6.0,
+        beta0=-6.5,
         beta_unemployment=0.05,
-        beta_industry=0.15,
+        beta_industry=0.12,
         beta_interest_rate=0.01,
     )
     if fred_api_key:
@@ -95,10 +95,10 @@ def run_pipeline(
         except Exception:
             pass
 
-    # Hedge size: ~5 months salary coverage (expected unemployment loss)
-    # Realistic: 20 weeks avg duration, ~20% job loss over 10y => ~$25k-50k
+    # Hedge size: ~6 months salary (expected unemployment loss)
+    # BLS: mean unemployment duration ~20 weeks; target coverage for 6 months
     if n_contracts is None:
-        n_contracts = int(salary * 0.25)  # ~$30k for $120k salary
+        n_contracts = int(salary * 0.5)  # ~$60k for $120k salary
 
     # Lambda as function of (t, unemployment_path)
     def get_lam(t: int, u_path: np.ndarray) -> float:
@@ -117,7 +117,7 @@ def run_pipeline(
         get_lam,
         contract_price=contract_price,
         n_contracts=n_contracts,
-        hedge_threshold=7.5,  # Pays when max unemployment > 7.5% (recession indicator)
+        hedge_threshold=8.0,  # Pays when max unemployment > 8% (severe recession; ~25-40% of paths)
         config=cfg,
     )
     baseline = cfg.horizon_weeks * cfg.salary_weekly
@@ -135,19 +135,22 @@ def run_pipeline(
     var_reduction = (risk_no.variance - risk_hedge.variance) / (risk_no.variance + 1e-10) * 100
     tail_reduction = (risk_no.tail_prob_50pct_drop - risk_hedge.tail_prob_50pct_drop) * 100
 
+    # Use expected-loss-based hedge for display (h* can be noisy with binary payoffs)
+    recommended_contracts = n_contracts
     return {
         "params": params,
         "risk_without_hedge": risk_no,
         "risk_with_hedge": risk_hedge,
         "optimal_hedge_ratio": h_star,
-        "optimal_contracts": h_star,
+        "optimal_contracts": recommended_contracts,
+        "n_contracts": n_contracts,
         "variance_reduction_pct": var_reduction,
         "tail_prob_reduction_pct": tail_reduction,
         "incomes_no_hedge": incomes_no_hedge,
         "incomes_with_hedge": total_with_hedge,
         "results": results,
         "contract_price": contract_price,
-        "hedge_threshold": 7.5,
+        "hedge_threshold": 8.0,
         "inputs": {
             "industry": industry,
             "company_size": company_size,

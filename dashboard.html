@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Job Loss Hedging Model — Dashboard</title>
+  <link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
@@ -152,7 +154,7 @@
     <a href="./" class="brand">Job Loss Hedging</a>
     <div class="navbar-links">
       <a href="paper.html">Paper</a>
-      <a href="./">Rerun tests</a>
+      <a href="quiz.html">Quiz</a>
       <a href="documentation.html">Documentation</a>
       <a href="about.html">Our Teams</a>
     </div>
@@ -161,24 +163,24 @@
   <div class="container">
     <header>
       <h1>Job Loss Hedging Model</h1>
-      <p class="subtitle">Monte Carlo simulation — 2,000 paths, 10 year horizon</p>
-      <p class="subtitle" style="margin-top:0.25rem;font-size:0.8rem;">industry=tech, company_size=startup, job_level=entry, tenure_years=1.0, salary=120000, n_paths=2000, horizon_years=10</p>
+      <p class="subtitle">Monte Carlo simulation — 1,000 paths, 10 year horizon</p>
+      <p class="subtitle" style="margin-top:0.25rem;font-size:0.8rem;">industry=tech, company_size=startup, job_level=entry, tenure_years=1.0, salary=120000, n_paths=1000, horizon_years=10</p>
     </header>
 
     <div class="metrics-row">
       <div class="metric-card">
         <h3>Mean (no hedge)</h3>
-        <div class="value">$1,179,000</div>
+        <div class="value">$1,186,692</div>
         <p class="metric-desc"><strong>Mean</strong> = average. Average total income over the horizon without buying any hedge contracts.</p>
       </div>
       <div class="metric-card">
         <h3>Mean (with hedge)</h3>
-        <div class="value green">$1,180,575</div>
+        <div class="value green">$1,179,372</div>
         <p class="metric-desc"><strong>Mean</strong> = average. Average total income after buying the recommended hedge contracts (includes cost and payouts).</p>
       </div>
       <div class="metric-card">
         <h3>ES 5% (worst case)</h3>
-        <div class="value">$1,034,954 → $1,034,400</div>
+        <div class="value">$1,059,462 → $1,050,923</div>
         <p class="metric-desc"><strong>ES</strong> = Expected Shortfall. Average income in the worst 5% of outcomes. Higher after hedge = better protection.</p>
       </div>
       <div class="metric-card">
@@ -187,51 +189,59 @@
         <p class="metric-desc"><strong>P</strong> = probability. Chance your income drops by more than 50% vs full employment. Lower after hedge = less tail risk.</p>
       </div>
       <div class="metric-card">
-        <h3>Optimal h*</h3>
-        <div class="value">18 contracts</div>
-        <p class="metric-desc"><strong>h*</strong> = optimal hedge ratio. Recommended number of Kalshi contracts to buy (minimum-variance hedge).</p>
+        <h3>Recommended contracts</h3>
+        <div class="value">60,000</div>
+        <p class="metric-desc"><strong>Target:</strong> ~6 months salary coverage (expected unemployment loss). Each contract pays $1 if unemployment exceeds threshold.</p>
+      </div>
+      <div class="metric-card">
+        <h3>Variance reduction</h3>
+        <div class="value amber">-42.6%</div>
+        <p class="metric-desc"><strong>Var reduction</strong> = (Var(no hedge) − Var(hedge)) / Var(no hedge). Negative = hedge adds variance (weak correlation with job loss).</p>
       </div>
       <div class="metric-card">
         <h3>Hazard β₀</h3>
-        <div class="value">-6.000</div>
+        <div class="value">-6.500</div>
         <p class="metric-desc"><strong>β₀</strong> = beta-nought, the intercept in the job-loss hazard model. More negative = lower baseline job-loss risk.</p>
       </div>
     </div>
 
     <div class="hedge-summary">
-      <strong>Hedge recommendation:</strong> Buy <strong>18 contracts</strong> of the Kalshi unemployment market (e.g., &quot;Will US unemployment exceed 7.5%?&quot;). At <strong>$0.30 per contract</strong>, total upfront cost is <strong>$5</strong>. Each contract pays $1 if the event occurs, $0 otherwise — so if unemployment exceeds the threshold, you receive $18 to offset income loss.
+      <strong>Hedge recommendation:</strong> Buy <strong>60,000 contracts</strong> of the Kalshi unemployment market (e.g., &quot;Will US unemployment exceed 8.0%?&quot;). At <strong>$0.30 per contract</strong>, total upfront cost is <strong>$18,000</strong>. Each contract pays $1 if the event occurs, $0 otherwise — so if unemployment exceeds the threshold, you receive <strong>$60,000</strong> to offset income loss. Target coverage: ~6 months salary (expected unemployment loss; BLS mean duration ~20 weeks).
+      <p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.9;">Hedge triggers in <strong>17.8%</strong> of simulated paths (when max unemployment &gt; 8.0%).</p>
+      
+      <p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.9;">Variance reduction is negative: the hedge trigger (unemployment &gt; 8.0%) may not correlate strongly with individual job loss. Consider contracts on initial jobless claims or tech layoffs for better correlation.</p>
     </div>
 
     <div class="chart-grid">
       <div class="chart-card">
         <h2>Income Distribution (No Hedge)</h2>
         <div id="chart1" class="chart"></div>
-        <p class="chart-note"><strong>Mean:</strong> $1,179,000 · <strong>Median:</strong> $1,200,000 · <strong>Paths with $0 income:</strong> 0.0% — Simulated paths that experienced job loss and had no hedge payout.</p>
+        <p class="chart-note"><strong>Mean:</strong> $1,186,692 · <strong>Median:</strong> $1,200,000 · <strong>Paths with $0 income:</strong> 0.0% — Simulated paths that experienced job loss and had no hedge payout.</p>
       </div>
       <div class="chart-card">
         <h2>Income Distribution (With Hedge)</h2>
         <div id="chart2" class="chart"></div>
-        <p class="chart-note"><strong>Mean:</strong> $1,180,575 · <strong>Median:</strong> $1,191,000 · <strong>Paths with $0 income:</strong> 0.0% — Hedge payouts reduce zero-income outcomes when unemployment exceeds threshold.</p>
+        <p class="chart-note"><strong>Mean:</strong> $1,179,372 · <strong>Median:</strong> $1,182,000 · <strong>Paths with $0 income:</strong> 0.0% — Hedge payouts reduce zero-income outcomes when unemployment exceeds threshold.</p>
       </div>
       <div class="chart-card">
         <h2>Income Comparison</h2>
         <div id="chart3" class="chart"></div>
-        <p class="chart-note"><strong>Variance reduction:</strong> -11.2% · <strong>Tail risk (P(drop&gt;50%)):</strong> 0.0% → 0.0% — Overlaid distributions show how the hedge shifts mass from low-income to higher-income outcomes.</p>
+        <p class="chart-note"><strong>Variance reduction:</strong> -42.6% · <strong>Tail risk (P(drop&gt;50%)):</strong> 0.0% → 0.0% — Overlaid distributions show how the hedge shifts mass from low-income to higher-income outcomes.</p>
       </div>
       <div class="chart-card">
         <h2>Job Loss Timing</h2>
         <div id="chart4" class="chart"></div>
-        <p class="chart-note"><strong>Paths with job loss:</strong> 750 (37.5%) · <strong>Avg year of loss:</strong> 4.7 — When job loss occurred across the 2,000 simulated career paths.</p>
+        <p class="chart-note"><strong>Paths with job loss:</strong> 239 (23.9%) · <strong>Avg year of loss:</strong> 4.7 — Job loss ≠ permanent unemployment: model assumes reemployment after mean ~20 weeks (BLS). When job loss occurred across the 1,000 simulated career paths.</p>
       </div>
       <div class="chart-card" style="grid-column: 1 / -1;">
         <h2>Sample Unemployment Paths</h2>
         <div id="chart5" class="chart" style="height: 360px;"></div>
-        <p class="chart-note"><strong>Mean unemployment across all paths:</strong> 4.12% · First 20 of 2,000 simulated macro paths — Unemployment drives the job-loss hazard rate λ in each week.</p>
+        <p class="chart-note"><strong>Mean unemployment across all paths:</strong> 4.13% · First 20 of 1,000 simulated macro paths — Unemployment drives the job-loss hazard rate λ in each week.</p>
       </div>
     </div>
 
     <footer>
-      <p><a href="currentModel.pdf" style="color:var(--accent);">Paper (PDF)</a> · <a href="https://github.com/nyu-bnf/modelKalshi" style="color:var(--accent);">GitHub</a> · <a href="./" style="color:var(--accent);">← Change inputs & run again</a></p>
+      <p><a href="currentModel.pdf" style="color:var(--accent);">Paper (PDF)</a> · <a href="https://github.com/nyu-bnf/modelKalshi" style="color:var(--accent);">GitHub</a> · <a href="quiz.html" style="color:var(--accent);">← Run quiz again</a></p>
       <p style="margin-top:0.5rem;">Made by NYU BnF</p>
     </footer>
   </div>
@@ -239,8 +249,8 @@
   <script>
     const chart1 = {
       data: [{
-        x: [0.0, 20350.0, 40700.0, 61050.0, 81400.0, 101750.0, 122100.0, 142450.0, 162800.0, 183150.0, 203500.0, 223850.0, 244200.0, 264550.0, 284900.0, 305250.0, 325600.0, 345950.0, 366300.0, 386650.0, 407000.0, 427350.0, 447700.0, 468050.0, 488400.0, 508750.0, 529100.0, 549450.0, 569800.0, 590150.0, 610500.0, 630850.0, 651200.0, 671550.0, 691900.0, 712250.0, 732600.0, 752950.0, 773300.0, 793650.0, 814000.0, 834350.0, 854700.0, 875050.0, 895400.0, 915750.0, 936100.0, 956450.0, 976800.0, 997150.0, 1017500.0, 1037850.0, 1058200.0, 1078550.0, 1098900.0, 1119250.0, 1139600.0, 1159950.0, 1180300.0, 1200650.0],
-        y: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 3, 7, 5, 7, 5, 11, 13, 23, 45, 58, 80, 96, 191, 1454, 0],
+        x: [0.0, 20700.0, 41400.0, 62100.0, 82800.0, 103500.0, 124200.0, 144900.0, 165600.0, 186300.0, 207000.0, 227700.0, 248400.0, 269100.0, 289800.0, 310500.0, 331200.0, 351900.0, 372600.0, 393300.0, 414000.0, 434700.0, 455400.0, 476100.0, 496800.0, 517500.0, 538200.0, 558900.0, 579600.0, 600300.0, 621000.0, 641700.0, 662400.0, 683100.0, 703800.0, 724500.0, 745200.0, 765900.0, 786600.0, 807300.0, 828000.0, 848700.0, 869400.0, 890100.0, 910800.0, 931500.0, 952200.0, 972900.0, 993600.0, 1014300.0, 1035000.0, 1055700.0, 1076400.0, 1097100.0, 1117800.0, 1138500.0, 1159200.0, 1179900.0, 1200600.0, 1221300.0],
+        y: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 7, 8, 7, 16, 12, 25, 32, 61, 827, 0, 0],
         type: 'bar',
         marker: { color: '#6366f1', opacity: 0.8 },
         name: 'No hedge'
@@ -260,8 +270,8 @@
 
     const chart2 = {
       data: [{
-        x: [0.0, 20350.0, 40700.0, 61050.0, 81400.0, 101750.0, 122100.0, 142450.0, 162800.0, 183150.0, 203500.0, 223850.0, 244200.0, 264550.0, 284900.0, 305250.0, 325600.0, 345950.0, 366300.0, 386650.0, 407000.0, 427350.0, 447700.0, 468050.0, 488400.0, 508750.0, 529100.0, 549450.0, 569800.0, 590150.0, 610500.0, 630850.0, 651200.0, 671550.0, 691900.0, 712250.0, 732600.0, 752950.0, 773300.0, 793650.0, 814000.0, 834350.0, 854700.0, 875050.0, 895400.0, 915750.0, 936100.0, 956450.0, 976800.0, 997150.0, 1017500.0, 1037850.0, 1058200.0, 1078550.0, 1098900.0, 1119250.0, 1139600.0, 1159950.0, 1180300.0, 1200650.0],
-        y: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 4, 4, 7, 2, 11, 6, 18, 25, 45, 50, 81, 113, 157, 969, 505],
+        x: [0.0, 20700.0, 41400.0, 62100.0, 82800.0, 103500.0, 124200.0, 144900.0, 165600.0, 186300.0, 207000.0, 227700.0, 248400.0, 269100.0, 289800.0, 310500.0, 331200.0, 351900.0, 372600.0, 393300.0, 414000.0, 434700.0, 455400.0, 476100.0, 496800.0, 517500.0, 538200.0, 558900.0, 579600.0, 600300.0, 621000.0, 641700.0, 662400.0, 683100.0, 703800.0, 724500.0, 745200.0, 765900.0, 786600.0, 807300.0, 828000.0, 848700.0, 869400.0, 890100.0, 910800.0, 931500.0, 952200.0, 972900.0, 993600.0, 1014300.0, 1035000.0, 1055700.0, 1076400.0, 1097100.0, 1117800.0, 1138500.0, 1159200.0, 1179900.0, 1200600.0, 1221300.0],
+        y: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 5, 7, 6, 14, 10, 24, 24, 51, 68, 629, 12, 146],
         type: 'bar',
         marker: { color: '#22c55e', opacity: 0.8 },
         name: 'With hedge'
@@ -281,8 +291,8 @@
 
     const chart3 = {
       data: [
-        { x: [0.0, 20350.0, 40700.0, 61050.0, 81400.0, 101750.0, 122100.0, 142450.0, 162800.0, 183150.0, 203500.0, 223850.0, 244200.0, 264550.0, 284900.0, 305250.0, 325600.0, 345950.0, 366300.0, 386650.0, 407000.0, 427350.0, 447700.0, 468050.0, 488400.0, 508750.0, 529100.0, 549450.0, 569800.0, 590150.0, 610500.0, 630850.0, 651200.0, 671550.0, 691900.0, 712250.0, 732600.0, 752950.0, 773300.0, 793650.0, 814000.0, 834350.0, 854700.0, 875050.0, 895400.0, 915750.0, 936100.0, 956450.0, 976800.0, 997150.0, 1017500.0, 1037850.0, 1058200.0, 1078550.0, 1098900.0, 1119250.0, 1139600.0, 1159950.0, 1180300.0, 1200650.0], y: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 3, 7, 5, 7, 5, 11, 13, 23, 45, 58, 80, 96, 191, 1454, 0], type: 'bar', name: 'No hedge', marker: { color: '#6366f1', opacity: 0.6 } },
-        { x: [0.0, 20350.0, 40700.0, 61050.0, 81400.0, 101750.0, 122100.0, 142450.0, 162800.0, 183150.0, 203500.0, 223850.0, 244200.0, 264550.0, 284900.0, 305250.0, 325600.0, 345950.0, 366300.0, 386650.0, 407000.0, 427350.0, 447700.0, 468050.0, 488400.0, 508750.0, 529100.0, 549450.0, 569800.0, 590150.0, 610500.0, 630850.0, 651200.0, 671550.0, 691900.0, 712250.0, 732600.0, 752950.0, 773300.0, 793650.0, 814000.0, 834350.0, 854700.0, 875050.0, 895400.0, 915750.0, 936100.0, 956450.0, 976800.0, 997150.0, 1017500.0, 1037850.0, 1058200.0, 1078550.0, 1098900.0, 1119250.0, 1139600.0, 1159950.0, 1180300.0, 1200650.0], y: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 4, 4, 7, 2, 11, 6, 18, 25, 45, 50, 81, 113, 157, 969, 505], type: 'bar', name: 'With hedge', marker: { color: '#22c55e', opacity: 0.6 } }
+        { x: [0.0, 20700.0, 41400.0, 62100.0, 82800.0, 103500.0, 124200.0, 144900.0, 165600.0, 186300.0, 207000.0, 227700.0, 248400.0, 269100.0, 289800.0, 310500.0, 331200.0, 351900.0, 372600.0, 393300.0, 414000.0, 434700.0, 455400.0, 476100.0, 496800.0, 517500.0, 538200.0, 558900.0, 579600.0, 600300.0, 621000.0, 641700.0, 662400.0, 683100.0, 703800.0, 724500.0, 745200.0, 765900.0, 786600.0, 807300.0, 828000.0, 848700.0, 869400.0, 890100.0, 910800.0, 931500.0, 952200.0, 972900.0, 993600.0, 1014300.0, 1035000.0, 1055700.0, 1076400.0, 1097100.0, 1117800.0, 1138500.0, 1159200.0, 1179900.0, 1200600.0, 1221300.0], y: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 7, 8, 7, 16, 12, 25, 32, 61, 827, 0, 0], type: 'bar', name: 'No hedge', marker: { color: '#6366f1', opacity: 0.6 } },
+        { x: [0.0, 20700.0, 41400.0, 62100.0, 82800.0, 103500.0, 124200.0, 144900.0, 165600.0, 186300.0, 207000.0, 227700.0, 248400.0, 269100.0, 289800.0, 310500.0, 331200.0, 351900.0, 372600.0, 393300.0, 414000.0, 434700.0, 455400.0, 476100.0, 496800.0, 517500.0, 538200.0, 558900.0, 579600.0, 600300.0, 621000.0, 641700.0, 662400.0, 683100.0, 703800.0, 724500.0, 745200.0, 765900.0, 786600.0, 807300.0, 828000.0, 848700.0, 869400.0, 890100.0, 910800.0, 931500.0, 952200.0, 972900.0, 993600.0, 1014300.0, 1035000.0, 1055700.0, 1076400.0, 1097100.0, 1117800.0, 1138500.0, 1159200.0, 1179900.0, 1200600.0, 1221300.0], y: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 5, 7, 6, 14, 10, 24, 24, 51, 68, 629, 12, 146], type: 'bar', name: 'With hedge', marker: { color: '#22c55e', opacity: 0.6 } }
       ],
       layout: {
         margin: { t: 20, r: 20, b: 50, l: 50 },
@@ -302,7 +312,7 @@
     const chart4 = {
       data: [{
         x: [0.125, 0.375, 0.625, 0.875, 1.125, 1.375, 1.625, 1.875, 2.125, 2.375, 2.625, 2.875, 3.125, 3.375, 3.625, 3.875, 4.125, 4.375, 4.625, 4.875, 5.125, 5.375, 5.625, 5.875, 6.125, 6.375, 6.625, 6.875, 7.125, 7.375, 7.625, 7.875, 8.125, 8.375, 8.625, 8.875, 9.125, 9.375, 9.625, 9.875],
-        y: [19, 32, 25, 23, 16, 19, 25, 16, 22, 22, 19, 20, 18, 28, 16, 23, 20, 21, 19, 14, 13, 24, 15, 12, 13, 26, 15, 10, 12, 15, 20, 19, 17, 19, 23, 16, 23, 11, 17, 13],
+        y: [4, 12, 6, 9, 5, 8, 8, 4, 10, 4, 7, 6, 6, 11, 2, 6, 4, 9, 4, 5, 6, 10, 3, 3, 3, 5, 11, 4, 2, 4, 4, 5, 4, 4, 11, 7, 6, 2, 9, 6],
         type: 'bar',
         marker: { color: '#f59e0b', opacity: 0.8 },
         name: 'Job losses'
