@@ -40,7 +40,8 @@ jobs:
       - name: Prepare site
         run: |
           mkdir -p site
-          cp dashboard.html site/index.html
+          cp static_form.html site/index.html
+          cp dashboard.html site/dashboard.html
           [ -f currentModel.pdf ] && cp currentModel.pdf site/ || true
 
       - name: Setup Pages

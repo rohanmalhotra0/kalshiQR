@@ -278,7 +278,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     </div>
 
     <footer>
-      <p><a href="currentModel.pdf" style="color:var(--accent);">Paper (PDF)</a> · <a href="{GITHUB_REPO_URL}" style="color:var(--accent);">GitHub</a> · <a href="/" style="color:var(--accent);">← Change inputs & run again</a></p>
+      <p><a href="currentModel.pdf" style="color:var(--accent);">Paper (PDF)</a> · <a href="{GITHUB_REPO_URL}" style="color:var(--accent);">GitHub</a> · <a href="./" style="color:var(--accent);">← Change inputs & run again</a></p>
       <p style="margin-top:0.5rem;">Made by NYU BnF</p>
     </footer>
   </div>
