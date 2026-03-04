@@ -257,7 +257,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 1.25rem;
+      padding: 1.5rem;
       overflow: hidden;
     }}
     .chart-card h2 {{
@@ -266,14 +266,14 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       margin-bottom: 1rem;
       color: var(--text);
     }}
-    .chart {{ width: 100%; height: 320px; }}
+    .chart {{ width: 100%; height: 380px; min-height: 320px; }}
     .chart-note {{
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
-      margin-top: 0.75rem;
-      padding-top: 0.75rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
       border-top: 1px solid var(--border);
-      line-height: 1.5;
+      line-height: 1.6;
     }}
     .chart-note strong {{ color: var(--text); }}
     .navbar {{
@@ -373,7 +373,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       <div class="chart-card" style="grid-column: 1 / -1;">
         <h2>What your income could look like over 10 years</h2>
         <div id="chart1" class="chart"></div>
-        <p class="chart-note">Purple = no hedge. Green = with hedge. The vertical lines show average income in each case. Most people cluster near full employment (gray line); some paths have job loss and lower income.</p>
+        <p class="chart-note"><strong>Dashed purple</strong> = average income without hedge. <strong>Dotted green</strong> = average with hedge. <strong>Solid gray</strong> = full employment (no job loss). Most people cluster near the gray line; some paths have job loss and lower income.</p>
       </div>
       <div class="chart-card">
         <h2>Chance your income stays below a given amount</h2>
@@ -410,13 +410,13 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
 
   <script>
     const commonLayout = {{
-      margin: {{ t: 20, r: 20, b: 50, l: 55 }},
+      margin: {{ t: 40, r: 40, b: 60, l: 65 }},
       paper_bgcolor: 'transparent',
       plot_bgcolor: 'transparent',
       font: {{ color: '#e4e4e7', family: 'DM Sans' }},
       xaxis: {{ gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
       yaxis: {{ gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
-      legend: {{ x: 0.7, y: 1, bgcolor: 'rgba(0,0,0,0)' }}
+      legend: {{ x: 0.99, y: 1, xanchor: 'left', yanchor: 'top', bgcolor: 'rgba(0,0,0,0)', font: {{ size: 11 }}, orientation: 'h' }}
     }};
 
     // Figure 1: Income distribution (density, overlaid, vertical lines)
@@ -435,11 +435,6 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
           {{ type: 'line', x0: {rn.mean}, x1: {rn.mean}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dash', color: '#818cf8', width: 1.5 }} }},
           {{ type: 'line', x0: {rh.mean}, x1: {rh.mean}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dot', color: '#4ade80', width: 1.5 }} }},
           {{ type: 'line', x0: {baseline}, x1: {baseline}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'solid', color: '#a1a1aa', width: 1 }} }}
-        ],
-        annotations: [
-          {{ x: {rn.mean}, y: 1, yref: 'paper', text: 'Mean (no hedge)', showarrow: false, font: {{ size: 9, color: '#818cf8' }}, xanchor: 'left' }},
-          {{ x: {rh.mean}, y: 0.95, yref: 'paper', text: 'Mean (hedge)', showarrow: false, font: {{ size: 9, color: '#4ade80' }}, xanchor: 'left' }},
-          {{ x: {baseline}, y: 0.9, yref: 'paper', text: 'Full employment', showarrow: false, font: {{ size: 9, color: '#a1a1aa' }}, xanchor: 'left' }}
         ]
       }},
       config: {{ responsive: true }}
@@ -493,7 +488,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         xaxis: {{ ...commonLayout.xaxis, title: 'Highest unemployment reached (%)' }},
         yaxis: {{ ...commonLayout.yaxis, title: 'How often' }},
         shapes: [{{ type: 'line', x0: {hedge_threshold}, x1: {hedge_threshold}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dash', color: '#22c55e', width: 2 }} }}],
-        annotations: [{{ x: {hedge_threshold}, y: 1, yref: 'paper', text: 'Hedge pays when above this', showarrow: false, font: {{ size: 9, color: '#22c55e' }}, xanchor: 'left' }}],
+        annotations: [{{ x: {hedge_threshold}, y: 1.02, yref: 'paper', text: 'Hedge pays above this', showarrow: false, font: {{ size: 10, color: '#22c55e' }}, xanchor: 'center' }}],
         showlegend: false
       }},
       config: {{ responsive: true }}
