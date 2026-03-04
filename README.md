@@ -40,35 +40,35 @@ hedge portfolio
 
 ### Income Process
 
-Employment state \(E_t \in \{0, 1\}\) and cumulative wealth:
+Employment state $E_t \in \{0, 1\}$ and cumulative wealth:
 
-\[
+$$
 dW_t = S E_t \, dt
-\]
+$$
 
 ### Job Loss Model
 
-Job loss is a Poisson process with intensity \(\lambda_t\):
+Job loss is a Poisson process with intensity $\lambda_t$:
 
-\[
+$$
 N_t \sim \text{Poisson}(\lambda_t), \quad dE_t = -E_t \, dN_t
-\]
+$$
 
 The hazard rate depends on macro variables:
 
-\[
+$$
 P(\text{JobLoss}) = \sigma\left(\beta_0 + \beta_1 U_t + \beta_2 \cdot \text{industry} + \beta_3 r_t\right)
-\]
+$$
 
-where \(U_t\) = unemployment, \(r_t\) = interest rate, and industry captures sector-specific risk.
+where $U_t$ = unemployment, $r_t$ = interest rate, and industry captures sector-specific risk.
 
 ### Hedge & Optimal Ratio
 
-Kalshi contracts are binary ($1 if event occurs, $0 otherwise). The minimum-variance hedge ratio:
+Kalshi contracts are binary (\$1 if event occurs, \$0 otherwise). The minimum-variance hedge ratio:
 
-\[
+$$
 h^* = \frac{\text{Cov}(\text{Loss}, \text{Hedge})}{\text{Var}(\text{Hedge})}
-\]
+$$
 
 ---
 
@@ -77,10 +77,10 @@ h^* = \frac{\text{Cov}(\text{Loss}, \text{Hedge})}{\text{Var}(\text{Hedge})}
 | Component | File | Description |
 |-----------|------|-------------|
 | **Pipeline** | `pipeline.py` | End-to-end run: personal inputs → hazard → MC → risk metrics |
-| **Hazard model** | `hazard_model.py` | Logistic hazard \(P(\text{JobLoss})\), industry risk, \(\lambda\) from macro state |
+| **Hazard model** | `hazard_model.py` | Logistic hazard $P(\text{JobLoss})$, industry risk, $\lambda$ from macro state |
 | **Stochastic model** | `stochastic_model.py` | Poisson job loss, employment paths |
 | **Monte Carlo** | `monte_carlo.py` | Simulate paths, income with/without hedge, risk metrics |
-| **Hedge model** | `hedge_model.py` | Kalshi binary contracts, payoff, optimal \(h^*\) |
+| **Hedge model** | `hedge_model.py` | Kalshi binary contracts, payoff, optimal $h^*$ |
 | **Data fetcher** | `data_fetcher.py` | FRED, BLS JOLTS, macro state, salary reference |
 | **Kalshi client** | `kalshi_client.py` | Kalshi public API (markets, orderbook) |
 | **Config** | `config.py` | Load `.env` for `FRED_API_KEY`, `BLS_API_KEY` |
@@ -135,8 +135,8 @@ Enter industry, company size, job level, tenure, salary, paths, and horizon; sub
 
 ## Outputs
 
-- **Risk metrics:** Mean income, variance, Expected Shortfall (5%), \(P(\text{drop} > 50\%)\)
-- **Optimal hedge ratio** \(h^*\)
+- **Risk metrics:** Mean income, variance, Expected Shortfall (5%), $P(\text{drop} > 50\%)$
+- **Optimal hedge ratio** $h^*$
 - **Charts:** Income distribution (no hedge vs with hedge), job loss timing, sample unemployment paths
 
 ---
