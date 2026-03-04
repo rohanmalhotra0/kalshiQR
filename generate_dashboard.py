@@ -77,8 +77,24 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     else:
         jl_centers, jl_counts = [], []
 
+    # Stats for chart footnotes
+    n_paths = len(incomes_no)
+    pct_zero_no = 100 * np.mean(incomes_no == 0)
+    pct_zero_hedge = 100 * np.mean(incomes_hedge == 0)
+    median_no = float(np.median(incomes_no))
+    median_hedge = float(np.median(incomes_hedge))
+    n_job_losses = len(job_loss_weeks)
+    pct_job_loss = 100 * n_job_losses / n_paths if n_paths else 0
+    avg_year_loss = float(np.mean(job_loss_weeks) / 52) if job_loss_weeks else 0
+    all_u = np.concatenate([r.unemployment_path for r in results])
+    mean_u = float(np.mean(all_u))
+
     inputs = inputs or out.get("inputs", {})
     inputs_str = ", ".join(f"{k}={v}" for k, v in inputs.items()) if inputs else ""
+    contract_price = out.get("contract_price", 0.30)
+    hedge_threshold = out.get("hedge_threshold", 7.0)
+    h_star = int(round(out["optimal_hedge_ratio"]))
+    total_cost = h_star * contract_price
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -128,12 +144,27 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       font-size: 0.9rem;
       margin-top: 0.25rem;
     }}
-    .metrics-grid {{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
+    .metrics-row {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      align-items: stretch;
     }}
+    .metrics-row .metric-card {{
+      flex: 1;
+      min-width: 140px;
+    }}
+    .hedge-summary {{
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }}
+    .hedge-summary strong {{ color: var(--accent2); }}
     .metric-card {{
       background: var(--surface);
       border: 1px solid var(--border);
@@ -177,6 +208,15 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       color: var(--text);
     }}
     .chart {{ width: 100%; height: 320px; }}
+    .chart-note {{
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      line-height: 1.5;
+    }}
+    .chart-note strong {{ color: var(--text); }}
     footer {{
       padding: 2rem 0;
       text-align: center;
@@ -194,53 +234,44 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       <p class="subtitle" style="margin-top:0.25rem;font-size:0.8rem;">{inputs_str}</p>
     </header>
 
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <h3>Mean (no hedge)</h3>
-        <div class="value">${rn.mean:,.0f}</div>
-      </div>
-      <div class="metric-card">
-        <h3>Mean (with hedge)</h3>
-        <div class="value green">${rh.mean:,.0f}</div>
-      </div>
-      <div class="metric-card">
-        <h3>ES 5% (worst case)</h3>
-        <div class="value">${rn.expected_shortfall_5pct:,.0f} → ${rh.expected_shortfall_5pct:,.0f}</div>
-      </div>
-      <div class="metric-card">
-        <h3>P(drop &gt; 50%)</h3>
-        <div class="value amber">{rn.tail_prob_50pct_drop:.1%} → {rh.tail_prob_50pct_drop:.1%}</div>
-      </div>
-      <div class="metric-card">
-        <h3>Optimal h*</h3>
-        <div class="value">{out['optimal_hedge_ratio']:,.0f} contracts</div>
-      </div>
-      <div class="metric-card">
-        <h3>Hazard β₀</h3>
-        <div class="value">{params.beta0:.3f}</div>
-      </div>
+    <div class="metrics-row">
+      <div class="metric-card"><h3>Mean (no hedge)</h3><div class="value">${rn.mean:,.0f}</div></div>
+      <div class="metric-card"><h3>Mean (with hedge)</h3><div class="value green">${rh.mean:,.0f}</div></div>
+      <div class="metric-card"><h3>ES 5% (worst case)</h3><div class="value">${rn.expected_shortfall_5pct:,.0f} → ${rh.expected_shortfall_5pct:,.0f}</div></div>
+      <div class="metric-card"><h3>P(drop &gt; 50%)</h3><div class="value amber">{rn.tail_prob_50pct_drop:.1%} → {rh.tail_prob_50pct_drop:.1%}</div></div>
+      <div class="metric-card"><h3>Optimal h*</h3><div class="value">{h_star:,} contracts</div></div>
+      <div class="metric-card"><h3>Hazard β₀</h3><div class="value">{params.beta0:.3f}</div></div>
+    </div>
+
+    <div class="hedge-summary">
+      <strong>Hedge recommendation:</strong> Buy <strong>{h_star:,} contracts</strong> of the Kalshi unemployment market (e.g., &quot;Will US unemployment exceed {hedge_threshold:.1f}%?&quot;). At <strong>${contract_price:.2f} per contract</strong>, total upfront cost is <strong>${total_cost:,.0f}</strong>. Each contract pays $1 if the event occurs, $0 otherwise — so if unemployment exceeds the threshold, you receive ${h_star:,} to offset income loss.
     </div>
 
     <div class="chart-grid">
       <div class="chart-card">
         <h2>Income Distribution (No Hedge)</h2>
         <div id="chart1" class="chart"></div>
+        <p class="chart-note"><strong>Mean:</strong> ${rn.mean:,.0f} · <strong>Median:</strong> ${median_no:,.0f} · <strong>Paths with $0 income:</strong> {pct_zero_no:.1f}% — Simulated paths that experienced job loss and had no hedge payout.</p>
       </div>
       <div class="chart-card">
         <h2>Income Distribution (With Hedge)</h2>
         <div id="chart2" class="chart"></div>
+        <p class="chart-note"><strong>Mean:</strong> ${rh.mean:,.0f} · <strong>Median:</strong> ${median_hedge:,.0f} · <strong>Paths with $0 income:</strong> {pct_zero_hedge:.1f}% — Hedge payouts reduce zero-income outcomes when unemployment exceeds threshold.</p>
       </div>
       <div class="chart-card">
         <h2>Income Comparison</h2>
         <div id="chart3" class="chart"></div>
+        <p class="chart-note"><strong>Variance reduction:</strong> {out['variance_reduction_pct']:.1f}% · <strong>Tail risk (P(drop&gt;50%)):</strong> {rn.tail_prob_50pct_drop:.1%} → {rh.tail_prob_50pct_drop:.1%} — Overlaid distributions show how the hedge shifts mass from low-income to higher-income outcomes.</p>
       </div>
       <div class="chart-card">
         <h2>Job Loss Timing</h2>
         <div id="chart4" class="chart"></div>
+        <p class="chart-note"><strong>Paths with job loss:</strong> {n_job_losses:,} ({pct_job_loss:.1f}%) · <strong>Avg year of loss:</strong> {avg_year_loss:.1f} — When job loss occurred across the {n_paths:,} simulated career paths.</p>
       </div>
       <div class="chart-card" style="grid-column: 1 / -1;">
         <h2>Sample Unemployment Paths</h2>
         <div id="chart5" class="chart" style="height: 360px;"></div>
+        <p class="chart-note"><strong>Mean unemployment across all paths:</strong> {mean_u:.2f}% · First 20 of {n_paths:,} simulated macro paths — Unemployment drives the job-loss hazard rate λ in each week.</p>
       </div>
     </div>
 
@@ -265,7 +296,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         plot_bgcolor: 'transparent',
         font: {{ color: '#e4e4e7', family: 'DM Sans' }},
         xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
-        yaxis: {{ title: 'Count', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
+        yaxis: {{ title: 'Number of simulated paths', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
         showlegend: false,
         bargap: 0.1
       }},
@@ -286,7 +317,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         plot_bgcolor: 'transparent',
         font: {{ color: '#e4e4e7', family: 'DM Sans' }},
         xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
-        yaxis: {{ title: 'Count', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
+        yaxis: {{ title: 'Number of simulated paths', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
         showlegend: false,
         bargap: 0.1
       }},
@@ -304,7 +335,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         plot_bgcolor: 'transparent',
         font: {{ color: '#e4e4e7', family: 'DM Sans' }},
         xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
-        yaxis: {{ title: 'Count', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
+        yaxis: {{ title: 'Number of simulated paths', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
         barmode: 'group',
         bargap: 0.2,
         bargroupgap: 0.05,
@@ -327,7 +358,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         plot_bgcolor: 'transparent',
         font: {{ color: '#e4e4e7', family: 'DM Sans' }},
         xaxis: {{ title: 'Year of job loss', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
-        yaxis: {{ title: 'Count', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
+        yaxis: {{ title: 'Number of simulated paths', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
         showlegend: false,
         bargap: 0.05
       }},

@@ -46,9 +46,46 @@ FORM_HTML = """
     button:hover { filter: brightness(1.1); }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
     .note { font-size: 0.8rem; color: var(--text-muted); margin-top: 2rem; }
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 15, 18, 0.9);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .loading-overlay.active { display: flex; }
+    .loading-overlay p { color: var(--text-muted); font-size: 0.95rem; }
+    .loadbar {
+      width: 280px;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .loadbar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #818cf8);
+      border-radius: 3px;
+      animation: load 2s ease-in-out infinite;
+    }
+    @keyframes load {
+      0% { width: 0%; margin-left: 0; }
+      50% { width: 70%; margin-left: 15%; }
+      100% { width: 0%; margin-left: 0; }
+    }
   </style>
 </head>
 <body>
+  <div id="loading" class="loading-overlay">
+    <p>Running Monte Carlo simulation…</p>
+    <div class="loadbar"><div class="loadbar-fill"></div></div>
+    <p style="font-size:0.8rem;">This may take 15–30 seconds</p>
+  </div>
+
   <div class="container">
     <h1>Job Loss Hedging Model</h1>
     <p class="subtitle">Enter your profile to run a Monte Carlo simulation</p>
@@ -104,6 +141,12 @@ FORM_HTML = """
 
     <p class="note">Simulation may take 15–30 seconds. Results will show income distributions, risk metrics, and optimal hedge.</p>
   </div>
+
+  <script>
+    document.querySelector('form').addEventListener('submit', function() {
+      document.getElementById('loading').classList.add('active');
+    });
+  </script>
 </body>
 </html>
 """

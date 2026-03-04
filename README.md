@@ -133,6 +133,22 @@ Enter industry, company size, job level, tenure, salary, paths, and horizon; sub
 
 ---
 
+## Deployment
+
+### GitHub Pages (static dashboard)
+
+1. Push to GitHub and enable **Pages** in repo Settings → Pages → Source: **GitHub Actions**
+2. The workflow (`.github/workflows/deploy.yml`) runs on push to `main`: generates the dashboard and deploys to Pages
+3. Optional: add `FRED_API_KEY` and `BLS_API_KEY` as repo secrets for live macro data
+
+### Render (full web app with form)
+
+1. Connect this repo at [render.com](https://render.com)
+2. Render will use `render.yaml` to deploy the Flask app
+3. Add `FRED_API_KEY` and `BLS_API_KEY` in the Render dashboard for live data
+
+---
+
 ## Outputs
 
 - **Risk metrics:** Mean income, variance, Expected Shortfall (5%), $P(\text{drop} > 50\%)$

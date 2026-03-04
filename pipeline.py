@@ -144,6 +144,8 @@ def run_pipeline(
         "incomes_no_hedge": incomes_no_hedge,
         "incomes_with_hedge": total_with_hedge,
         "results": results,
+        "contract_price": contract_price,
+        "hedge_threshold": 7.0,
         "inputs": {
             "industry": industry,
             "company_size": company_size,

@@ -1,0 +1,13 @@
+# Deploy the Flask app to Render (https://render.com)
+# Connect this repo at dashboard.render.com for one-click deploy
+services:
+  - type: web
+    name: modelkalshi
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: FRED_API_KEY
+        sync: false
+      - key: BLS_API_KEY
+        sync: false
