@@ -66,11 +66,13 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         u = results[i].unemployment_path
         sample_paths.append({"weeks": list(range(len(u))), "unemployment": [float(x) for x in u]})
 
-    # Job loss timing distribution
+    # Job loss timing distribution (bins by year)
     job_loss_weeks = [r.job_loss_week for r in results if r.job_loss_week is not None]
+    horizon_weeks = len(results[0].unemployment_path) if results else 520
+    n_years = max(1, horizon_weeks // 52)
     if job_loss_weeks:
-        jl_counts, jl_edges = np.histogram(job_loss_weeks, bins=52)
-        jl_centers = [float((jl_edges[i] + jl_edges[i + 1]) / 2) for i in range(len(jl_edges) - 1)]
+        jl_counts, jl_edges = np.histogram(job_loss_weeks, bins=n_years * 4, range=(0, horizon_weeks))
+        jl_centers = [float((jl_edges[i] + jl_edges[i + 1]) / 2 / 52) for i in range(len(jl_edges) - 1)]
         jl_counts = [int(x) for x in jl_counts]
     else:
         jl_centers, jl_counts = [], []
@@ -262,7 +264,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
         font: {{ color: '#e4e4e7', family: 'DM Sans' }},
-        xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
+        xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
         yaxis: {{ title: 'Count', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
         showlegend: false,
         bargap: 0.1
@@ -283,7 +285,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
         font: {{ color: '#e4e4e7', family: 'DM Sans' }},
-        xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
+        xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
         yaxis: {{ title: 'Count', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
         showlegend: false,
         bargap: 0.1
@@ -301,7 +303,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
         font: {{ color: '#e4e4e7', family: 'DM Sans' }},
-        xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
+        xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
         yaxis: {{ title: 'Count', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
         barmode: 'group',
         bargap: 0.2,
@@ -324,7 +326,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
         font: {{ color: '#e4e4e7', family: 'DM Sans' }},
-        xaxis: {{ title: 'Week of job loss', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
+        xaxis: {{ title: 'Year of job loss', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
         yaxis: {{ title: 'Count', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
         showlegend: false,
         bargap: 0.05
