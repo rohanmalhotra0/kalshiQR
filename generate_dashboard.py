@@ -129,6 +129,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     h_star = int(n_contracts) if n_contracts else 0
     total_cost = h_star * contract_price
     hedge_payout_rate = 100 * sum(1 for r in results if r.hedge_payoff > 0) / len(results) if results else 0
+    horizon_years = out.get("inputs", {}).get("horizon_years", 10)
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -371,14 +372,14 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
 
     <div class="chart-grid">
       <div class="chart-card" style="grid-column: 1 / -1;">
-        <h2>What your income could look like over 10 years</h2>
+        <h2>What your income could look like over {horizon_years} years</h2>
         <div id="chart1" class="chart"></div>
-        <p class="chart-note"><strong>Dashed purple</strong> = average income without hedge. <strong>Dotted green</strong> = average with hedge. <strong>Solid gray</strong> = full employment (no job loss). Most people cluster near the gray line; some paths have job loss and lower income.</p>
+        <p class="chart-note"><strong>Dashed gray</strong> = average income without hedge. <strong>Dotted green</strong> = average with hedge. <strong>Solid gray</strong> = full employment (no job loss). Most people cluster near the gray line; some paths have job loss and lower income.</p>
       </div>
       <div class="chart-card">
         <h2>Chance your income stays below a given amount</h2>
         <div id="chart2" class="chart"></div>
-        <p class="chart-note">Follow the curve: at $800k, you can read the chance your total income is below that. Lower curve = hedge helps protect you.</p>
+        <p class="chart-note">Follow the curve: at ${int(baseline * 0.65 / 100000) * 100000:,}, you can read the chance your total income is below that. Lower curve = hedge helps protect you.</p>
       </div>
       <div class="chart-card">
         <h2>How many people still have a job each year</h2>
@@ -427,7 +428,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       ],
       layout: {{
         ...commonLayout,
-        xaxis: {{ ...commonLayout.xaxis, title: 'Total income over 10 years ($)', range: [0, {x_max}] }},
+        xaxis: {{ ...commonLayout.xaxis, title: 'Total income over {horizon_years} years ($)', range: [0, {x_max}] }},
         yaxis: {{ ...commonLayout.yaxis, title: 'How often this happens' }},
         barmode: 'overlay',
         bargap: 0.05,
