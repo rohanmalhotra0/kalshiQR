@@ -98,7 +98,7 @@ FORM_HTML = """
       <a href="/paper">Paper</a>
       <a href="/">Rerun tests</a>
       <a href="/documentation">Documentation</a>
-      <a href="/about">Our Teams</a>
+      <a href="/about">Our Team</a>
     </div>
   </nav>
 
