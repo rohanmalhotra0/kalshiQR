@@ -66,14 +66,6 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     density_no = [float(x) for x in counts_no]
     density_hedge = [float(x) for x in counts_hedge]
 
-    # Left tail zoom (0–600k)
-    tail_max = 600_000
-    counts_no_tail, edges_tail = np.histogram(np.clip(incomes_no, 0, tail_max), bins=40, range=(0, tail_max), density=True)
-    counts_hedge_tail, _ = np.histogram(np.clip(incomes_hedge, 0, tail_max), bins=40, range=(0, tail_max), density=True)
-    bin_centers_tail = [(edges_tail[i] + edges_tail[i + 1]) / 2 for i in range(len(edges_tail) - 1)]
-    density_no_tail = [float(x) for x in counts_no_tail]
-    density_hedge_tail = [float(x) for x in counts_hedge_tail]
-
     # CDF data
     sorted_no = np.sort(incomes_no)
     sorted_hedge = np.sort(incomes_hedge)
@@ -386,28 +378,23 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         <p class="chart-note">Cumulative distribution. Read P(income &lt; 800k) or P(income &lt; 600k) directly from the curve.</p>
       </div>
       <div class="chart-card">
-        <h2>Figure 3: Left Tail Zoom ($0–$600k)</h2>
+        <h2>Figure 3: Survival Curve — P(Still Employed)</h2>
         <div id="chart3" class="chart"></div>
-        <p class="chart-note">Zoomed view of low-income outcomes. Hedge effect on tail risk.</p>
-      </div>
-      <div class="chart-card">
-        <h2>Figure 4: Survival Curve — P(Still Employed)</h2>
-        <div id="chart4" class="chart"></div>
         <p class="chart-note">Fraction of paths still employed at each year. Mean job loss year: {avg_year_loss:.1f}.</p>
       </div>
       <div class="chart-card">
-        <h2>Figure 5: Hedge Payoff Activation</h2>
-        <div id="chart5" class="chart"></div>
+        <h2>Figure 4: Hedge Payoff Activation</h2>
+        <div id="chart4" class="chart"></div>
         <p class="chart-note">Distribution of max unemployment per path. Vertical line at threshold {hedge_threshold:.1f}%. Hedge pays in {hedge_payout_rate:.1f}% of paths.</p>
       </div>
       <div class="chart-card">
         <h2>Job Loss Timing (Density)</h2>
-        <div id="chart6" class="chart"></div>
+        <div id="chart5" class="chart"></div>
         <p class="chart-note"><strong>Paths with job loss:</strong> {n_job_losses:,} ({pct_job_loss:.1f}%) · Mean year: {avg_year_loss:.1f} · Median year: {median_year_loss:.1f}.</p>
       </div>
       <div class="chart-card" style="grid-column: 1 / -1;">
         <h2>Sample Unemployment Paths</h2>
-        <div id="chart7" class="chart" style="height: 360px;"></div>
+        <div id="chart6" class="chart" style="height: 360px;"></div>
         <p class="chart-note"><strong>Mean unemployment:</strong> {mean_u:.2f}% · First 20 of {n_paths:,} paths.</p>
       </div>
     </div>
@@ -469,24 +456,8 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       config: {{ responsive: true }}
     }};
 
-    // Figure 3: Left tail zoom
+    // Figure 3: Survival curve
     const chart3 = {{
-      data: [
-        {{ x: {json.dumps(bin_centers_tail)}, y: {json.dumps(density_no_tail)}, type: 'bar', name: 'No hedge', marker: {{ color: '#6366f1', opacity: 0.6 }} }},
-        {{ x: {json.dumps(bin_centers_tail)}, y: {json.dumps(density_hedge_tail)}, type: 'bar', name: 'With hedge', marker: {{ color: '#22c55e', opacity: 0.6 }} }}
-      ],
-      layout: {{
-        ...commonLayout,
-        xaxis: {{ ...commonLayout.xaxis, title: 'Income ($)', range: [0, 600000] }},
-        yaxis: {{ ...commonLayout.yaxis, title: 'Probability Density' }},
-        barmode: 'overlay',
-        bargap: 0.05
-      }},
-      config: {{ responsive: true }}
-    }};
-
-    // Figure 4: Survival curve
-    const chart4 = {{
       data: [{{
         x: {json.dumps(survival_years)},
         y: {json.dumps(survival_probs)},
@@ -505,8 +476,8 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       config: {{ responsive: true }}
     }};
 
-    // Figure 5: Hedge payoff activation
-    const chart5 = {{
+    // Figure 4: Hedge payoff activation
+    const chart4 = {{
       data: [{{
         x: {json.dumps(u_centers)},
         y: {json.dumps(u_density)},
@@ -526,7 +497,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     }};
 
     // Job loss timing (density)
-    const chart6 = {{
+    const chart5 = {{
       data: [{{
         x: {json.dumps(jl_centers)},
         y: {json.dumps(jl_density)},
@@ -547,7 +518,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     }};
 
     const paths = {json.dumps(sample_paths)};
-    const chart7 = {{
+    const chart6 = {{
       data: paths.map((p, i) => ({{
         x: p.weeks,
         y: p.unemployment,
@@ -571,7 +542,6 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     Plotly.newPlot('chart4', chart4.data, chart4.layout, chart4.config);
     Plotly.newPlot('chart5', chart5.data, chart5.layout, chart5.config);
     Plotly.newPlot('chart6', chart6.data, chart6.layout, chart6.config);
-    Plotly.newPlot('chart7', chart7.data, chart7.layout, chart7.config);
   </script>
 </body>
 </html>
