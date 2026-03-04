@@ -165,6 +165,17 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       line-height: 1.6;
     }}
     .hedge-summary strong {{ color: var(--accent2); }}
+    .model-assumptions {{
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }}
+    .model-assumptions strong {{ color: var(--text); }}
     .metric-card {{
       background: var(--surface);
       border: 1px solid var(--border);
@@ -279,6 +290,10 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       <p class="subtitle">Monte Carlo simulation — {len(incomes_no):,} paths, {len(results[0].unemployment_path) // 52} year horizon</p>
       <p class="subtitle" style="margin-top:0.25rem;font-size:0.8rem;">{inputs_str}</p>
     </header>
+
+    <div class="model-assumptions">
+      <strong>Model structure:</strong> Employment state E_t ∈ {{0,1}} with transitions employed → unemployed → employed. Unemployment duration T ~ Exp(μ), μ = 20 weeks (BLS). Job loss via Poisson hazard λ_t driven by macro unemployment. Hedge: binary Kalshi contracts on unemployment threshold.
+    </div>
 
     <div class="metrics-row">
       <div class="metric-card">

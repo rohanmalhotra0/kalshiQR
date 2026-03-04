@@ -103,9 +103,9 @@
 
     <h2>Model design</h2>
     <p><strong>Income process:</strong> Employment state E_t ∈ {0,1}. Cumulative wealth dW_t = S·E_t·dt where S is salary.</p>
-    <p><strong>Job loss:</strong> Modeled as a Poisson process with intensity λ_t. Employment flips from 1 to 0 when a job-loss event occurs.</p>
+    <p><strong>Job loss & reemployment:</strong> Poisson job loss with intensity λ_t. Employment flips 1→0 on job loss. Unemployment duration T ~ Exponential(μ), μ = 20 weeks (BLS). After T weeks, employment flips 0→1 (reemployment). So income path is: employed → unemployed → employed.</p>
     <p><strong>Hazard rate:</strong> P(JobLoss) = σ(β₀ + β₁·U_t + β₂·industry + β₃·r_t) — logistic function of unemployment, industry risk, and interest rate.</p>
-    <p><strong>Hedge:</strong> Kalshi contracts are binary ($1 if event occurs, $0 otherwise). Optimal hedge ratio h* = Cov(Loss, Hedge) / Var(Hedge).</p>
+    <p><strong>Hedge:</strong> Kalshi contracts are binary ($1 if event occurs, $0 otherwise). Optimal hedge ratio h* = Cov(Loss, Hedge) / Var(Hedge). Hedge threshold trades off: lower (e.g. 5.5–6%) = more correlation with layoffs but higher payout frequency; higher (e.g. 8%) = rarer trigger, weaker correlation.</p>
 
     <h2>Codebase architecture</h2>
     <p>How the components fit together:</p>
