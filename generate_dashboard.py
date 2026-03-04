@@ -52,15 +52,35 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     results = out["results"]
     params = out["params"]
 
-    # Histogram data (shared bins for comparison)
-    all_vals = np.concatenate([incomes_no, incomes_hedge])
+    # Histogram data: density (probability density) for comparison
+    horizon_weeks = len(results[0].unemployment_path) if results else 520
+    salary_in = out.get("inputs", {}).get("salary", 120_000)
+    baseline = horizon_weeks * (salary_in / 52) if results else 1_200_000
+    x_max = max(float(np.max(incomes_no)), float(np.max(incomes_hedge)), baseline * 1.02)
     bins = 60
-    counts_no, edges = np.histogram(np.clip(incomes_no, 0, None), bins=bins, range=(0, all_vals.max() or 1))
-    counts_hedge, _ = np.histogram(np.clip(incomes_hedge, 0, None), bins=bins, range=(0, all_vals.max() or 1))
-    edges_no = [float(x) for x in edges[:-1]]
-    edges_hedge = edges_no
-    counts_no = [int(x) for x in counts_no]
-    counts_hedge = [int(x) for x in counts_hedge]
+    range_hist = (0, x_max)
+
+    counts_no, edges = np.histogram(np.clip(incomes_no, 0, None), bins=bins, range=range_hist, density=True)
+    counts_hedge, _ = np.histogram(np.clip(incomes_hedge, 0, None), bins=bins, range=range_hist, density=True)
+    bin_centers = [(edges[i] + edges[i + 1]) / 2 for i in range(len(edges) - 1)]
+    density_no = [float(x) for x in counts_no]
+    density_hedge = [float(x) for x in counts_hedge]
+
+    # Left tail zoom (0–600k)
+    tail_max = 600_000
+    counts_no_tail, edges_tail = np.histogram(np.clip(incomes_no, 0, tail_max), bins=40, range=(0, tail_max), density=True)
+    counts_hedge_tail, _ = np.histogram(np.clip(incomes_hedge, 0, tail_max), bins=40, range=(0, tail_max), density=True)
+    bin_centers_tail = [(edges_tail[i] + edges_tail[i + 1]) / 2 for i in range(len(edges_tail) - 1)]
+    density_no_tail = [float(x) for x in counts_no_tail]
+    density_hedge_tail = [float(x) for x in counts_hedge_tail]
+
+    # CDF data
+    sorted_no = np.sort(incomes_no)
+    sorted_hedge = np.sort(incomes_hedge)
+    cdf_no_x = [float(x) for x in sorted_no]
+    cdf_no_y = [float(i / len(sorted_no)) for i in range(len(sorted_no))]
+    cdf_hedge_x = [float(x) for x in sorted_hedge]
+    cdf_hedge_y = [float(i / len(sorted_hedge)) for i in range(len(sorted_hedge))]
 
     # Sample unemployment paths (first 20)
     sample_paths = []
@@ -70,14 +90,27 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
 
     # Job loss timing distribution (bins by year)
     job_loss_weeks = [r.job_loss_week for r in results if r.job_loss_week is not None]
-    horizon_weeks = len(results[0].unemployment_path) if results else 520
     n_years = max(1, horizon_weeks // 52)
     if job_loss_weeks:
-        jl_counts, jl_edges = np.histogram(job_loss_weeks, bins=n_years * 4, range=(0, horizon_weeks))
+        jl_counts, jl_edges = np.histogram(job_loss_weeks, bins=n_years * 4, range=(0, horizon_weeks), density=True)
         jl_centers = [float((jl_edges[i] + jl_edges[i + 1]) / 2 / 52) for i in range(len(jl_edges) - 1)]
-        jl_counts = [int(x) for x in jl_counts]
+        jl_density = [float(x) for x in jl_counts]
     else:
-        jl_centers, jl_counts = [], []
+        jl_centers, jl_density = [], []
+
+    # Survival curve: P(still employed at week t)
+    survival_weeks = list(range(0, horizon_weeks + 1, 52))  # yearly points
+    survival_probs = []
+    for t in survival_weeks:
+        pct = 100 * sum(1 for r in results if r.job_loss_week is None or r.job_loss_week > t) / len(results)
+        survival_probs.append(pct)
+    survival_years = [w / 52 for w in survival_weeks]
+
+    # Hedge payoff: max unemployment per path
+    max_u_per_path = [float(np.max(r.unemployment_path)) for r in results]
+    u_hist, u_edges = np.histogram(max_u_per_path, bins=50, range=(2, 15), density=True)
+    u_centers = [(u_edges[i] + u_edges[i + 1]) / 2 for i in range(len(u_edges) - 1)]
+    u_density = [float(x) for x in u_hist]
 
     # Stats for chart footnotes
     n_paths = len(incomes_no)
@@ -88,6 +121,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     n_job_losses = len(job_loss_weeks)
     pct_job_loss = 100 * n_job_losses / n_paths if n_paths else 0
     avg_year_loss = float(np.mean(job_loss_weeks) / 52) if job_loss_weeks else 0
+    median_year_loss = float(np.median(job_loss_weeks) / 52) if job_loss_weeks else 0
     all_u = np.concatenate([r.unemployment_path for r in results])
     mean_u = float(np.mean(all_u))
 
@@ -341,30 +375,40 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     </div>
 
     <div class="chart-grid">
-      <div class="chart-card">
-        <h2>Income Distribution (No Hedge)</h2>
+      <div class="chart-card" style="grid-column: 1 / -1;">
+        <h2>Figure 1: Income Distribution (Probability Density)</h2>
         <div id="chart1" class="chart"></div>
-        <p class="chart-note"><strong>Mean:</strong> ${rn.mean:,.0f} · <strong>Median:</strong> ${median_no:,.0f} · <strong>Paths with $0 income:</strong> {pct_zero_no:.1f}% — Simulated paths that experienced job loss and had no hedge payout.</p>
+        <p class="chart-note">Overlaid density histograms with vertical lines: Mean (no hedge) ${rn.mean:,.0f}, Mean (with hedge) ${rh.mean:,.0f}, Full employment ${baseline:,.0f}. P(drop&gt;50%) = {rn.tail_prob_50pct_drop:.1%} → {rh.tail_prob_50pct_drop:.1%}.</p>
       </div>
       <div class="chart-card">
-        <h2>Income Distribution (With Hedge)</h2>
+        <h2>Figure 2: CDF — P(Income ≤ x)</h2>
         <div id="chart2" class="chart"></div>
-        <p class="chart-note"><strong>Mean:</strong> ${rh.mean:,.0f} · <strong>Median:</strong> ${median_hedge:,.0f} · <strong>Paths with $0 income:</strong> {pct_zero_hedge:.1f}% — Hedge payouts reduce zero-income outcomes when unemployment exceeds threshold.</p>
+        <p class="chart-note">Cumulative distribution. Read P(income &lt; 800k) or P(income &lt; 600k) directly from the curve.</p>
       </div>
       <div class="chart-card">
-        <h2>Income Comparison</h2>
+        <h2>Figure 3: Left Tail Zoom ($0–$600k)</h2>
         <div id="chart3" class="chart"></div>
-        <p class="chart-note"><strong>Variance reduction:</strong> {out['variance_reduction_pct']:.1f}% · <strong>Tail risk (P(drop&gt;50%)):</strong> {rn.tail_prob_50pct_drop:.1%} → {rh.tail_prob_50pct_drop:.1%} — Overlaid distributions show how the hedge shifts mass from low-income to higher-income outcomes.</p>
+        <p class="chart-note">Zoomed view of low-income outcomes. Hedge effect on tail risk.</p>
       </div>
       <div class="chart-card">
-        <h2>Job Loss Timing</h2>
+        <h2>Figure 4: Survival Curve — P(Still Employed)</h2>
         <div id="chart4" class="chart"></div>
-        <p class="chart-note"><strong>Paths with job loss:</strong> {n_job_losses:,} ({pct_job_loss:.1f}%) · <strong>Avg year of loss:</strong> {avg_year_loss:.1f} — Job loss ≠ permanent unemployment: model assumes reemployment after mean ~20 weeks (BLS). When job loss occurred across the {n_paths:,} simulated career paths.</p>
+        <p class="chart-note">Fraction of paths still employed at each year. Mean job loss year: {avg_year_loss:.1f}.</p>
+      </div>
+      <div class="chart-card">
+        <h2>Figure 5: Hedge Payoff Activation</h2>
+        <div id="chart5" class="chart"></div>
+        <p class="chart-note">Distribution of max unemployment per path. Vertical line at threshold {hedge_threshold:.1f}%. Hedge pays in {hedge_payout_rate:.1f}% of paths.</p>
+      </div>
+      <div class="chart-card">
+        <h2>Job Loss Timing (Density)</h2>
+        <div id="chart6" class="chart"></div>
+        <p class="chart-note"><strong>Paths with job loss:</strong> {n_job_losses:,} ({pct_job_loss:.1f}%) · Mean year: {avg_year_loss:.1f} · Median year: {median_year_loss:.1f}.</p>
       </div>
       <div class="chart-card" style="grid-column: 1 / -1;">
         <h2>Sample Unemployment Paths</h2>
-        <div id="chart5" class="chart" style="height: 360px;"></div>
-        <p class="chart-note"><strong>Mean unemployment across all paths:</strong> {mean_u:.2f}% · First 20 of {n_paths:,} simulated macro paths — Unemployment drives the job-loss hazard rate λ in each week.</p>
+        <div id="chart7" class="chart" style="height: 360px;"></div>
+        <p class="chart-note"><strong>Mean unemployment:</strong> {mean_u:.2f}% · First 20 of {n_paths:,} paths.</p>
       </div>
     </div>
 
@@ -375,108 +419,147 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
   </div>
 
   <script>
+    const commonLayout = {{
+      margin: {{ t: 20, r: 20, b: 50, l: 55 }},
+      paper_bgcolor: 'transparent',
+      plot_bgcolor: 'transparent',
+      font: {{ color: '#e4e4e7', family: 'DM Sans' }},
+      xaxis: {{ gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
+      yaxis: {{ gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
+      legend: {{ x: 0.7, y: 1, bgcolor: 'rgba(0,0,0,0)' }}
+    }};
+
+    // Figure 1: Income distribution (density, overlaid, vertical lines)
     const chart1 = {{
-      data: [{{
-        x: {json.dumps(edges_no)},
-        y: {json.dumps(counts_no)},
-        type: 'bar',
-        marker: {{ color: '#6366f1', opacity: 0.8 }},
-        name: 'No hedge'
-      }}],
-      layout: {{
-        margin: {{ t: 20, r: 20, b: 50, l: 50 }},
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        font: {{ color: '#e4e4e7', family: 'DM Sans' }},
-        xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
-        yaxis: {{ title: 'Number of simulated paths', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
-        showlegend: false,
-        bargap: 0.1
-      }},
-      config: {{ responsive: true }}
-    }};
-
-    const chart2 = {{
-      data: [{{
-        x: {json.dumps(edges_hedge)},
-        y: {json.dumps(counts_hedge)},
-        type: 'bar',
-        marker: {{ color: '#22c55e', opacity: 0.8 }},
-        name: 'With hedge'
-      }}],
-      layout: {{
-        margin: {{ t: 20, r: 20, b: 50, l: 50 }},
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        font: {{ color: '#e4e4e7', family: 'DM Sans' }},
-        xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
-        yaxis: {{ title: 'Number of simulated paths', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
-        showlegend: false,
-        bargap: 0.1
-      }},
-      config: {{ responsive: true }}
-    }};
-
-    const chart3 = {{
       data: [
-        {{ x: {json.dumps(edges_no)}, y: {json.dumps(counts_no)}, type: 'bar', name: 'No hedge', marker: {{ color: '#6366f1', opacity: 0.6 }} }},
-        {{ x: {json.dumps(edges_hedge)}, y: {json.dumps(counts_hedge)}, type: 'bar', name: 'With hedge', marker: {{ color: '#22c55e', opacity: 0.6 }} }}
+        {{ x: {json.dumps(bin_centers)}, y: {json.dumps(density_no)}, type: 'bar', name: 'No hedge', marker: {{ color: '#6366f1', opacity: 0.6 }} }},
+        {{ x: {json.dumps(bin_centers)}, y: {json.dumps(density_hedge)}, type: 'bar', name: 'With hedge', marker: {{ color: '#22c55e', opacity: 0.6 }} }}
       ],
       layout: {{
-        margin: {{ t: 20, r: 20, b: 50, l: 50 }},
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        font: {{ color: '#e4e4e7', family: 'DM Sans' }},
-        xaxis: {{ title: 'Income ($)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
-        yaxis: {{ title: 'Number of simulated paths', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
-        barmode: 'group',
-        bargap: 0.2,
-        bargroupgap: 0.05,
-        legend: {{ x: 0.7, y: 1, bgcolor: 'rgba(0,0,0,0)' }}
+        ...commonLayout,
+        xaxis: {{ ...commonLayout.xaxis, title: 'Income ($)', range: [0, {x_max}] }},
+        yaxis: {{ ...commonLayout.yaxis, title: 'Probability Density' }},
+        barmode: 'overlay',
+        bargap: 0.05,
+        shapes: [
+          {{ type: 'line', x0: {rn.mean}, x1: {rn.mean}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dash', color: '#818cf8', width: 1.5 }} }},
+          {{ type: 'line', x0: {rh.mean}, x1: {rh.mean}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dot', color: '#4ade80', width: 1.5 }} }},
+          {{ type: 'line', x0: {baseline}, x1: {baseline}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'solid', color: '#a1a1aa', width: 1 }} }}
+        ],
+        annotations: [
+          {{ x: {rn.mean}, y: 1, yref: 'paper', text: 'Mean (no hedge)', showarrow: false, font: {{ size: 9, color: '#818cf8' }}, xanchor: 'left' }},
+          {{ x: {rh.mean}, y: 0.95, yref: 'paper', text: 'Mean (hedge)', showarrow: false, font: {{ size: 9, color: '#4ade80' }}, xanchor: 'left' }},
+          {{ x: {baseline}, y: 0.9, yref: 'paper', text: 'Full employment', showarrow: false, font: {{ size: 9, color: '#a1a1aa' }}, xanchor: 'left' }}
+        ]
       }},
       config: {{ responsive: true }}
     }};
 
-    const chart4 = {{
-      data: [{{
-        x: {json.dumps(jl_centers)},
-        y: {json.dumps(list(jl_counts))},
-        type: 'bar',
-        marker: {{ color: '#f59e0b', opacity: 0.8 }},
-        name: 'Job losses'
-      }}],
+    // Figure 2: CDF
+    const chart2 = {{
+      data: [
+        {{ x: {json.dumps(cdf_no_x)}, y: {json.dumps(cdf_no_y)}, type: 'scatter', mode: 'lines', name: 'No hedge', line: {{ color: '#6366f1', width: 2 }} }},
+        {{ x: {json.dumps(cdf_hedge_x)}, y: {json.dumps(cdf_hedge_y)}, type: 'scatter', mode: 'lines', name: 'With hedge', line: {{ color: '#22c55e', width: 2 }} }}
+      ],
       layout: {{
-        margin: {{ t: 20, r: 20, b: 50, l: 50 }},
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        font: {{ color: '#e4e4e7', family: 'DM Sans' }},
-        xaxis: {{ title: 'Year of job loss', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
-        yaxis: {{ title: 'Number of simulated paths', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
-        showlegend: false,
+        ...commonLayout,
+        xaxis: {{ ...commonLayout.xaxis, title: 'Income ($)' }},
+        yaxis: {{ ...commonLayout.yaxis, title: 'P(Income ≤ x)', range: [0, 1.02] }}
+      }},
+      config: {{ responsive: true }}
+    }};
+
+    // Figure 3: Left tail zoom
+    const chart3 = {{
+      data: [
+        {{ x: {json.dumps(bin_centers_tail)}, y: {json.dumps(density_no_tail)}, type: 'bar', name: 'No hedge', marker: {{ color: '#6366f1', opacity: 0.6 }} }},
+        {{ x: {json.dumps(bin_centers_tail)}, y: {json.dumps(density_hedge_tail)}, type: 'bar', name: 'With hedge', marker: {{ color: '#22c55e', opacity: 0.6 }} }}
+      ],
+      layout: {{
+        ...commonLayout,
+        xaxis: {{ ...commonLayout.xaxis, title: 'Income ($)', range: [0, 600000] }},
+        yaxis: {{ ...commonLayout.yaxis, title: 'Probability Density' }},
+        barmode: 'overlay',
         bargap: 0.05
       }},
       config: {{ responsive: true }}
     }};
 
-    const paths = {json.dumps(sample_paths)};
-    const chart5Data = paths.map((p, i) => ({{
-      x: p.weeks,
-      y: p.unemployment,
-      type: 'scatter',
-      mode: 'lines',
-      name: `Path ${{i + 1}}`,
-      line: {{ width: 1, opacity: 0.5 }}
-    }}));
-
-    const chart5 = {{
-      data: chart5Data,
+    // Figure 4: Survival curve
+    const chart4 = {{
+      data: [{{
+        x: {json.dumps(survival_years)},
+        y: {json.dumps(survival_probs)},
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: 'P(still employed)',
+        line: {{ color: '#f59e0b', width: 2 }},
+        marker: {{ size: 6 }}
+      }}],
       layout: {{
-        margin: {{ t: 20, r: 20, b: 50, l: 50 }},
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        font: {{ color: '#e4e4e7', family: 'DM Sans' }},
-        xaxis: {{ title: 'Week', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
-        yaxis: {{ title: 'Unemployment (%)', gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
+        ...commonLayout,
+        xaxis: {{ ...commonLayout.xaxis, title: 'Year', tickformat: ',.0f' }},
+        yaxis: {{ ...commonLayout.yaxis, title: 'P(Still Employed) (%)', range: [0, 105] }},
+        showlegend: false
+      }},
+      config: {{ responsive: true }}
+    }};
+
+    // Figure 5: Hedge payoff activation
+    const chart5 = {{
+      data: [{{
+        x: {json.dumps(u_centers)},
+        y: {json.dumps(u_density)},
+        type: 'bar',
+        name: 'Max unemployment',
+        marker: {{ color: '#6366f1', opacity: 0.7 }}
+      }}],
+      layout: {{
+        ...commonLayout,
+        xaxis: {{ ...commonLayout.xaxis, title: 'Max unemployment (%)' }},
+        yaxis: {{ ...commonLayout.yaxis, title: 'Probability Density' }},
+        shapes: [{{ type: 'line', x0: {hedge_threshold}, x1: {hedge_threshold}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dash', color: '#22c55e', width: 2 }} }}],
+        annotations: [{{ x: {hedge_threshold}, y: 1, yref: 'paper', text: 'Threshold', showarrow: false, font: {{ size: 9, color: '#22c55e' }}, xanchor: 'left' }}],
+        showlegend: false
+      }},
+      config: {{ responsive: true }}
+    }};
+
+    // Job loss timing (density)
+    const chart6 = {{
+      data: [{{
+        x: {json.dumps(jl_centers)},
+        y: {json.dumps(jl_density)},
+        type: 'bar',
+        marker: {{ color: '#f59e0b', opacity: 0.8 }}
+      }}],
+      layout: {{
+        ...commonLayout,
+        xaxis: {{ ...commonLayout.xaxis, title: 'Year of job loss' }},
+        yaxis: {{ ...commonLayout.yaxis, title: 'Probability Density' }},
+        shapes: [
+          {{ type: 'line', x0: {avg_year_loss}, x1: {avg_year_loss}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dash', color: '#f59e0b', width: 1.5 }} }},
+          {{ type: 'line', x0: {median_year_loss}, x1: {median_year_loss}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dot', color: '#fbbf24', width: 1.5 }} }}
+        ],
+        showlegend: false
+      }},
+      config: {{ responsive: true }}
+    }};
+
+    const paths = {json.dumps(sample_paths)};
+    const chart7 = {{
+      data: paths.map((p, i) => ({{
+        x: p.weeks,
+        y: p.unemployment,
+        type: 'scatter',
+        mode: 'lines',
+        name: `Path ${{i + 1}}`,
+        line: {{ width: 1, opacity: 0.5 }}
+      }})),
+      layout: {{
+        ...commonLayout,
+        xaxis: {{ ...commonLayout.xaxis, title: 'Week' }},
+        yaxis: {{ ...commonLayout.yaxis, title: 'Unemployment (%)' }},
         showlegend: false
       }},
       config: {{ responsive: true }}
@@ -487,6 +570,8 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     Plotly.newPlot('chart3', chart3.data, chart3.layout, chart3.config);
     Plotly.newPlot('chart4', chart4.data, chart4.layout, chart4.config);
     Plotly.newPlot('chart5', chart5.data, chart5.layout, chart5.config);
+    Plotly.newPlot('chart6', chart6.data, chart6.layout, chart6.config);
+    Plotly.newPlot('chart7', chart7.data, chart7.layout, chart7.config);
   </script>
 </body>
 </html>
