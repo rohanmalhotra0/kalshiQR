@@ -39,12 +39,16 @@ jobs:
 
       - name: Prepare site
         run: |
+          rm -rf site
           mkdir -p site
+          # index.html = form/quiz (landing page). dashboard.html = results.
           cp static_form.html site/index.html
           cp dashboard.html site/dashboard.html
           cp paper.html site/paper.html
           cp about.html site/about.html
           [ -f currentModel.pdf ] && cp currentModel.pdf site/ || true
+          touch site/.nojekyll
+          grep -q "Inputs" site/index.html && echo "OK: index.html is the form (quiz first)"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
