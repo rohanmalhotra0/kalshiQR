@@ -2,7 +2,7 @@
 
 A Monte Carlo framework for hedging personal income risk using prediction market contracts (e.g., Kalshi). The model simulates job-loss events via a macro-sensitive hazard process and evaluates how unemployment-linked contracts reduce tail risk in income distributions.
 
-**Paper:** [`currentModel.tex`](currentModel.tex) — *Hedging Personal Income Risk Using Prediction Markets* (Jayachandran, Lin, Malhotra)
+**Paper:** [currentModel.pdf](currentModel.pdf) — *Hedging Personal Income Risk Using Prediction Markets* (Jayachandran, Lin, Malhotra)
 
 ---
 
