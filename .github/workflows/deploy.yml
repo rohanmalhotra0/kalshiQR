@@ -45,6 +45,7 @@ jobs:
           cp static_form.html site/index.html
           cp dashboard.html site/dashboard.html
           cp paper.html site/paper.html
+          cp documentation.html site/documentation.html
           cp about.html site/about.html
           [ -f currentModel.pdf ] && cp currentModel.pdf site/ || true
           touch site/.nojekyll

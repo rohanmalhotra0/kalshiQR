@@ -253,6 +253,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     <div class="navbar-links">
       <a href="paper.html">Paper</a>
       <a href="./">Rerun tests</a>
+      <a href="documentation.html">Documentation</a>
       <a href="about.html">Our Teams</a>
     </div>
   </nav>
@@ -268,32 +269,32 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       <div class="metric-card">
         <h3>Mean (no hedge)</h3>
         <div class="value">${rn.mean:,.0f}</div>
-        <p class="metric-desc">Average total income over the horizon without buying any hedge contracts.</p>
+        <p class="metric-desc"><strong>Mean</strong> = average. Average total income over the horizon without buying any hedge contracts.</p>
       </div>
       <div class="metric-card">
         <h3>Mean (with hedge)</h3>
         <div class="value green">${rh.mean:,.0f}</div>
-        <p class="metric-desc">Average total income after buying the recommended hedge contracts (includes cost and payouts).</p>
+        <p class="metric-desc"><strong>Mean</strong> = average. Average total income after buying the recommended hedge contracts (includes cost and payouts).</p>
       </div>
       <div class="metric-card">
         <h3>ES 5% (worst case)</h3>
         <div class="value">${rn.expected_shortfall_5pct:,.0f} → ${rh.expected_shortfall_5pct:,.0f}</div>
-        <p class="metric-desc">Expected Shortfall: average income in the worst 5% of outcomes. Higher after hedge = better protection.</p>
+        <p class="metric-desc"><strong>ES</strong> = Expected Shortfall. Average income in the worst 5% of outcomes. Higher after hedge = better protection.</p>
       </div>
       <div class="metric-card">
         <h3>P(drop &gt; 50%)</h3>
         <div class="value amber">{rn.tail_prob_50pct_drop:.1%} → {rh.tail_prob_50pct_drop:.1%}</div>
-        <p class="metric-desc">Probability your income drops by more than 50% vs full employment. Lower after hedge = less tail risk.</p>
+        <p class="metric-desc"><strong>P</strong> = probability. Chance your income drops by more than 50% vs full employment. Lower after hedge = less tail risk.</p>
       </div>
       <div class="metric-card">
         <h3>Optimal h*</h3>
         <div class="value">{h_star:,} contracts</div>
-        <p class="metric-desc">Recommended number of Kalshi contracts to buy (minimum-variance hedge ratio).</p>
+        <p class="metric-desc"><strong>h*</strong> = optimal hedge ratio. Recommended number of Kalshi contracts to buy (minimum-variance hedge).</p>
       </div>
       <div class="metric-card">
         <h3>Hazard β₀</h3>
         <div class="value">{params.beta0:.3f}</div>
-        <p class="metric-desc">Intercept in the job-loss hazard model. More negative = lower baseline job-loss risk.</p>
+        <p class="metric-desc"><strong>β₀</strong> = beta-nought, the intercept in the job-loss hazard model. More negative = lower baseline job-loss risk.</p>
       </div>
     </div>
 

@@ -97,6 +97,7 @@ FORM_HTML = """
     <div class="navbar-links">
       <a href="/paper">Paper</a>
       <a href="/">Rerun tests</a>
+      <a href="/documentation">Documentation</a>
       <a href="/about">Our Teams</a>
     </div>
   </nav>
@@ -178,6 +179,13 @@ FORM_HTML = """
 def paper():
     path = Path(__file__).parent / "paper.html"
     return path.read_text(encoding="utf-8") if path.exists() else "Paper not found", 404
+
+
+@app.route("/documentation")
+@app.route("/documentation.html")
+def documentation():
+    path = Path(__file__).parent / "documentation.html"
+    return path.read_text(encoding="utf-8") if path.exists() else "Documentation not found", 404
 
 
 @app.route("/about")

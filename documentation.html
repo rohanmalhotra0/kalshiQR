@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation — Job Loss Hedging Model</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --surface: #18181c;
+      --surface2: #222228;
+      --text: #e4e4e7;
+      --text-muted: #8b8b94;
+      --accent: #6366f1;
+      --border: #2d2d35;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.7; }
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+    .navbar a:hover { color: var(--accent); }
+    .navbar .brand { font-weight: 600; color: var(--text); }
+    .navbar-links { display: flex; gap: 1.5rem; }
+    .container { max-width: 720px; margin: 0 auto; padding: 2rem; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin-top: 2rem; margin-bottom: 0.75rem; color: var(--accent); }
+    p { color: var(--text-muted); margin-bottom: 1rem; }
+    .pipeline {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      line-height: 1.8;
+      margin: 1rem 0;
+    }
+    .codebase-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    .codebase-table th, .codebase-table td {
+      padding: 0.6rem 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .codebase-table th { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; }
+    .codebase-table td { color: var(--text); font-size: 0.9rem; }
+    .codebase-table code { color: var(--accent); }
+    .math { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--text); }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="./" class="brand">Job Loss Hedging</a>
+    <div class="navbar-links">
+      <a href="paper.html">Paper</a>
+      <a href="./">Rerun tests</a>
+      <a href="documentation.html">Documentation</a>
+      <a href="about.html">Our Teams</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Documentation</h1>
+    <p style="color:var(--text-muted);margin-bottom:2rem;">Overview of how we built the job-loss hedging model</p>
+
+    <h2>What we built</h2>
+    <p>A Monte Carlo framework for hedging personal income risk using prediction market contracts (Kalshi). The model simulates job-loss events via a macro-sensitive hazard process and evaluates how unemployment-linked contracts reduce tail risk in income distributions.</p>
+    <p>Household income risk is usually addressed through savings or insurance, but these offer limited protection against macroeconomic shocks. Prediction markets like Kalshi offer tradable contracts tied to unemployment, recessions, and interest rates—giving individuals a way to hedge job-loss risk.</p>
+
+    <h2>System pipeline</h2>
+    <p>We built a pipeline that flows from personal inputs through macro data, hazard modeling, stochastic simulation, and finally to hedge recommendations:</p>
+    <div class="pipeline">
+      personal data<br>
+      ↓<br>
+      macro data (FRED/BLS)<br>
+      ↓<br>
+      hazard model<br>
+      ↓<br>
+      job-loss probability (λ)<br>
+      ↓<br>
+      Poisson stochastic model<br>
+      ↓<br>
+      Monte Carlo simulation<br>
+      ↓<br>
+      income distribution<br>
+      ↓<br>
+      Kalshi market data<br>
+      ↓<br>
+      optimal hedge ratio (h*)<br>
+      ↓<br>
+      hedge portfolio
+    </div>
+
+    <h2>Model design</h2>
+    <p><strong>Income process:</strong> Employment state E_t ∈ {0,1}. Cumulative wealth dW_t = S·E_t·dt where S is salary.</p>
+    <p><strong>Job loss:</strong> Modeled as a Poisson process with intensity λ_t. Employment flips from 1 to 0 when a job-loss event occurs.</p>
+    <p><strong>Hazard rate:</strong> P(JobLoss) = σ(β₀ + β₁·U_t + β₂·industry + β₃·r_t) — logistic function of unemployment, industry risk, and interest rate.</p>
+    <p><strong>Hedge:</strong> Kalshi contracts are binary ($1 if event occurs, $0 otherwise). Optimal hedge ratio h* = Cov(Loss, Hedge) / Var(Hedge).</p>
+
+    <h2>Codebase architecture</h2>
+    <p>How the components fit together:</p>
+    <table class="codebase-table">
+      <tr><th>Component</th><th>File</th><th>Role</th></tr>
+      <tr><td>Pipeline</td><td><code>pipeline.py</code></td><td>End-to-end: personal inputs → hazard → MC → risk metrics</td></tr>
+      <tr><td>Hazard model</td><td><code>hazard_model.py</code></td><td>Logistic hazard P(JobLoss), industry risk, λ from macro state</td></tr>
+      <tr><td>Stochastic model</td><td><code>stochastic_model.py</code></td><td>Poisson job loss, employment paths</td></tr>
+      <tr><td>Monte Carlo</td><td><code>monte_carlo.py</code></td><td>Simulate paths, income with/without hedge, risk metrics</td></tr>
+      <tr><td>Hedge model</td><td><code>hedge_model.py</code></td><td>Kalshi binary contracts, payoff, optimal h*</td></tr>
+      <tr><td>Data fetcher</td><td><code>data_fetcher.py</code></td><td>FRED, BLS JOLTS, macro state, salary reference</td></tr>
+      <tr><td>Kalshi client</td><td><code>kalshi_client.py</code></td><td>Kalshi public API (markets, orderbook)</td></tr>
+      <tr><td>Dashboard</td><td><code>generate_dashboard.py</code></td><td>Build HTML with Plotly charts</td></tr>
+      <tr><td>Web app</td><td><code>app.py</code></td><td>Flask form → run simulation → dashboard</td></tr>
+    </table>
+
+    <h2>Outputs</h2>
+    <p>Risk metrics (mean, variance, Expected Shortfall (5%), P(drop > 50%)), optimal hedge ratio h*, and charts (income distribution, job loss timing, unemployment paths).</p>
+
+    <p style="margin-top:2rem;"><a href="paper.html">Read the full paper →</a></p>
+  </div>
+</body>
+</html>
