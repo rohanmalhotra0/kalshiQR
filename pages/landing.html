@@ -9,13 +9,13 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0a0f;
-      --surface: rgba(24, 24, 28, 0.6);
-      --text: #f4f4f5;
-      --text-muted: #a1a1aa;
-      --accent: #6366f1;
-      --accent-glow: rgba(99, 102, 241, 0.4);
-      --border: rgba(45, 45, 53, 0.8);
+      --bg: #ffffff;
+      --surface: rgba(248, 250, 252, 0.9);
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #00D26A;
+      --accent-glow: rgba(0, 210, 106, 0.35);
+      --border: rgba(226, 232, 240, 0.9);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -37,8 +37,8 @@
     .overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.15), transparent),
-                  radial-gradient(ellipse 60% 40% at 80% 50%, rgba(99, 102, 241, 0.08), transparent);
+      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 210, 106, 0.12), transparent),
+                  radial-gradient(ellipse 60% 40% at 80% 50%, rgba(0, 210, 106, 0.06), transparent);
       pointer-events: none;
       z-index: 1;
     }
@@ -51,7 +51,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 1rem 2rem;
-      background: rgba(10, 10, 15, 0.8);
+      background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       z-index: 100;
@@ -89,7 +89,7 @@
       letter-spacing: -0.03em;
       line-height: 1.1;
       margin-bottom: 1.25rem;
-      background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+      background: linear-gradient(135deg, #0f172a 0%, var(--accent) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -110,7 +110,7 @@
       font-weight: 600;
       font-family: inherit;
       color: white;
-      background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
+      background: linear-gradient(135deg, var(--accent) 0%, #00b359 100%);
       border: none;
       border-radius: 12px;
       text-decoration: none;
@@ -230,14 +230,14 @@
     particlesJS('particles-js', {
       particles: {
         number: { value: 240, density: { enable: true, value_area: 800 } },
-        color: { value: '#6366f1' },
+        color: { value: '#00D26A' },
         shape: { type: 'circle' },
         opacity: { value: 0.4, random: true },
         size: { value: 3, random: { enable: true, minimumValue: 1 } },
         links: {
           enable: true,
           distance: 150,
-          color: '#6366f1',
+          color: '#00D26A',
           opacity: 0.2,
           width: 1
         },

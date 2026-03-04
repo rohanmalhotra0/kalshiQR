@@ -27,12 +27,12 @@ FORM_HTML = """
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0f0f12;
-      --surface: #18181c;
-      --text: #e4e4e7;
-      --text-muted: #8b8b94;
-      --accent: #6366f1;
-      --border: #2d2d35;
+      --bg: #ffffff;
+      --surface: #f8fafc;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #00D26A;
+      --border: #e2e8f0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
@@ -52,7 +52,7 @@ FORM_HTML = """
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(15, 15, 18, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       z-index: 9999;
       align-items: center;
       justify-content: center;
@@ -70,7 +70,7 @@ FORM_HTML = """
     }
     .loadbar-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--accent), #818cf8);
+      background: linear-gradient(90deg, var(--accent), #00b359);
       border-radius: 3px;
       animation: load 2s ease-in-out infinite;
     }

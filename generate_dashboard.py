@@ -142,15 +142,15 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {{
-      --bg: #0f0f12;
-      --surface: #18181c;
-      --surface2: #222228;
-      --text: #e4e4e7;
-      --text-muted: #8b8b94;
-      --accent: #6366f1;
-      --accent2: #22c55e;
+      --bg: #ffffff;
+      --surface: #f8fafc;
+      --surface2: #f1f5f9;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #00D26A;
+      --accent2: #00D26A;
       --accent3: #f59e0b;
-      --border: #2d2d35;
+      --border: #e2e8f0;
     }}
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
@@ -218,8 +218,8 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       gap: 0.5rem;
     }}
     .metric-card:hover {{
-      border-color: rgba(99, 102, 241, 0.5);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border-color: rgba(0, 210, 106, 0.5);
+      box-shadow: 0 4px 20px rgba(0, 210, 106, 0.15);
     }}
     .metric-card h3 {{
       font-size: 0.7rem;
@@ -413,17 +413,17 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       margin: {{ t: 40, r: 40, b: 60, l: 65 }},
       paper_bgcolor: 'transparent',
       plot_bgcolor: 'transparent',
-      font: {{ color: '#e4e4e7', family: 'DM Sans' }},
-      xaxis: {{ gridcolor: '#2d2d35', zerolinecolor: '#2d2d35', tickformat: ',.0f' }},
-      yaxis: {{ gridcolor: '#2d2d35', zerolinecolor: '#2d2d35' }},
+      font: {{ color: '#0f172a', family: 'DM Sans' }},
+      xaxis: {{ gridcolor: '#e2e8f0', zerolinecolor: '#e2e8f0', tickformat: ',.0f' }},
+      yaxis: {{ gridcolor: '#e2e8f0', zerolinecolor: '#e2e8f0' }},
       legend: {{ x: 0.99, y: 1, xanchor: 'left', yanchor: 'top', bgcolor: 'rgba(0,0,0,0)', font: {{ size: 11 }}, orientation: 'h' }}
     }};
 
     // Figure 1: Income distribution (density, overlaid, vertical lines)
     const chart1 = {{
       data: [
-        {{ x: {json.dumps(bin_centers)}, y: {json.dumps(density_no)}, type: 'bar', name: 'No hedge', marker: {{ color: '#6366f1', opacity: 0.6 }} }},
-        {{ x: {json.dumps(bin_centers)}, y: {json.dumps(density_hedge)}, type: 'bar', name: 'With hedge', marker: {{ color: '#22c55e', opacity: 0.6 }} }}
+        {{ x: {json.dumps(bin_centers)}, y: {json.dumps(density_no)}, type: 'bar', name: 'No hedge', marker: {{ color: '#64748b', opacity: 0.6 }} }},
+        {{ x: {json.dumps(bin_centers)}, y: {json.dumps(density_hedge)}, type: 'bar', name: 'With hedge', marker: {{ color: '#00D26A', opacity: 0.6 }} }}
       ],
       layout: {{
         ...commonLayout,
@@ -432,8 +432,8 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         barmode: 'overlay',
         bargap: 0.05,
         shapes: [
-          {{ type: 'line', x0: {rn.mean}, x1: {rn.mean}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dash', color: '#818cf8', width: 1.5 }} }},
-          {{ type: 'line', x0: {rh.mean}, x1: {rh.mean}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dot', color: '#4ade80', width: 1.5 }} }},
+          {{ type: 'line', x0: {rn.mean}, x1: {rn.mean}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dash', color: '#64748b', width: 1.5 }} }},
+          {{ type: 'line', x0: {rh.mean}, x1: {rh.mean}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dot', color: '#00D26A', width: 1.5 }} }},
           {{ type: 'line', x0: {baseline}, x1: {baseline}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'solid', color: '#a1a1aa', width: 1 }} }}
         ]
       }},
@@ -443,8 +443,8 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
     // Figure 2: CDF
     const chart2 = {{
       data: [
-        {{ x: {json.dumps(cdf_no_x)}, y: {json.dumps(cdf_no_y)}, type: 'scatter', mode: 'lines', name: 'No hedge', line: {{ color: '#6366f1', width: 2 }} }},
-        {{ x: {json.dumps(cdf_hedge_x)}, y: {json.dumps(cdf_hedge_y)}, type: 'scatter', mode: 'lines', name: 'With hedge', line: {{ color: '#22c55e', width: 2 }} }}
+        {{ x: {json.dumps(cdf_no_x)}, y: {json.dumps(cdf_no_y)}, type: 'scatter', mode: 'lines', name: 'No hedge', line: {{ color: '#64748b', width: 2 }} }},
+        {{ x: {json.dumps(cdf_hedge_x)}, y: {json.dumps(cdf_hedge_y)}, type: 'scatter', mode: 'lines', name: 'With hedge', line: {{ color: '#00D26A', width: 2 }} }}
       ],
       layout: {{
         ...commonLayout,
@@ -481,14 +481,14 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
         y: {json.dumps(u_density)},
         type: 'bar',
         name: 'Max unemployment',
-        marker: {{ color: '#6366f1', opacity: 0.7 }}
+        marker: {{ color: '#00D26A', opacity: 0.7 }}
       }}],
       layout: {{
         ...commonLayout,
         xaxis: {{ ...commonLayout.xaxis, title: 'Highest unemployment reached (%)' }},
         yaxis: {{ ...commonLayout.yaxis, title: 'How often' }},
-        shapes: [{{ type: 'line', x0: {hedge_threshold}, x1: {hedge_threshold}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dash', color: '#22c55e', width: 2 }} }}],
-        annotations: [{{ x: {hedge_threshold}, y: 1.02, yref: 'paper', text: 'Hedge pays above this', showarrow: false, font: {{ size: 10, color: '#22c55e' }}, xanchor: 'center' }}],
+        shapes: [{{ type: 'line', x0: {hedge_threshold}, x1: {hedge_threshold}, y0: 0, y1: 1, yref: 'paper', line: {{ dash: 'dash', color: '#00D26A', width: 2 }} }}],
+        annotations: [{{ x: {hedge_threshold}, y: 1.02, yref: 'paper', text: 'Hedge pays above this', showarrow: false, font: {{ size: 10, color: '#00D26A' }}, xanchor: 'center' }}],
         showlegend: false
       }},
       config: {{ responsive: true }}
