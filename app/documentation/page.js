@@ -91,7 +91,7 @@ export default function DocumentationPage() {
       </div>
 
       <div className="card" style={{ marginTop: '0.8rem' }}>
-        <h3>Step-by-step full walkthrough (slow example)</h3>
+        <h3>Step-by-step full walkthrough </h3>
         <p className="note" style={{ marginBottom: '0.7rem' }}>
           This is a worked example with explicit numbers so each stage is easy to follow. The arithmetic below is illustrative; production
           output is computed by the Python pipeline with calibrated data.
