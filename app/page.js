@@ -1,27 +1,31 @@
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import HeroPixels from '@/components/HeroPixels';
 
 export default function HomePage() {
   return (
     <>
       <section className="hero">
-        <h1>Hedge your income against job loss</h1>
-        <p>
-          Use prediction markets to protect your finances. Run a simulation and get a personalized contract recommendation in seconds.
-        </p>
-        <Link href="/quiz" className="cta-btn">Get Started</Link>
-        <div className="features" style={{ maxWidth: 900, margin: '2rem auto 0' }}>
-          <div className="card">
-            <h3>Monte Carlo Simulation</h3>
-            <p className="note">5,000+ paths over 10 years</p>
-          </div>
-          <div className="card">
-            <h3>Optimal Hedge Ratio</h3>
-            <p className="note">Data-driven contract sizing</p>
-          </div>
-          <div className="card">
-            <h3>Kalshi Integration</h3>
-            <p className="note">Unemployment and recession markets</p>
+        <HeroPixels />
+        <div className="hero-content">
+          <h1>Hedge your income against job loss</h1>
+          <p>
+            Use prediction markets to protect your finances. Run a simulation and get a personalized contract recommendation in seconds.
+          </p>
+          <Link href="/quiz" className="cta-btn">Get Started</Link>
+          <div className="features" style={{ maxWidth: 900, margin: '2rem auto 0' }}>
+            <div className="card">
+              <h3>Monte Carlo Simulation</h3>
+              <p className="note">5,000+ paths over 10 years</p>
+            </div>
+            <div className="card">
+              <h3>Optimal Hedge Ratio</h3>
+              <p className="note">Data-driven contract sizing</p>
+            </div>
+            <div className="card">
+              <h3>Kalshi Integration</h3>
+              <p className="note">Unemployment and recession markets</p>
+            </div>
           </div>
         </div>
       </section>
