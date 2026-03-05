@@ -22,44 +22,47 @@ const rotatingHeadlines = [
 const fmtCurrency = (v) => `$${Math.round(v).toLocaleString()}`;
 const fmtPct = (v) => `${Number(v).toFixed(1)}%`;
 
-function useTypewriterRotation(lines, typingMs = 34, deletingMs = 20, holdMs = 1300) {
+function useTypewriterRotation(lines, typingMs = 36, deletingMs = 20, holdMs = 900) {
   const [lineIdx, setLineIdx] = useState(0);
-  const [value, setValue] = useState('');
-  const [deleting, setDeleting] = useState(false);
+  const [charIdx, setCharIdx] = useState(0);
+  const [mode, setMode] = useState('typing'); // typing | hold | deleting
 
   useEffect(() => {
     const full = lines[lineIdx] ?? '';
-    let nextDelay = typingMs;
+    let delay = typingMs;
 
-    if (!deleting && value.length < full.length) {
-      nextDelay = typingMs;
-    } else if (!deleting && value.length === full.length) {
-      nextDelay = holdMs;
-    } else if (deleting) {
-      nextDelay = deletingMs;
-    }
+    if (mode === 'hold') delay = holdMs;
+    if (mode === 'deleting') delay = deletingMs;
 
     const id = setTimeout(() => {
-      if (!deleting && value.length < full.length) {
-        setValue(full.slice(0, value.length + 1));
+      if (mode === 'typing') {
+        if (charIdx < full.length) {
+          setCharIdx((c) => c + 1);
+        } else {
+          setMode('hold');
+        }
         return;
       }
-      if (!deleting && value.length === full.length) {
-        setDeleting(true);
+
+      if (mode === 'hold') {
+        setMode('deleting');
         return;
       }
-      if (deleting && value.length > 0) {
-        setValue(full.slice(0, value.length - 1));
-        return;
+
+      if (mode === 'deleting') {
+        if (charIdx > 0) {
+          setCharIdx((c) => c - 1);
+        } else {
+          setLineIdx((idx) => (idx + 1) % lines.length);
+          setMode('typing');
+        }
       }
-      setDeleting(false);
-      setLineIdx((prev) => (prev + 1) % lines.length);
-    }, nextDelay);
+    }, delay);
 
     return () => clearTimeout(id);
-  }, [value, deleting, lineIdx, lines, typingMs, deletingMs, holdMs]);
+  }, [lines, lineIdx, charIdx, mode, typingMs, deletingMs, holdMs]);
 
-  return value;
+  return (lines[lineIdx] ?? '').slice(0, charIdx);
 }
 
 function toPath(points, width, height, minX, maxX, minY, maxY) {
