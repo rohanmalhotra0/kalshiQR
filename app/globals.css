@@ -149,6 +149,10 @@ a {
   margin-bottom: 1rem;
 }
 
+.landing-page-shell .hero h1 {
+  color: #000;
+}
+
 .hero p {
   color: var(--text-muted);
   max-width: 680px;
