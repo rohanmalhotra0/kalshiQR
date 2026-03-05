@@ -12,6 +12,25 @@ const loadingPhases = [
   'Preparing charts and recommendation',
 ];
 
+function useTypewriter(text, speedMs = 28) {
+  const [value, setValue] = useState('');
+
+  useEffect(() => {
+    let idx = 0;
+    setValue('');
+    const id = setInterval(() => {
+      idx += 1;
+      setValue(text.slice(0, idx));
+      if (idx >= text.length) {
+        clearInterval(id);
+      }
+    }, speedMs);
+    return () => clearInterval(id);
+  }, [text, speedMs]);
+
+  return value;
+}
+
 function toPath(points, width, height, minX, maxX, minY, maxY) {
   if (!points.length) return '';
   const spanX = Math.max(1e-9, maxX - minX);
@@ -186,9 +205,37 @@ function TriggerChart({ maxUnemployment, hedgeThreshold, triggerRate }) {
   );
 }
 
+function MonteCarloSampleChart({ sample }) {
+  if (!sample?.path?.length) return null;
+  const w = 700;
+  const h = 220;
+  const pointsNo = sample.path.map((x, i) => [x, sample.no_hedge[i]]);
+  const pointsWith = sample.path.map((x, i) => [x, sample.with_hedge[i]]);
+  const minY = Math.min(...sample.no_hedge, ...sample.with_hedge);
+  const maxY = Math.max(...sample.no_hedge, ...sample.with_hedge);
+  const minX = Math.min(...sample.path);
+  const maxX = Math.max(...sample.path);
+  const noPath = toPath(pointsNo, w, h, minX, maxX, minY, maxY);
+  const withPath = toPath(pointsWith, w, h, minX, maxX, minY, maxY);
+
+  return (
+    <div className="card" style={{ marginTop: '1rem' }}>
+      <h3>Monte Carlo Sample Paths (Outcomes)</h3>
+      <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 220 }}>
+        <path d={noPath} stroke="rgba(120,120,120,0.75)" strokeWidth="2" fill="none" />
+        <path d={withPath} stroke="rgba(0,168,84,0.9)" strokeWidth="2" fill="none" />
+      </svg>
+      <p className="note" style={{ marginTop: '0.7rem' }}>
+        This is a sampled slice of simulated path outcomes. Gray is per-path total income without hedge, green is with hedge after premium and payouts.
+      </p>
+    </div>
+  );
+}
+
 function DashboardClient() {
   const searchParams = useSearchParams();
   const inputs = useMemo(() => parseInputs(Object.fromEntries(searchParams.entries())), [searchParams]);
+  const typedTitle = useTypewriter('Hedge your income against job loss');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -260,7 +307,11 @@ function DashboardClient() {
 
   return (
     <div className="container" style={{ maxWidth: 1100 }}>
-      <h1 className="section-title">Dashboard</h1>
+      <h1 className="section-title" style={{ marginBottom: '0.35rem' }}>
+        {typedTitle}
+        <span style={{ opacity: 0.7 }}>|</span>
+      </h1>
+      <p className="note" style={{ marginBottom: '0.8rem' }}>Dashboard</p>
      
 
       {loading && (
@@ -289,6 +340,7 @@ function DashboardClient() {
             <div className="metric"><div className="label">Worst 5% outcomes</div><div className="value">${Math.round(result.worstNo).toLocaleString()} → ${Math.round(result.worstHedge).toLocaleString()}</div></div>
             <div className="metric"><div className="label">Big drop chance</div><div className="value">{result.tailNo.toFixed(1)}% → {result.tailHedge.toFixed(1)}%</div></div>
             <div className="metric"><div className="label">Contracts to buy</div><div className="value">{result.contracts.toLocaleString()}</div></div>
+            <div className="metric"><div className="label">Cost per contract</div><div className="value">${result.contractPrice.toFixed(2)}</div></div>
             <div className="metric"><div className="label">Upfront hedge cost</div><div className="value">${result.totalCost.toLocaleString()}</div></div>
           </div>
 
@@ -305,11 +357,13 @@ function DashboardClient() {
             hedgeThreshold={result.hedgeThreshold}
             triggerRate={result.triggerRate}
           />
+          <MonteCarloSampleChart sample={result.monteCarloSample} />
 
           <div className="card" style={{ marginTop: '1.25rem' }}>
             <p>
               <strong>Bottom line:</strong> Buy <strong>{result.contracts.toLocaleString()} contracts</strong> that pay out if US unemployment exceeds {result.hedgeThreshold.toFixed(1)}%.
-              Upfront cost is <strong>${result.totalCost.toLocaleString()}</strong>. If triggered, payout is <strong>${result.payout.toLocaleString()}</strong>.
+              Cost is <strong>${result.contractPrice.toFixed(2)} per contract</strong> (upfront <strong>${result.totalCost.toLocaleString()}</strong> total).
+              If triggered, payout is <strong>${result.payout.toLocaleString()}</strong>.
               In this model run, trigger chance is about <strong>{result.triggerRate.toFixed(1)}%</strong>.
             </p>
           </div>

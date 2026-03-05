@@ -46,6 +46,7 @@ def main():
     percentiles = None
     survival = None
     max_unemployment = None
+    monte_carlo_sample = None
     if len(incomes_no) > 0 and len(incomes_with) > 0:
         bins = 24
         min_v = float(min(np.min(incomes_no), np.min(incomes_with)))
@@ -64,6 +65,14 @@ def main():
             "p": [float(v) for v in pcts.tolist()],
             "no_hedge": [float(v) for v in np.percentile(incomes_no, pcts).tolist()],
             "with_hedge": [float(v) for v in np.percentile(incomes_with, pcts).tolist()],
+        }
+
+        sample_n = min(140, len(incomes_no))
+        sample_idx = np.linspace(0, len(incomes_no) - 1, sample_n).astype(int)
+        monte_carlo_sample = {
+            "path": [int(i + 1) for i in sample_idx.tolist()],
+            "no_hedge": [float(v) for v in incomes_no[sample_idx].tolist()],
+            "with_hedge": [float(v) for v in incomes_with[sample_idx].tolist()],
         }
 
     if len(results) > 0:
@@ -108,6 +117,7 @@ def main():
         'percentiles': percentiles,
         'survival': survival,
         'maxUnemployment': max_unemployment,
+        'monteCarloSample': monte_carlo_sample,
     }
     payload['totalCost'] = int(round(payload['contracts'] * payload['contractPrice']))
     payload['payout'] = int(payload['contracts'])
