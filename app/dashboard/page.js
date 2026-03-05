@@ -278,14 +278,14 @@ function MonteCarloSampleChart({ sample }) {
 
   return (
     <div className="card" style={{ marginTop: '1rem' }}>
-      <h3>Monte Carlo Sample Paths (Outcomes)</h3>
+      <h3>Monte Carlo Paths (All Outcomes)</h3>
       <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 220 }}>
         <path d={noPath} stroke="rgba(120,120,120,0.75)" strokeWidth="2" fill="none" />
         <path d={withPath} stroke="rgba(85,85,85,0.9)" strokeWidth="2" fill="none" />
       </svg>
       <p className="note" style={{ marginTop: '0.7rem' }}>
-        This chart shows sampled path-by-path outcomes from the simulation. In this sample, average income moves from {fmtCurrency(avgNo)} to {fmtCurrency(avgWith)} (delta {fmtCurrency(sampleDelta)}).
-        The no-hedge sample spans from {fmtCurrency(minNo)} to {fmtCurrency(maxNo)}.
+        This chart shows all simulated path outcomes from the run ({sample.path.length.toLocaleString()} total). Average income moves from {fmtCurrency(avgNo)} to {fmtCurrency(avgWith)} (delta {fmtCurrency(sampleDelta)}).
+        The no-hedge range spans from {fmtCurrency(minNo)} to {fmtCurrency(maxNo)}.
       </p>
     </div>
   );
@@ -399,22 +399,6 @@ function DashboardClient() {
       )}
       {!loading && !error && result && (
         <>
-          <div className="card" style={{ marginBottom: '1rem' }}>
-            <h3>Model Inputs in Equations</h3>
-            <p className="note">
-              {`\\[S = ${inputs.salary}\\]`}
-            </p>
-            <p className="note">
-              {`\\[T = ${inputs.horizon_years}\\text{ years}\\]`}
-            </p>
-            <p className="note">
-              {`\\[N = ${inputs.n_paths}\\]`}
-            </p>
-            <p className="note">
-              {`\\[W_t^{(1)}, W_t^{(2)}, ..., W_t^{(${inputs.n_paths})}\\]`}
-            </p>
-          </div>
-
           <div className="metric-grid">
             <div className="metric"><div className="label">Average income (no hedge)</div><div className="value">${Math.round(result.meanNo).toLocaleString()}</div></div>
             <div className="metric"><div className="label">Average income (with hedge)</div><div className="value">${Math.round(result.meanHedge).toLocaleString()}</div></div>

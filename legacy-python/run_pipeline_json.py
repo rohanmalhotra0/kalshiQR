@@ -67,12 +67,10 @@ def main():
             "with_hedge": [float(v) for v in np.percentile(incomes_with, pcts).tolist()],
         }
 
-        sample_n = min(140, len(incomes_no))
-        sample_idx = np.linspace(0, len(incomes_no) - 1, sample_n).astype(int)
         monte_carlo_sample = {
-            "path": [int(i + 1) for i in sample_idx.tolist()],
-            "no_hedge": [float(v) for v in incomes_no[sample_idx].tolist()],
-            "with_hedge": [float(v) for v in incomes_with[sample_idx].tolist()],
+            "path": [int(i + 1) for i in range(len(incomes_no))],
+            "no_hedge": [float(v) for v in incomes_no.tolist()],
+            "with_hedge": [float(v) for v in incomes_with.tolist()],
         }
 
     if len(results) > 0:
