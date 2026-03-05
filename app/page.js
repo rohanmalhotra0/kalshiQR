@@ -87,7 +87,7 @@ export default function HomePage() {
         </section>
 
         <section className="container" style={{ maxWidth: 760 }}>
-          <h2 className="section-title" style={{ textAlign: 'center', color: 'var(--accent)' }}>FAQs</h2>
+          <h2 className="section-title" style={{ textAlign: 'center', color: '#3f3f3f' }}>FAQs</h2>
           <details className="faq-item">
             <summary>What is this?</summary>
             <p>We help you hedge your income against job loss using prediction markets. Enter your profile and get a contract recommendation sized to your salary.</p>

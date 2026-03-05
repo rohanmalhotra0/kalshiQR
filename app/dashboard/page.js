@@ -126,14 +126,14 @@ function HistogramChart({ histogram, meanNo, meanHedge, baselineIncome }) {
               y={h - bh}
               width={Math.max(1, barW * 0.45)}
               height={bh}
-              fill="rgba(0,168,84,0.72)"
+              fill="rgba(92,92,92,0.62)"
             />
           );
         })}
         <path d={noPath} stroke="rgba(90,90,90,0.95)" strokeWidth="2" fill="none" />
-        <path d={withPath} stroke="rgba(0,168,84,0.95)" strokeWidth="2" fill="none" />
+        <path d={withPath} stroke="rgba(70,70,70,0.95)" strokeWidth="2" fill="none" />
         <line x1={xOf(safeMeanNo)} x2={xOf(safeMeanNo)} y1="0" y2={h} stroke="rgba(90,90,90,0.7)" strokeDasharray="5 4" />
-        <line x1={xOf(safeMeanHedge)} x2={xOf(safeMeanHedge)} y1="0" y2={h} stroke="rgba(0,168,84,0.8)" strokeDasharray="4 3" />
+        <line x1={xOf(safeMeanHedge)} x2={xOf(safeMeanHedge)} y1="0" y2={h} stroke="rgba(80,80,80,0.8)" strokeDasharray="4 3" />
         <line x1={xOf(safeBaseline)} x2={xOf(safeBaseline)} y1="0" y2={h} stroke="rgba(150,150,150,0.65)" />
       </svg>
       <p className="note" style={{ marginTop: '0.7rem' }}>
@@ -171,12 +171,12 @@ function PercentileChart({ percentiles }) {
       </p>
       <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 220 }}>
         <path d={noPath} stroke="rgb(140,140,140)" strokeWidth="3" fill="none" />
-        <path d={withPath} stroke="rgb(0,168,84)" strokeWidth="3" fill="none" />
+        <path d={withPath} stroke="rgb(80,80,80)" strokeWidth="3" fill="none" />
       </svg>
       <p className="note">
         <span style={{ color: 'rgb(140,140,140)', fontWeight: 700 }}>No hedge</span>{' '}
         vs{' '}
-        <span style={{ color: 'rgb(0,168,84)', fontWeight: 700 }}>With hedge</span>
+        <span style={{ color: 'rgb(80,80,80)', fontWeight: 700 }}>With hedge</span>
       </p>
       <p className="note" style={{ marginTop: '0.45rem' }}>
         At P10: {fmtCurrency(p10No)} to {fmtCurrency(p10With)}; at median: {fmtCurrency(p50No)} to {fmtCurrency(p50With)}; at P90: {fmtCurrency(p90No)} to {fmtCurrency(p90With)}.
@@ -204,7 +204,7 @@ function SurvivalChart({ survival }) {
         <line x1="0" x2={w} y1={h} y2={h} stroke="rgba(150,150,150,0.4)" />
         <line x1="0" x2={w} y1={h * 0.5} y2={h * 0.5} stroke="rgba(150,150,150,0.25)" />
         <line x1="0" x2={w} y1={0} y2={0} stroke="rgba(150,150,150,0.25)" />
-        <path d={path} stroke="rgb(245,158,11)" strokeWidth="3" fill="none" />
+        <path d={path} stroke="rgb(90,90,90)" strokeWidth="3" fill="none" />
       </svg>
       <p className="note" style={{ marginTop: '0.7rem' }}>
         This starts at {fmtPct(start)} and ends at {fmtPct(end)} by year {years}.
@@ -242,12 +242,12 @@ function TriggerChart({ maxUnemployment, hedgeThreshold, triggerRate }) {
               y={h - bh}
               width={Math.max(1, barW - 2)}
               height={bh}
-              fill="rgba(0,168,84,0.35)"
+              fill="rgba(100,100,100,0.35)"
             />
           );
         })}
-        <path d={curve} stroke="rgba(0,168,84,0.95)" strokeWidth="2.2" fill="none" />
-        <line x1={xOf(hedgeThreshold)} x2={xOf(hedgeThreshold)} y1="0" y2={h} stroke="rgba(0,168,84,0.95)" strokeDasharray="6 5" />
+        <path d={curve} stroke="rgba(75,75,75,0.95)" strokeWidth="2.2" fill="none" />
+        <line x1={xOf(hedgeThreshold)} x2={xOf(hedgeThreshold)} y1="0" y2={h} stroke="rgba(75,75,75,0.95)" strokeDasharray="6 5" />
       </svg>
       <p className="note" style={{ marginTop: '0.7rem' }}>
         The most common max-unemployment region in this run is around {peakX.toFixed(2)}%.
@@ -281,7 +281,7 @@ function MonteCarloSampleChart({ sample }) {
       <h3>Monte Carlo Sample Paths (Outcomes)</h3>
       <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 220 }}>
         <path d={noPath} stroke="rgba(120,120,120,0.75)" strokeWidth="2" fill="none" />
-        <path d={withPath} stroke="rgba(0,168,84,0.9)" strokeWidth="2" fill="none" />
+        <path d={withPath} stroke="rgba(85,85,85,0.9)" strokeWidth="2" fill="none" />
       </svg>
       <p className="note" style={{ marginTop: '0.7rem' }}>
         This chart shows sampled path-by-path outcomes from the simulation. In this sample, average income moves from {fmtCurrency(avgNo)} to {fmtCurrency(avgWith)} (delta {fmtCurrency(sampleDelta)}).
@@ -386,9 +386,9 @@ function DashboardClient() {
         </div>
       )}
       {error && (
-        <div className="card" style={{ marginTop: '1rem', borderColor: '#fda29b' }}>
-          <h3 style={{ color: '#b42318' }}>Model error</h3>
-          <p className="note" style={{ color: '#b42318' }}>{error}</p>
+        <div className="card" style={{ marginTop: '1rem', borderColor: '#d6d6d9' }}>
+          <h3 style={{ color: '#3f3f3f' }}>Model error</h3>
+          <p className="note" style={{ color: '#5d5d5d' }}>{error}</p>
         </div>
       )}
       {!loading && !error && result && (

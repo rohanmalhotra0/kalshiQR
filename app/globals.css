@@ -2,13 +2,13 @@
 
 :root {
   --bg: #ffffff;
-  --surface: #f8fafc;
-  --surface2: #f1f5f9;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --accent: #00a854;
-  --accent-strong: #008f47;
-  --border: #e2e8f0;
+  --surface: #f6f6f7;
+  --surface2: #efeff1;
+  --text: #171717;
+  --text-muted: #626262;
+  --accent: #4b4b4b;
+  --accent-strong: #303030;
+  --border: #dddddf;
 }
 
 * {
@@ -186,8 +186,8 @@ a {
 }
 
 .faq-item {
-  background: #f6fdf9;
-  border: 1px solid rgba(0, 168, 84, 0.28);
+  background: #f5f5f6;
+  border: 1px solid #d9d9dc;
   border-radius: 12px;
   margin-bottom: 0.75rem;
 }
@@ -367,7 +367,7 @@ button {
   height: 26px;
   border-radius: 999px;
   border: 3px solid #d0d5dd;
-  border-top-color: var(--accent);
+  border-top-color: #4b4b4b;
   animation: spin 0.9s linear infinite;
   flex-shrink: 0;
 }
