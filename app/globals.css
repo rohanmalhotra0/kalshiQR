@@ -51,9 +51,23 @@ a {
 
 .site-brand {
   font-weight: 700;
-  text-decoration: none;
   color: var(--text);
   font-size: 0.98rem;
+}
+
+.site-brand-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+}
+
+.site-brand-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid var(--border);
 }
 
 .site-nav-links {

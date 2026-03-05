@@ -5,8 +5,8 @@ export const metadata = {
   title: 'Offset',
   description: 'Hedge your income against job loss with prediction-market sizing.',
   icons: {
-    icon: '/favicon.png',
-    apple: '/apple-touch-icon.png',
+    icon: '/offsetLogo.jpg',
+    apple: '/offsetLogo.jpg',
   },
 };
 

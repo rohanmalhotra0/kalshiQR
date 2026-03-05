@@ -11,7 +11,10 @@ export default function NavBar() {
   return (
     <nav className="site-nav">
       <div className="site-nav-inner">
-        <Link href="/" className="site-brand">Offset</Link>
+        <Link href="/" className="site-brand-wrap">
+          <img src="/offsetLogo.jpg" alt="Offset logo" className="site-brand-logo" />
+          <span className="site-brand">Offset</span>
+        </Link>
         <div className="site-nav-links">
         {links.map(([label, href]) => (
             <Link key={href} href={href} className="site-nav-link">
