@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="site-footer-inner">
         <div>
-          <p className="site-footer-brand">NYU BnF x Kalshi</p>
+          <p className="site-footer-brand">Offset</p>
           <p className="site-footer-tagline">Hedge your income against job loss</p>
         </div>
         <div className="site-footer-links">

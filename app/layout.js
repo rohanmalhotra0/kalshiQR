@@ -2,7 +2,7 @@ import './globals.css';
 import NavBar from '@/components/NavBar';
 
 export const metadata = {
-  title: 'NYU BnF x Kalshi',
+  title: 'Offset',
   description: 'Hedge your income against job loss with prediction-market sizing.',
   icons: {
     icon: '/favicon.png',

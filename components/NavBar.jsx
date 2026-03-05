@@ -11,7 +11,7 @@ export default function NavBar() {
   return (
     <nav className="site-nav">
       <div className="site-nav-inner">
-        <Link href="/" className="site-brand">NYU BnF x Kalshi</Link>
+        <Link href="/" className="site-brand">Offset</Link>
         <div className="site-nav-links">
         {links.map(([label, href]) => (
             <Link key={href} href={href} className="site-nav-link">

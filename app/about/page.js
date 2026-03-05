@@ -4,7 +4,7 @@ export default function AboutPage() {
   return (
     <div className="container" style={{ maxWidth: 760 }}>
       <h1 className="section-title">About Us</h1>
-      <p className="note" style={{ marginBottom: '1rem' }}>NYU Blockchain & Fintech — Our Team</p>
+      <p className="note" style={{ marginBottom: '1rem' }}>Offset — Our Team</p>
 
       <div className="card" style={{ marginBottom: '1rem' }}>
         <h3>Kalshi Development Team</h3>
@@ -27,7 +27,7 @@ export default function AboutPage() {
         <div className="contact-grid">
           <div className="contact-item">
             <p className="contact-label">Organization</p>
-            <p className="contact-value">NYU Blockchain & Fintech</p>
+            <p className="contact-value">Offset</p>
           </div>
           <div className="contact-item">
             <p className="contact-label">Website</p>
