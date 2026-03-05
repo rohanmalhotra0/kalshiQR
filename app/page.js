@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import Footer from '@/components/Footer';
-import HeroPixels from '@/components/HeroPixels';
+import HeroWaves from '@/components/HeroWaves';
 
 export default function HomePage() {
   return (
     <>
       <section className="hero">
-        <HeroPixels />
+        <HeroWaves />
         <div className="hero-content">
           <h1>Hedge your income against job loss</h1>
           <p>

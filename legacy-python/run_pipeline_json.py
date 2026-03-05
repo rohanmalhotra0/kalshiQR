@@ -3,6 +3,7 @@ import json
 import os
 import sys
 from pathlib import Path
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT / 'legacy-python') not in sys.path:
@@ -37,7 +38,31 @@ def main():
     rn = out['risk_without_hedge']
     rh = out['risk_with_hedge']
     results = out.get('results', [])
+    incomes_no = np.array(out.get('incomes_no_hedge', []), dtype=float)
+    incomes_with = np.array(out.get('incomes_with_hedge', []), dtype=float)
     trigger_rate = 100 * sum(1 for r in results if getattr(r, 'hedge_payoff', 0) > 0) / len(results) if results else 0
+
+    histogram = None
+    percentiles = None
+    if len(incomes_no) > 0 and len(incomes_with) > 0:
+        bins = 24
+        min_v = float(min(np.min(incomes_no), np.min(incomes_with)))
+        max_v = float(max(np.max(incomes_no), np.max(incomes_with)))
+        hist_no, edges = np.histogram(incomes_no, bins=bins, range=(min_v, max_v))
+        hist_with, _ = np.histogram(incomes_with, bins=bins, range=(min_v, max_v))
+        centers = ((edges[:-1] + edges[1:]) / 2.0).tolist()
+        histogram = {
+            "x": [float(v) for v in centers],
+            "no_hedge": [int(v) for v in hist_no.tolist()],
+            "with_hedge": [int(v) for v in hist_with.tolist()],
+        }
+
+        pcts = np.array([1, 5, 10, 25, 50, 75, 90, 95, 99], dtype=float)
+        percentiles = {
+            "p": [float(v) for v in pcts.tolist()],
+            "no_hedge": [float(v) for v in np.percentile(incomes_no, pcts).tolist()],
+            "with_hedge": [float(v) for v in np.percentile(incomes_with, pcts).tolist()],
+        }
 
     payload = {
         'inputs': out.get('inputs', {}),
@@ -53,6 +78,8 @@ def main():
         'tailHedge': float(rh.tail_prob_50pct_drop) * 100,
         'varianceReduction': float(out.get('variance_reduction_pct', 0.0)),
         'riskLevel': float(getattr(out.get('params'), 'beta0', -6.5)),
+        'histogram': histogram,
+        'percentiles': percentiles,
     }
     payload['totalCost'] = int(round(payload['contracts'] * payload['contractPrice']))
     payload['payout'] = int(payload['contracts'])
