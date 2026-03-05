@@ -31,28 +31,15 @@
     .navbar a:hover { color: var(--accent); }
     .navbar .brand { font-weight: 600; color: var(--text); }
     .navbar-links { display: flex; gap: 1.5rem; }
-    .container { max-width: 960px; margin: 0 auto; padding: 2rem; }
+    .container { max-width: 720px; margin: 0 auto; padding: 2rem; }
     h1 { font-family: 'Space Grotesk', sans-serif; font-size: 1.75rem; margin-bottom: 0.5rem; }
     .subtitle { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; }
-    .team-section {
-      display: flex;
-      align-items: flex-start;
-      gap: 2rem;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
-    }
     .team-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.5rem;
-      flex: 1;
-      min-width: 280px;
-    }
-    .team-lanyard {
-      flex-shrink: 0;
-      width: 320px;
-      min-width: 280px;
+      margin-bottom: 1.5rem;
     }
     .team-card h2 { font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--accent); }
     .team-card p { color: var(--text-muted); font-size: 0.95rem; }
@@ -79,7 +66,6 @@
     .contact-info a { color: var(--accent); text-decoration: none; }
     .contact-info a:hover { text-decoration: underline; }
   </style>
-  <link rel="stylesheet" href="lanyard/lanyard.css">
 </head>
 <body>
   <nav class="navbar">
@@ -97,17 +83,11 @@
     <h1>About Us</h1>
     <p class="subtitle">NYU Blockchain & Fintech — Our Team</p>
 
-    <div class="team-section">
-      <div class="team-card">
-        <h2>Kalshi Development Team</h2>
-        <p>This semester, we're reimagining how retail investors interact with risk. In partnership with Kalshi, the leading prediction market by volume in the U.S., we're building a user-focused hedging dashboard designed for everyday users that democratizes hedging into an effective tool for the masses.</p>
-        <p style="margin-top:1rem;">The project blends personal finance, market mechanics, and sharp product design to give consumers more agency over uncertainty, letting them hedge on the outcomes that shape their lives. For this team, we are looking for both strong full-stack engineers who want to build fast, reliable systems end to end, and quant-minded members excited to think deeply about markets, probabilities, and incentives that drive the product.</p>
-        <p class="cta"><a href="https://www.nyubnf.com/teams" target="_blank" rel="noopener">View all teams →</a></p>
-      </div>
-      <div class="team-lanyard">
-        <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:0.5rem;">Drag the badge!</p>
-        <div id="lanyard-root" style="min-height:380px;width:100%;"></div>
-      </div>
+    <div class="team-card">
+      <h2>Kalshi Development Team</h2>
+      <p>This semester, we're reimagining how retail investors interact with risk. In partnership with Kalshi, the leading prediction market by volume in the U.S., we're building a user-focused hedging dashboard designed for everyday users that democratizes hedging into an effective tool for the masses.</p>
+      <p style="margin-top:1rem;">The project blends personal finance, market mechanics, and sharp product design to give consumers more agency over uncertainty, letting them hedge on the outcomes that shape their lives. For this team, we are looking for both strong full-stack engineers who want to build fast, reliable systems end to end, and quant-minded members excited to think deeply about markets, probabilities, and incentives that drive the product.</p>
+      <p class="cta"><a href="https://www.nyubnf.com/teams" target="_blank" rel="noopener">View all teams →</a></p>
     </div>
 
     <section class="contact-section">
@@ -119,7 +99,5 @@
       </div>
     </section>
   </div>
-
-  <script type="module" src="lanyard/lanyard.js"></script>
 </body>
 </html>
