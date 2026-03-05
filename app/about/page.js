@@ -3,6 +3,18 @@ import Footer from '@/components/Footer';
 export default function AboutPage() {
   return (
     <div className="container" style={{ maxWidth: 760 }}>
+      <div style={{ marginBottom: '1rem' }}>
+        <img
+          src="/offsetEverything%20long%20logo.jpeg"
+          alt="Offset Everything logo"
+          style={{
+            width: '100%',
+            borderRadius: 12,
+            display: 'block',
+            border: '1px solid var(--border)',
+          }}
+        />
+      </div>
       <h1 className="section-title">About Us</h1>
       <p className="note" style={{ marginBottom: '1rem' }}>Offset — Our Team</p>
 

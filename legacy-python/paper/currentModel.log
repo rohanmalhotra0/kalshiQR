@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.1)  4 MAR 2026 17:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.1)  5 MAR 2026 18:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -243,7 +243,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 {/usr/local/texlive/2026basic/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2
 ]
 [3] [4]
-Overfull \hbox (1.54883pt too wide) in paragraph at lines 281--284
+Overfull \hbox (1.54883pt too wide) in paragraph at lines 294--297
 []\OT1/cmr/m/n/10.95 The pro-posed frame-work com-bines haz-ard mod-el-ing, sto
 chas-tic in-come pro-cesses, and derivative-
  []
@@ -275,7 +275,7 @@ xmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2026basic
 sic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026
 basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/
 2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on currentModel.pdf (6 pages, 148466 bytes).
+Output written on currentModel.pdf (6 pages, 150464 bytes).
 PDF statistics:
  84 PDF objects out of 1000 (max. 8388607)
  51 compressed objects within 1 object stream
