@@ -90,6 +90,68 @@ export default function DocumentationPage() {
         </p>
       </div>
 
+      <div className="card" style={{ marginTop: '0.8rem' }}>
+        <h3>Step-by-step full walkthrough (slow example)</h3>
+        <p className="note" style={{ marginBottom: '0.7rem' }}>
+          This is a worked example with explicit numbers so each stage is easy to follow. The arithmetic below is illustrative; production
+          output is computed by the Python pipeline with calibrated data.
+        </p>
+
+        <h4 style={{ marginBottom: '0.35rem' }}>Step 1: Start with user inputs</h4>
+        <p className="note">Industry = Tech, Company Size = Startup, Job Level = Entry</p>
+        <p className="note">Salary = 120000 per year, Horizon = 10 years, Paths = 5000</p>
+        <p className="note" style={{ marginBottom: '0.7rem' }}>{String.raw`\[S = 120000,\quad T = 10,\quad N = 5000\]`}</p>
+
+        <h4 style={{ marginBottom: '0.35rem' }}>Step 2: Compute hazard intensity</h4>
+        <p className="note">Suppose this month we observe unemployment and rates:</p>
+        <p className="note">{String.raw`\[U_t = 0.050,\quad r_t = 0.045,\quad I_t = 0.70\]`}</p>
+        <p className="note">Use example coefficients:</p>
+        <p className="note">{String.raw`\[\alpha = 0.002,\ \beta_1 = 0.04,\ \beta_2 = 0.01,\ \beta_3 = 0.03\]`}</p>
+        <p className="note">Then:</p>
+        <p className="note" style={{ marginBottom: '0.7rem' }}>
+          {String.raw`\[\lambda_t = 0.002 + 0.04(0.050) + 0.01(0.045) + 0.03(0.70) = 0.02545\]`}
+        </p>
+
+        <h4 style={{ marginBottom: '0.35rem' }}>Step 3: Turn hazard into job-loss event probability</h4>
+        <p className="note">For a Poisson jump process in one period:</p>
+        <p className="note">{String.raw`\[P(\text{job loss this period}) = 1 - e^{-\lambda_t}\]`}</p>
+        <p className="note" style={{ marginBottom: '0.7rem' }}>{String.raw`\[1 - e^{-0.02545} \approx 0.0251\ (\text{about }2.51\%)\]`}</p>
+
+        <h4 style={{ marginBottom: '0.35rem' }}>Step 4: Simulate one path's employment state</h4>
+        <p className="note">Draw a random number for the period (example: 0.018).</p>
+        <p className="note">Since 0.018 &lt; 0.0251, a job-loss event is triggered on this sample path.</p>
+        <p className="note" style={{ marginBottom: '0.7rem' }}>
+          If unemployment duration is sampled as 4 months, then for those months:
+          {String.raw` \[E_t = 0\]`}
+          and otherwise
+          {String.raw` \[E_t = 1\]`}.
+        </p>
+
+        <h4 style={{ marginBottom: '0.35rem' }}>Step 5: Convert employment state into income path</h4>
+        <p className="note">Monthly salary is 120000 / 12 = 10000.</p>
+        <p className="note">{String.raw`\[dW_t = S E_t dt\]`}</p>
+        <p className="note">So employed month income is 10000; unemployed month income is 0.</p>
+        <p className="note" style={{ marginBottom: '0.7rem' }}>
+          If 4 months are unemployed in year 1, then year-1 income is 80000 instead of 120000 (loss = 40000).
+        </p>
+
+        <h4 style={{ marginBottom: '0.35rem' }}>Step 6: Repeat for all Monte Carlo paths</h4>
+        <p className="note">Run the same process for 5000 paths:</p>
+        <p className="note">{String.raw`\[W_t^{(1)}, W_t^{(2)}, \ldots, W_t^{(5000)}\]`}</p>
+        <p className="note" style={{ marginBottom: '0.7rem' }}>
+          This produces a full income distribution (mean, percentiles, tails, and trigger probability).
+        </p>
+
+        <h4 style={{ marginBottom: '0.35rem' }}>Step 7: Size the hedge from simulated losses</h4>
+        <p className="note">Use the minimum-variance hedge ratio:</p>
+        <p className="note">{String.raw`\[h^* = \frac{Cov(L,H)}{Var(H)}\]`}</p>
+        <p className="note">
+          Example arithmetic:
+          {String.raw` \[Cov(L,H)=2.4\times 10^8,\quad Var(H)=4.0\times 10^3 \Rightarrow h^*=60000\]`}
+        </p>
+        <p className="note">That hedge size is then translated into contracts, upfront cost, and payout profile on the dashboard.</p>
+      </div>
+
       <Footer />
     </div>
   );
