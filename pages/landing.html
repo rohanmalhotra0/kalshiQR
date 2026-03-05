@@ -90,6 +90,19 @@
       line-height: 1.1;
       margin-bottom: 1.25rem;
       color: var(--accent);
+      min-height: 1.2em;
+    }
+    .hero h1 .cursor {
+      display: inline-block;
+      width: 3px;
+      height: 0.9em;
+      background: var(--accent);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
     }
     .hero .subtitle {
       font-size: clamp(1rem, 2vw, 1.25rem);
@@ -200,7 +213,7 @@
   </nav>
 
   <section class="hero">
-    <h1>Hedge your income against job loss</h1>
+    <h1><span id="typewriter"></span><span class="cursor"></span></h1>
     <p class="subtitle">Use prediction markets to protect your finances. Run a Monte Carlo simulation and get a personalized hedge recommendation in seconds.</p>
     <a href="quiz.html" class="cta-btn">
       Get Started
@@ -238,6 +251,44 @@
 
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
   <script>
+    (function() {
+      var phrases = [
+        'Hedge your income against job loss',
+        'Protect your finances with prediction markets',
+        'Simulate thousands of income paths',
+        'Get a personalized hedge recommendation'
+      ];
+      var el = document.getElementById('typewriter');
+      var i = 0, j = 0;
+      var typing = true;
+      var typeSpeed = 80;
+      var pauseBeforeDelete = 2500;
+      var pauseBeforeType = 600;
+
+      function tick() {
+        if (typing) {
+          if (j < phrases[i].length) {
+            el.textContent += phrases[i][j];
+            j++;
+            setTimeout(tick, typeSpeed);
+          } else {
+            typing = false;
+            setTimeout(tick, pauseBeforeDelete);
+          }
+        } else {
+          if (j > 0) {
+            el.textContent = phrases[i].slice(0, j - 1);
+            j--;
+            setTimeout(tick, typeSpeed / 2);
+          } else {
+            i = (i + 1) % phrases.length;
+            typing = true;
+            setTimeout(tick, pauseBeforeType);
+          }
+        }
+      }
+      setTimeout(tick, 500);
+    })();
     particlesJS('particles-js', {
       particles: {
         number: { value: 160, density: { enable: true, value_area: 500 } },
