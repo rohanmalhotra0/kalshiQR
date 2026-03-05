@@ -402,16 +402,16 @@ function DashboardClient() {
           <div className="card" style={{ marginBottom: '1rem' }}>
             <h3>Model Inputs in Equations</h3>
             <p className="note">
-              {String.raw`\[S = `}{inputs.salary}{String.raw`\]`}
+              {`\\[S = ${inputs.salary}\\]`}
             </p>
             <p className="note">
-              {String.raw`\[T = `}{inputs.horizon_years}{String.raw`\text{ years}\]`}
+              {`\\[T = ${inputs.horizon_years}\\text{ years}\\]`}
             </p>
             <p className="note">
-              {String.raw`\[N = `}{inputs.n_paths}{String.raw`\]`}
+              {`\\[N = ${inputs.n_paths}\\]`}
             </p>
             <p className="note">
-              {String.raw`\[W_t^{(1)}, W_t^{(2)}, ..., W_t^{(`}{inputs.n_paths}{String.raw`)}\]`}
+              {`\\[W_t^{(1)}, W_t^{(2)}, ..., W_t^{(${inputs.n_paths})}\\]`}
             </p>
           </div>
 

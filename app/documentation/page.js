@@ -19,19 +19,40 @@ export default function DocumentationPage() {
 
       <div className="card" style={{ marginBottom: '0.8rem' }}>
         <h3>Pipeline Diagram</h3>
-        <div className="pipeline-flow">
-          <div className="pipeline-box">Personal Data</div>
-          <div className="pipeline-arrow">↓</div>
-          <div className="pipeline-box">Hazard Model</div>
-          <div className="pipeline-arrow">↓</div>
-          <div className="pipeline-box">Job Loss Simulation</div>
-          <div className="pipeline-arrow">↓</div>
-          <div className="pipeline-box">Monte Carlo</div>
-          <div className="pipeline-arrow">↓</div>
-          <div className="pipeline-box">Optimal Hedge</div>
-        </div>
+        <svg viewBox="0 0 720 560" style={{ width: '100%', maxWidth: 720, display: 'block', margin: '0.4rem auto 0' }}>
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8 Z" fill="rgba(90,90,90,0.9)" />
+            </marker>
+          </defs>
+
+          <rect x="190" y="20" width="340" height="70" rx="12" fill="rgba(255,255,255,0.9)" stroke="rgba(130,130,130,0.65)" />
+          <text x="360" y="50" textAnchor="middle" fontSize="16" fill="rgba(40,40,40,0.95)">Personal Data</text>
+          <text x="360" y="72" textAnchor="middle" fontSize="13" fill="rgba(95,95,95,0.95)">(salary, industry, tenure)</text>
+
+          <rect x="190" y="125" width="340" height="70" rx="12" fill="rgba(255,255,255,0.9)" stroke="rgba(130,130,130,0.65)" />
+          <text x="360" y="155" textAnchor="middle" fontSize="16" fill="rgba(40,40,40,0.95)">Hazard Model</text>
+          <text x="360" y="177" textAnchor="middle" fontSize="13" fill="rgba(95,95,95,0.95)">λₜ = α + β₁Uₜ + β₂rₜ</text>
+
+          <rect x="190" y="230" width="340" height="70" rx="12" fill="rgba(255,255,255,0.9)" stroke="rgba(130,130,130,0.65)" />
+          <text x="360" y="260" textAnchor="middle" fontSize="16" fill="rgba(40,40,40,0.95)">Job Loss Simulation</text>
+          <text x="360" y="282" textAnchor="middle" fontSize="13" fill="rgba(95,95,95,0.95)">Nₜ ~ Poisson(λₜ)</text>
+
+          <rect x="190" y="335" width="340" height="70" rx="12" fill="rgba(255,255,255,0.9)" stroke="rgba(130,130,130,0.65)" />
+          <text x="360" y="365" textAnchor="middle" fontSize="16" fill="rgba(40,40,40,0.95)">Monte Carlo Paths</text>
+          <text x="360" y="387" textAnchor="middle" fontSize="13" fill="rgba(95,95,95,0.95)">N = 5000</text>
+
+          <rect x="190" y="440" width="340" height="70" rx="12" fill="rgba(255,255,255,0.9)" stroke="rgba(130,130,130,0.65)" />
+          <text x="360" y="470" textAnchor="middle" fontSize="16" fill="rgba(40,40,40,0.95)">Optimal Hedge</text>
+          <text x="360" y="492" textAnchor="middle" fontSize="13" fill="rgba(95,95,95,0.95)">h* = Cov(L,H) / Var(H)</text>
+
+          <line x1="360" y1="90" x2="360" y2="121" stroke="rgba(90,90,90,0.9)" strokeWidth="2" markerEnd="url(#arrow)" />
+          <line x1="360" y1="195" x2="360" y2="226" stroke="rgba(90,90,90,0.9)" strokeWidth="2" markerEnd="url(#arrow)" />
+          <line x1="360" y1="300" x2="360" y2="331" stroke="rgba(90,90,90,0.9)" strokeWidth="2" markerEnd="url(#arrow)" />
+          <line x1="360" y1="405" x2="360" y2="436" stroke="rgba(90,90,90,0.9)" strokeWidth="2" markerEnd="url(#arrow)" />
+        </svg>
         <p className="note" style={{ marginTop: '0.7rem' }}>
-          Research-style TikZ source used for paper-quality diagrams:
+          The browser cannot execute TikZ directly. This is the rendered on-page equivalent; the TikZ source below is copy-ready for Overleaf/papers.
         </p>
         <pre className="math-code">
 {String.raw`\begin{tikzpicture}[

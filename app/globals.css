@@ -286,6 +286,50 @@ button {
   font-size: 0.85rem;
 }
 
+.note code {
+  color: var(--text);
+  background: rgba(148, 163, 184, 0.13);
+  border: 1px solid var(--border);
+  padding: 0.08rem 0.32rem;
+  border-radius: 0.34rem;
+}
+
+.pipeline-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.pipeline-box {
+  min-width: 210px;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.92rem;
+}
+
+.pipeline-arrow {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.math-code {
+  margin-top: 0.6rem;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+  padding: 0.7rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 .site-footer {
   margin-top: 2rem;
   border-top: 1px solid rgba(148, 163, 184, 0.28);
