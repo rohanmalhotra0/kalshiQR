@@ -38,38 +38,6 @@ export default function DocumentationPage() {
       </div>
 
       <div className="card" style={{ marginBottom: '0.8rem' }}>
-        <h3>Research Pipeline (TikZ)</h3>
-        <p className="note" style={{ marginBottom: '0.6rem' }}>
-          The following TikZ diagram is used in the research paper.
-        </p>
-        <pre className="math-code">
-{String.raw`\begin{tikzpicture}[
-node distance=2cm,
-box/.style={rectangle, draw, rounded corners, minimum width=3cm, minimum height=1cm, align=center}
-]
-
-\node (personal) [box] {Personal Data\\(salary, industry, tenure)};
-
-\node (hazard) [box, below of=personal]
-{Hazard Model\\$\lambda_t = \alpha + \beta_1 U_t + \beta_2 r_t + \beta_3 I_t$};
-
-\node (simulation) [box, below of=hazard]
-{Job Loss Simulation\\$N_t \sim Poisson(\lambda_t)$};
-
-\node (mc) [box, below of=simulation] {Monte Carlo Paths\\$N = 5000$};
-
-\node (hedge) [box, below of=mc] {Optimal Hedge\\$h^* = \frac{Cov(L,H)}{Var(H)}$};
-
-\draw[->] (personal) -- (hazard);
-\draw[->] (hazard) -- (simulation);
-\draw[->] (simulation) -- (mc);
-\draw[->] (mc) -- (hedge);
-
-\end{tikzpicture}`}
-        </pre>
-      </div>
-
-      <div className="card" style={{ marginBottom: '0.8rem' }}>
         <h3>How the model works</h3>
         <h4 style={{ marginBottom: '0.4rem' }}>Job-Loss Hazard</h4>
         <p className="note" style={{ marginBottom: '0.5rem' }}>The job-loss intensity depends on macroeconomic conditions.</p>
