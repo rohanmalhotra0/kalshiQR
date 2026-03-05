@@ -245,11 +245,11 @@
         shape: { type: 'circle' },
         opacity: { value: 0.7, random: { enable: true, minimumValue: 0.5 } },
         size: { value: 4, random: { enable: true, minimumValue: 2 } },
-        links: {
+        line_linked: {
           enable: true,
           distance: 140,
           color: '#00a854',
-          opacity: 0.5,
+          opacity: 0.6,
           width: 1
         },
         move: {
@@ -268,7 +268,7 @@
           onClick: { enable: true, mode: 'push' }
         },
         modes: {
-          grab: { distance: 180, links: { opacity: 0.8 } },
+          grab: { distance: 180, line_linked: { opacity: 0.8 } },
           push: { particles_nb: 6 }
         }
       },
