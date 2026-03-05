@@ -1,19 +1,73 @@
 'use client';
 
 import Footer from '@/components/Footer';
-import { calculateDashboard, parseInputs } from '@/lib/model';
-import { Suspense, useMemo } from 'react';
+import { parseInputs } from '@/lib/model';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 function LiveDemoClient() {
   const searchParams = useSearchParams();
   const inputs = useMemo(() => parseInputs(Object.fromEntries(searchParams.entries())), [searchParams]);
-  const result = useMemo(() => calculateDashboard(inputs), [inputs]);
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const qs = new URLSearchParams(
+      Object.entries(inputs).reduce((acc, [k, v]) => {
+        acc[k] = String(v);
+        return acc;
+      }, {}),
+    );
+
+    let cancelled = false;
+    setLoading(true);
+    setError('');
+
+    fetch(`/api/simulate?${qs.toString()}`)
+      .then(async (res) => {
+        const contentType = res.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+        const body = isJson ? await res.json() : await res.text();
+
+        if (!res.ok) {
+          const details = isJson
+            ? (body?.details || body?.error || 'Simulation request failed')
+            : `Simulation endpoint returned ${res.status} ${res.statusText}.`;
+          throw new Error(details);
+        }
+        if (!isJson) {
+          throw new Error('Simulation endpoint did not return JSON.');
+        }
+
+        if (!cancelled) {
+          setResult(body);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err.message || 'Failed to run simulation');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [inputs]);
 
   return (
     <div className="container" style={{ maxWidth: 900 }}>
       <h1 className="section-title">Live Demo</h1>
       <p className="note" style={{ marginBottom: '1rem' }}>Step-by-step explanation using your current inputs.</p>
+      {loading && <p className="note">Running Python model simulation...</p>}
+      {error && <p className="note" style={{ color: '#b42318' }}>Model error: {error}</p>}
+      {!loading && !error && result && (
+        <>
 
       <div className="card" style={{ marginBottom: '0.75rem' }}>
         <h3>Step 1: Profile risk</h3>
@@ -46,6 +100,8 @@ function LiveDemoClient() {
           Tail risk improves from <strong>{result.tailNo.toFixed(1)}%</strong> to <strong>{result.tailHedge.toFixed(1)}%</strong>.
         </p>
       </div>
+      </>
+      )}
 
       <Footer />
     </div>
