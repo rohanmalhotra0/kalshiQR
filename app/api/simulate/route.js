@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import path from 'node:path';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 function runPython(args) {
   return new Promise((resolve, reject) => {

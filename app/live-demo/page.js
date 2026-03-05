@@ -26,12 +26,25 @@ function LiveDemoClient() {
 
     fetch(`/api/simulate?${qs.toString()}`)
       .then(async (res) => {
-        const data = await res.json();
+        const contentType = res.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+        const body = isJson ? await res.json() : await res.text();
+
         if (!res.ok) {
-          throw new Error(data?.details || data?.error || 'Simulation request failed');
+          const details = isJson
+            ? (body?.details || body?.error || 'Simulation request failed')
+            : `Simulation endpoint returned ${res.status} ${res.statusText}.`;
+          throw new Error(details);
         }
+
+        if (!isJson) {
+          throw new Error(
+            'Simulation endpoint returned HTML instead of JSON. Restart Next server (`npm run dev`) and ensure `/api/simulate` is available.',
+          );
+        }
+
         if (!cancelled) {
-          setResult(data);
+          setResult(body);
         }
       })
       .catch((err) => {
