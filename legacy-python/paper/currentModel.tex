@@ -78,14 +78,14 @@ meaning employment transitions from $1$ to $0$ when a job-loss event occurs.
 The hazard rate depends on macroeconomic variables:
 
 \[
-\lambda_t = \alpha + \beta_1 U_t + \beta_2 R_t + \beta_3 I_t
+\lambda_t = \alpha + \beta_1 U_t + \beta_2 r_t + \beta_3 I_t
 \]
 
 where
 
 \begin{itemize}
 \item $U_t$ = unemployment rate
-\item $R_t$ = interest rate shocks
+\item $r_t$ = interest rate
 \item $I_t$ = industry-specific risk indicators
 \end{itemize}
 
@@ -151,8 +151,8 @@ The model requires three categories of inputs.
 \subsection{Personal Risk Factors}
 
 These estimate the individual's job-loss probability. Inputs include:
-industry, company size, job level (entry, manager, exec), tenure, salary, 
-location, and skill demand. These affect the baseline hazard rate $\lambda(t)$.
+industry, company size, job level (entry, manager, exec), tenure, salary,
+Monte Carlo path count, and horizon years. These affect the baseline hazard rate $\lambda(t)$.
 
 \subsection{Macroeconomic Variables}
 
@@ -195,11 +195,20 @@ Typical mean duration $\approx 20$ weeks. Used for reemployment hazard modeling.
 
 We estimate job-loss probability via logistic regression:
 \[
-P(\text{JobLoss}) = \sigma\left(\beta_0 + \beta_1 U_t + \beta_2 \cdot \text{industry} + \beta_3 r_t\right)
+P(\text{JobLoss}) = \sigma\left(\beta_0 + \beta_1 U_t + \beta_2 r_t + \beta_3 I_t\right)
 \]
-where $\sigma$ is the logistic function, $U_t$ is unemployment, and $r_t$ is the interest rate.
+where
+\[
+\sigma(x) = \frac{1}{1+e^{-x}}
+\]
+and $U_t$ is unemployment, $r_t$ is the interest rate, and $I_t$ is industry risk.
 Training uses historical layoffs and macro variables. The weekly Poisson intensity $\lambda$ 
 is derived from the monthly probability.
+
+Example coefficient output used in documentation:
+\[
+\alpha = 0.002,\quad \beta_1 = 0.04,\quad \beta_2 = 0.01,\quad \beta_3 = 0.03
+\]
 
 \section{Stochastic Model}
 
@@ -215,7 +224,7 @@ Hedge value: $H = \text{contract\_price} \times \text{contracts}$.
 
 \section{Monte Carlo Simulation}
 
-We simulate thousands of career paths (e.g., 10,000 paths, 10-year horizon, 
+We simulate thousands of career paths (default: 5,000 paths, 10-year horizon,
 weekly time steps). For each path:
 
 \begin{enumerate}
@@ -225,6 +234,17 @@ weekly time steps). For each path:
 \item Compute salary path $dW_t = S E_t \, dt$
 \item Apply hedge payoff
 \end{enumerate}
+
+\subsection{Default Dashboard Configuration}
+
+For the default dashboard profile (Tech, Startup, Entry):
+\[
+S = 120000,\quad N = 5000,\quad T = 10
+\]
+and Monte Carlo generates
+\[
+W_t^{(1)}, W_t^{(2)}, \ldots, W_t^{(5000)}.
+\]
 
 \section{Risk Metrics}
 
@@ -252,20 +272,13 @@ This minimizes the variance of (Loss $- h \cdot$ Hedge).
 \begin{tabular}{c}
 personal data \\
 $\downarrow$ \\
-macro data (FRED/BLS) \\
-$\downarrow$ \\
 hazard model \\
 $\downarrow$ \\
-job-loss probability \\
-$\downarrow$ \\
-Poisson stochastic model \\
+job-loss simulation (Poisson) \\
 $\downarrow$ \\
 Monte Carlo simulation \\
 $\downarrow$ \\
 income distribution \\
-$\downarrow$ \\
-Kalshi market data \\
-$\downarrow$ \\
 optimal hedge ratio \\
 $\downarrow$ \\
 hedge portfolio
