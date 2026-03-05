@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+
 :root {
   --bg: #ffffff;
   --surface: #f8fafc;
@@ -102,7 +104,7 @@ a {
   height: 100%;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.75;
+  opacity: 0.85;
 }
 
 .hero-content {
@@ -138,12 +140,13 @@ a {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  padding: 0.9rem 1.4rem;
+  padding: 0.65rem 1.05rem;
   background: var(--accent);
   border: 1px solid var(--accent);
   color: #fff;
   text-decoration: none;
   font-weight: 600;
+  font-size: 0.94rem;
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
