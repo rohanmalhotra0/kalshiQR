@@ -27,13 +27,19 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-    #particles-js {
+    #waves-bg {
       position: fixed;
-      width: 100%;
-      height: 100%;
       top: 0;
       left: 0;
+      width: 100%;
+      height: 100%;
       z-index: 1;
+      pointer-events: none;
+    }
+    #waves-bg .waves-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
     }
     .overlay {
       position: fixed;
@@ -198,7 +204,7 @@
   </style>
 </head>
 <body>
-  <div id="particles-js"></div>
+  <div id="waves-bg"></div>
   <div class="overlay"></div>
 
   <nav class="navbar">
@@ -289,45 +295,6 @@
       setTimeout(tick, 500);
     })();
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-  <script>
-    particlesJS('particles-js', {
-      particles: {
-        number: { value: 160, density: { enable: true, value_area: 500 } },
-        color: { value: '#00a854' },
-        shape: { type: 'circle' },
-        opacity: { value: 0.7, random: { enable: true, minimumValue: 0.5 } },
-        size: { value: 4, random: { enable: true, minimumValue: 2 } },
-        line_linked: {
-          enable: true,
-          distance: 140,
-          color: '#00a854',
-          opacity: 0.6,
-          width: 1
-        },
-        move: {
-          enable: true,
-          speed: 1.5,
-          direction: 'none',
-          random: true,
-          straight: false,
-          out_mode: 'bounce'
-        }
-      },
-      interactivity: {
-        detect_on: 'window',
-        events: {
-          onhover: { enable: true, mode: 'grab' },
-          onclick: { enable: true, mode: 'bubble' }
-        },
-        modes: {
-          grab: { distance: 180, line_linked: { opacity: 0.8 } },
-          push: { particles_nb: 6 },
-          bubble: { distance: 250, size: 50, duration: 1.5, opacity: 0.8, speed: 3 }
-        }
-      },
-      retina_detect: true
-    });
-  </script>
+  <script src="waves.js"></script>
 </body>
 </html>

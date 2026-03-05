@@ -52,6 +52,7 @@ jobs:
           cp pages/about.html site/about.html
           cp live-demo.html site/live-demo.html
           cp static/live_demo_pipeline.js site/
+          cp static/waves.js site/
           cp static/favicon.png site/
           cp static/apple-touch-icon.png site/
           cp paper/currentModel.pdf site/
