@@ -1,0 +1,61 @@
+.card-swap-container {
+  position: relative;
+  perspective: 900px;
+  overflow: visible;
+}
+
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e2e8f0);
+  background: var(--surface, #f8fafc);
+  padding: 1.25rem 1.5rem;
+  overflow: auto;
+
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent, #00a854);
+  margin-bottom: 0.75rem;
+}
+
+.card pre {
+  flex: 1;
+  margin: 0;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: var(--text, #0f172a);
+  overflow: auto;
+  background: var(--surface2, #f1f5f9);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+}
+
+.card .file {
+  font-size: 0.7rem;
+  color: var(--text-muted, #64748b);
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .card-swap-container {
+    transform: scale(0.85);
+    transform-origin: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-swap-container {
+    transform: scale(0.7);
+    transform-origin: center;
+  }
+}

@@ -49,6 +49,10 @@ jobs:
         run: |
           cd lanyard && npm ci && npm run build
 
+      - name: Build Card Swap
+        run: |
+          cd card-swap && npm ci && npm run build
+
       - name: Prepare site
         run: |
           rm -rf site
@@ -66,6 +70,7 @@ jobs:
           cp static/apple-touch-icon.png site/
           cp "static/Group+74.webp" site/
           cp -r static/lanyard site/
+          cp -r static/card-swap site/
           cp paper/currentModel.pdf site/
           touch site/.nojekyll
           grep -q "Get Started" site/index.html && echo "OK: index.html is the landing page"

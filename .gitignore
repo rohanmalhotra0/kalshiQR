@@ -16,3 +16,4 @@ paper/missfont.log
 # Build output
 site/
 static/lanyard/
+static/card-swap/
