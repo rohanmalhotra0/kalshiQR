@@ -159,36 +159,16 @@
       padding: 0 2rem;
     }
     .feature {
-      position: relative;
-      border-radius: 12px;
-      text-align: center;
-      transition: transform 0.2s;
-      overflow: hidden;
-    }
-    .feature::before {
-      content: '';
-      position: absolute;
-      inset: -50%;
-      background: conic-gradient(#00a854, #00d26a, #00a854, #008f47, #00a854);
-      animation: electric-spin 4s linear infinite;
-    }
-    .feature::after {
-      content: '';
-      position: absolute;
-      inset: 2px;
       background: var(--surface);
-      border-radius: 10px;
-      z-index: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
     .feature:hover {
       transform: translateY(-2px);
-    }
-    .feature > * {
-      position: relative;
-      z-index: 1;
-    }
-    @keyframes electric-spin {
-      to { transform: rotate(360deg); }
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
     }
     .feature-icon {
       width: 48px;
@@ -208,6 +188,9 @@
       font-size: 0.95rem;
       font-weight: 600;
       margin-bottom: 0.35rem;
+      border-bottom: 2px solid var(--accent);
+      display: inline-block;
+      padding-bottom: 0.25rem;
     }
     .feature p {
       font-size: 0.85rem;
@@ -230,30 +213,10 @@
       text-align: center;
     }
     .faq-item {
-      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 12px;
       margin-bottom: 0.75rem;
-      overflow: hidden;
-    }
-    .faq-item::before {
-      content: '';
-      position: absolute;
-      inset: -50%;
-      background: conic-gradient(#00a854, #00d26a, #00a854, #008f47, #00a854);
-      animation: electric-spin 4s linear infinite;
-    }
-    .faq-item::after {
-      content: '';
-      position: absolute;
-      inset: 2px;
-      background: var(--surface);
-      border-radius: 10px;
-      z-index: 0;
-    }
-    .faq-item summary,
-    .faq-item p {
-      position: relative;
-      z-index: 1;
     }
     .faq-item summary {
       padding: 1rem 1.25rem;
@@ -310,33 +273,14 @@
     .code-card {
       position: absolute;
       inset: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.25rem 1.5rem;
       overflow: hidden;
       transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s, z-index 0.1s;
       display: flex;
       flex-direction: column;
-    }
-    .code-card::before {
-      content: '';
-      position: absolute;
-      inset: -50%;
-      background: conic-gradient(#00a854, #00d26a, #00a854, #008f47, #00a854);
-      animation: electric-spin 4s linear infinite;
-    }
-    .code-card::after {
-      content: '';
-      position: absolute;
-      inset: 2px;
-      background: var(--surface);
-      border-radius: 10px;
-      z-index: 0;
-    }
-    .code-card h3,
-    .code-card pre,
-    .code-card .file {
-      position: relative;
-      z-index: 1;
     }
     .code-card.front {
       transform: translateY(0) scale(1);
@@ -396,10 +340,7 @@
       <a href="quiz.html">Quiz</a>
       <a href="live-demo.html">Live Demo</a>
       <a href="documentation.html">Documentation</a>
-      <a href="about.html">Our Team</a>
-      <a href="#code">Code</a>
-      <a href="#faqs">FAQs</a>
-      <a href="contact.html">Contact</a>
+      <a href="about.html">Team & Contact</a>
     </div>
   </nav>
 
@@ -506,7 +447,7 @@ income = sum(salary_weekly for w in employed if w)</pre>
   </section>
 
   <footer>
-    <p><a href="paper.html">Paper</a> · <a href="quiz.html">Quiz</a> · <a href="live-demo.html">Live Demo</a> · <a href="#faqs">FAQs</a> · <a href="https://github.com/nyu-bnf/modelKalshi">GitHub</a></p>
+    <p><a href="paper.html">Paper</a> · <a href="quiz.html">Quiz</a> · <a href="live-demo.html">Live Demo</a> · <a href="https://github.com/nyu-bnf/modelKalshi">GitHub</a></p>
     <p style="margin-top:0.5rem;">NYU BnF x Kalshi — Hedge your income against job loss</p>
   </footer>
 

@@ -15,3 +15,4 @@ paper/missfont.log
 
 # Build output
 site/
+static/lanyard/

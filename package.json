@@ -1,0 +1,24 @@
+{
+  "name": "modelkalshi",
+  "version": "1.0.0",
+  "description": "A Monte Carlo framework for hedging personal income risk using prediction market contracts (e.g., Kalshi). The model simulates job-loss events via a macro-sensitive hazard process and evaluates how unemployment-linked contracts reduce tail risk in income distributions.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rohanmalhotra0/kalshiQR.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/rohanmalhotra0/kalshiQR/issues"
+  },
+  "homepage": "https://github.com/rohanmalhotra0/kalshiQR#readme"
+}

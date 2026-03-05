@@ -101,7 +101,7 @@ FORM_HTML = """
       <a href="/quiz">Quiz</a>
       <a href="/live-demo">Live Demo</a>
       <a href="/documentation">Documentation</a>
-      <a href="/about">Our Team</a>
+      <a href="/about">Team & Contact</a>
     </div>
   </nav>
 

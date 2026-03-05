@@ -313,7 +313,7 @@ def generate_html(out: dict, inputs: Optional[dict] = None) -> str:
       <a href="quiz.html">Quiz</a>
       <a href="live-demo.html">Live Demo</a>
       <a href="documentation.html">Documentation</a>
-      <a href="about.html">Our Team</a>
+      <a href="about.html">Team & Contact</a>
     </div>
   </nav>
 

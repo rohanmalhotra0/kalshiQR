@@ -25,6 +25,11 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -40,6 +45,10 @@ jobs:
       - name: Generate live demo
         run: python generate_live_demo_static.py
 
+      - name: Build Lanyard
+        run: |
+          cd lanyard && npm ci && npm run build
+
       - name: Prepare site
         run: |
           rm -rf site
@@ -50,13 +59,13 @@ jobs:
           cp pages/paper.html site/paper.html
           cp pages/documentation.html site/documentation.html
           cp pages/about.html site/about.html
-          cp pages/contact.html site/contact.html
           cp live-demo.html site/live-demo.html
           cp static/live_demo_pipeline.js site/
           cp static/waves.js site/
           cp static/favicon.png site/
           cp static/apple-touch-icon.png site/
           cp "static/Group+74.webp" site/
+          cp -r static/lanyard site/
           cp paper/currentModel.pdf site/
           touch site/.nojekyll
           grep -q "Get Started" site/index.html && echo "OK: index.html is the landing page"
