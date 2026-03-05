@@ -318,6 +318,35 @@ button {
   font-size: 1rem;
 }
 
+.doc-switch {
+  display: inline-flex;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem;
+}
+
+.doc-switch-link {
+  text-decoration: none;
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.28rem 0.72rem;
+  font-size: 0.83rem;
+  border: 1px solid transparent;
+}
+
+.doc-switch-link:hover {
+  color: var(--text);
+  border-color: rgba(148, 163, 184, 0.28);
+}
+
+.doc-switch-link.active {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border);
+}
+
 .site-footer {
   margin-top: 2rem;
   border-top: 1px solid rgba(148, 163, 184, 0.28);

@@ -2,6 +2,7 @@
 
 import Footer from '@/components/Footer';
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 export default function DocumentationPage() {
   useEffect(() => {
@@ -14,6 +15,10 @@ export default function DocumentationPage() {
     <div className="container" style={{ maxWidth: 960 }}>
       <h1 className="section-title">Documentation</h1>
       <p className="note" style={{ marginBottom: '1rem' }}>Clean technical overview of the research pipeline and equations.</p>
+      <div className="doc-switch" style={{ marginBottom: '1rem' }}>
+        <Link href="/documentation" className="doc-switch-link active">Overview</Link>
+        <Link href="/variables" className="doc-switch-link">Variables</Link>
+      </div>
 
       <div className="card" style={{ marginBottom: '0.8rem' }}>
         <h3>Pipeline Diagram</h3>
@@ -150,6 +155,103 @@ export default function DocumentationPage() {
           {String.raw` \[Cov(L,H)=2.4\times 10^8,\quad Var(H)=4.0\times 10^3 \Rightarrow h^*=60000\]`}
         </p>
         <p className="note">That hedge size is then translated into contracts, upfront cost, and payout profile on the dashboard.</p>
+      </div>
+
+      <div className="card" style={{ marginTop: '0.8rem' }}>
+        <h3>How We Determine α, β1, β2, β3</h3>
+        <p className="note" style={{ marginBottom: '0.55rem' }}>Model:</p>
+        <p className="note">{String.raw`\[\lambda_t = \alpha + \beta_1 U_t + \beta_2 r_t + \beta_3 I_t\]`}</p>
+        <p className="note" style={{ marginTop: '0.45rem' }}>
+          where <code>U_t</code> is unemployment rate, <code>r_t</code> is interest rate, and <code>I_t</code> is industry risk indicator.
+          Coefficients measure sensitivity of job-loss risk to each variable.
+        </p>
+
+        <h4 style={{ marginTop: '0.9rem', marginBottom: '0.35rem' }}>Step 1 — Collect historical data</h4>
+        <p className="note" style={{ marginBottom: '0.45rem' }}>
+          Build monthly rows with outcome and features:
+        </p>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.86rem', color: 'var(--text-muted)' }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', padding: '0.4rem 0.35rem' }}>Month</th>
+                <th style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', padding: '0.4rem 0.35rem' }}>JobLoss</th>
+                <th style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', padding: '0.4rem 0.35rem' }}>Unemployment U_t</th>
+                <th style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', padding: '0.4rem 0.35rem' }}>Interest Rate r_t</th>
+                <th style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', padding: '0.4rem 0.35rem' }}>Industry Risk I_t</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>Jan 2021</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>6.2%</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0.25%</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0.3</td>
+              </tr>
+              <tr>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>Feb 2021</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>1</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>6.1%</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0.25%</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0.3</td>
+              </tr>
+              <tr>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>Mar 2021</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>6.0%</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0.25%</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0.3</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="note" style={{ marginTop: '0.5rem' }}>
+          Labeling rule: <code>JobLoss = 1</code> if a layoff occurred, otherwise <code>JobLoss = 0</code>.
+        </p>
+        <p className="note">
+          Typical sources: BLS layoffs data, FRED unemployment, Fed funds rate, and JOLTS industry layoffs.
+        </p>
+
+        <h4 style={{ marginTop: '0.9rem', marginBottom: '0.35rem' }}>Step 2 — Run logistic regression</h4>
+        <p className="note" style={{ marginBottom: '0.45rem' }}>
+          Estimate:
+        </p>
+        <p className="note">{String.raw`\[P(\text{JobLoss})=\sigma(\beta_0+\beta_1U_t+\beta_2r_t+\beta_3I_t)\]`}</p>
+        <p className="note">{String.raw`\[\sigma(x)=\frac{1}{1+e^{-x}}\]`}</p>
+        <p className="note" style={{ marginTop: '0.45rem', marginBottom: '0.35rem' }}>Example regression output:</p>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.86rem', color: 'var(--text-muted)' }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', padding: '0.4rem 0.35rem' }}>Variable</th>
+                <th style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', padding: '0.4rem 0.35rem' }}>Coefficient</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>Intercept</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0.002</td>
+              </tr>
+              <tr>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>Unemployment</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0.04</td>
+              </tr>
+              <tr>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>Interest Rate</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0.01</td>
+              </tr>
+              <tr>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>Industry Risk</td>
+                <td style={{ borderBottom: '1px solid var(--border)', padding: '0.35rem' }}>0.03</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="note" style={{ marginTop: '0.55rem' }}>
+          So:
+          {String.raw` \[\alpha = 0.002,\ \beta_1 = 0.04,\ \beta_2 = 0.01,\ \beta_3 = 0.03\]`}
+        </p>
       </div>
 
       <Footer />
