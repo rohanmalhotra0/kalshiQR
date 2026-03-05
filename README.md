@@ -1,51 +1,85 @@
-# modelKalshi (Next.js)
+# modelKalshi
 
-The project has been reorganized into a Next.js + React app.
+ModelKalshi helps users hedge income risk from potential job loss using a simulation-based recommendation engine.
 
-## Current App Stack
+Users enter profile + macro assumptions, then the app runs the Python hazard/Poisson/Monte Carlo pipeline and returns suggested contract sizing with risk metrics.
 
-- Next.js App Router
-- React
-- Static export (`next build` with `output: 'export'`)
-- GitHub Pages deployment from `out/`
+## Product Overview
 
-## Routes
+- **Goal:** size a hedge for labor-market stress scenarios using prediction-market style contracts.
+- **Primary flow:** `Quiz -> Dashboard` (with optional `Live Demo` explanation view).
+- **Core output:** contracts to buy, upfront cost, projected payout behavior, and tail-risk comparisons.
 
-- `/` landing page
-- `/quiz` input form
-- `/dashboard` dynamic contract recommendation from user inputs
-- `/live-demo` step-by-step explanation page
-- `/documentation` docs page
-- `/about` team + contact
-- `/paper` embedded PDF
+## Tech Stack
 
-## Unhardcoded Contract Sizing
+- **Frontend:** Next.js App Router + React
+- **Model runtime:** Python (`legacy-python/`)
+- **Bridge:** Next API route `app/api/simulate/route.js`
+- **Model entrypoint:** `legacy-python/run_pipeline_json.py` -> `legacy-python/pipeline.py`
 
-Contract sizing is input-driven and no longer fixed:
+## App Routes
 
-```txt
-contracts = salary * 6 / 12
-```
+- `/` landing page (hero + product summary)
+- `/quiz` user input form
+- `/dashboard` model results page
+- `/live-demo` step-by-step model explanation
+- `/documentation` project docs
+- `/about` team/contact page
+- `/paper` paper viewer
 
-This is applied from query/user inputs on `/dashboard` and `/live-demo`.
+## How Calculations Work
 
-## Development
+1. Frontend collects inputs (industry, company size, level, tenure, salary, paths, horizon).
+2. `Dashboard`/`Live Demo` call `/api/simulate` with query params.
+3. API route spawns Python and runs:
+   - hazard model
+   - Poisson job-loss process
+   - Monte Carlo simulation
+   - hedge metrics aggregation
+4. Python returns JSON metrics consumed by the UI.
+
+## Local Development
+
+### 1) Install dependencies
 
 ```bash
 npm install
+python3 -m venv .venv
+.venv/bin/pip install -r legacy-python/requirements.txt
+```
+
+### 2) Run the app
+
+```bash
 npm run dev
 ```
 
-## Build / Export
+The app runs at `http://localhost:3000`.
 
-```bash
-npm run build
-```
+## Production Deployment (Render)
 
-Output is exported to `out/`.
+This repo includes one-click Render config:
 
-## Legacy Code
+- `render.yaml` (Blueprint service definition)
+- `Dockerfile` (Node + Python runtime in one container)
+- `.dockerignore`
 
-The previous Python/Flask + static HTML implementation has been moved to:
+### Deploy steps
 
-- `legacy-python/`
+1. Push the repo to GitHub.
+2. In Render, create a **Blueprint** from the repo.
+3. Render reads `render.yaml` and provisions the service.
+4. Set env vars in Render if needed:
+   - `FRED_API_KEY`
+   - `BLS_API_KEY`
+
+## Environment Variables
+
+- `PYTHON_PATH` (optional): explicit Python binary path for the API route
+- `FRED_API_KEY` (optional): macro data integration
+- `BLS_API_KEY` (optional): labor data integration
+
+## Notes
+
+- This product requires a server runtime for Python model execution.
+- Static-only hosts (for example GitHub Pages) cannot run `/api/simulate` directly.

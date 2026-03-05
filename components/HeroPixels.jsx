@@ -22,27 +22,28 @@ export default function HeroPixels() {
         color: { value: 'rgb(160, 160, 160)' },
         move: {
           enable: true,
-          speed: 0.45,
+          speed: 1.1,
           outModes: { default: 'bounce' },
         },
         number: {
-          density: { enable: true, area: 900 },
-          value: 70,
+          density: { enable: true, area: 800 },
+          value: 180,
         },
-        opacity: { value: 0.55 },
+        opacity: { value: { min: 0.65, max: 0.95 } },
         shape: { type: 'square' },
-        size: { value: { min: 1, max: 3 } },
+        size: { value: { min: 2, max: 5 } },
       },
       interactivity: {
         events: {
           onClick: {
             enable: true,
-            mode: 'push',
+            mode: ['push', 'repulse'],
           },
           resize: { enable: true },
         },
         modes: {
-          push: { quantity: 8 },
+          push: { quantity: 20 },
+          repulse: { distance: 140, duration: 0.35 },
         },
       },
       detectRetina: true,
