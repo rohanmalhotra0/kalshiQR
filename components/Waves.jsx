@@ -87,6 +87,7 @@ class Noise {
 export default function Waves({
   lineColor = 'black',
   backgroundColor = 'transparent',
+  lineWidth = 1.2,
   waveSpeedX = 0.0125,
   waveSpeedY = 0.005,
   waveAmpX = 32,
@@ -96,6 +97,11 @@ export default function Waves({
   friction = 0.925,
   tension = 0.005,
   maxCursorMove = 100,
+  interactionRadius = 175,
+  cursorEase = 0.1,
+  velocityEase = 0.1,
+  maxCursorVelocity = 100,
+  cursorForce = 0.00065,
   style = {},
   className = '',
 }) {
@@ -109,15 +115,62 @@ export default function Waves({
     x: -10, y: 0, lx: 0, ly: 0, sx: 0, sy: 0, v: 0, vs: 0, a: 0, set: false,
   });
   const configRef = useRef({
-    lineColor, waveSpeedX, waveSpeedY, waveAmpX, waveAmpY, friction, tension, maxCursorMove, xGap, yGap,
+    lineColor,
+    lineWidth,
+    waveSpeedX,
+    waveSpeedY,
+    waveAmpX,
+    waveAmpY,
+    friction,
+    tension,
+    maxCursorMove,
+    interactionRadius,
+    cursorEase,
+    velocityEase,
+    maxCursorVelocity,
+    cursorForce,
+    xGap,
+    yGap,
   });
   const frameIdRef = useRef(null);
 
   useEffect(() => {
     configRef.current = {
-      lineColor, waveSpeedX, waveSpeedY, waveAmpX, waveAmpY, friction, tension, maxCursorMove, xGap, yGap,
+      lineColor,
+      lineWidth,
+      waveSpeedX,
+      waveSpeedY,
+      waveAmpX,
+      waveAmpY,
+      friction,
+      tension,
+      maxCursorMove,
+      interactionRadius,
+      cursorEase,
+      velocityEase,
+      maxCursorVelocity,
+      cursorForce,
+      xGap,
+      yGap,
     };
-  }, [lineColor, waveSpeedX, waveSpeedY, waveAmpX, waveAmpY, friction, tension, maxCursorMove, xGap, yGap]);
+  }, [
+    lineColor,
+    lineWidth,
+    waveSpeedX,
+    waveSpeedY,
+    waveAmpX,
+    waveAmpY,
+    friction,
+    tension,
+    maxCursorMove,
+    interactionRadius,
+    cursorEase,
+    velocityEase,
+    maxCursorVelocity,
+    cursorForce,
+    xGap,
+    yGap,
+  ]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -126,8 +179,14 @@ export default function Waves({
 
     function setSize() {
       boundingRef.current = container.getBoundingClientRect();
-      canvas.width = boundingRef.current.width;
-      canvas.height = boundingRef.current.height;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(boundingRef.current.width * dpr);
+      canvas.height = Math.floor(boundingRef.current.height * dpr);
+      canvas.style.width = `${Math.floor(boundingRef.current.width)}px`;
+      canvas.style.height = `${Math.floor(boundingRef.current.height)}px`;
+      if (ctxRef.current) {
+        ctxRef.current.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
     }
 
     function setLines() {
@@ -160,7 +219,15 @@ export default function Waves({
       const mouse = mouseRef.current;
       const noise = noiseRef.current;
       const {
-        waveSpeedX: wsx, waveSpeedY: wsy, waveAmpX: wax, waveAmpY: way, friction: fr, tension: ten, maxCursorMove: mcm,
+        waveSpeedX: wsx,
+        waveSpeedY: wsy,
+        waveAmpX: wax,
+        waveAmpY: way,
+        friction: fr,
+        tension: ten,
+        maxCursorMove: mcm,
+        interactionRadius: ir,
+        cursorForce: cforce,
       } = configRef.current;
 
       lines.forEach((pts) => {
@@ -172,12 +239,12 @@ export default function Waves({
           const dx = p.x - mouse.sx;
           const dy = p.y - mouse.sy;
           const dist = Math.hypot(dx, dy);
-          const l = Math.max(175, mouse.vs);
+          const l = Math.max(ir, mouse.vs);
           if (dist < l) {
             const s = 1 - dist / l;
             const f = Math.cos(dist * 0.001) * s;
-            p.cursor.vx += Math.cos(mouse.a) * f * l * mouse.vs * 0.00065;
-            p.cursor.vy += Math.sin(mouse.a) * f * l * mouse.vs * 0.00065;
+            p.cursor.vx += Math.cos(mouse.a) * f * l * mouse.vs * cforce;
+            p.cursor.vy += Math.sin(mouse.a) * f * l * mouse.vs * cforce;
           }
 
           p.cursor.vx += (0 - p.cursor.x) * ten;
@@ -204,6 +271,7 @@ export default function Waves({
       ctx.clearRect(0, 0, width, height);
       ctx.beginPath();
       ctx.strokeStyle = configRef.current.lineColor;
+      ctx.lineWidth = configRef.current.lineWidth;
       linesRef.current.forEach((points) => {
         let p1 = moved(points[0], false);
         ctx.moveTo(p1.x, p1.y);
@@ -220,14 +288,15 @@ export default function Waves({
 
     function tick(t) {
       const mouse = mouseRef.current;
-      mouse.sx += (mouse.x - mouse.sx) * 0.1;
-      mouse.sy += (mouse.y - mouse.sy) * 0.1;
+      const { cursorEase: ce, velocityEase: ve, maxCursorVelocity: mcv } = configRef.current;
+      mouse.sx += (mouse.x - mouse.sx) * ce;
+      mouse.sy += (mouse.y - mouse.sy) * ce;
       const dx = mouse.x - mouse.lx;
       const dy = mouse.y - mouse.ly;
       const d = Math.hypot(dx, dy);
       mouse.v = d;
-      mouse.vs += (d - mouse.vs) * 0.1;
-      mouse.vs = Math.min(100, mouse.vs);
+      mouse.vs += (d - mouse.vs) * ve;
+      mouse.vs = Math.min(mcv, mouse.vs);
       mouse.lx = mouse.x;
       mouse.ly = mouse.y;
       mouse.a = Math.atan2(dy, dx);
