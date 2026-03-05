@@ -8,10 +8,10 @@ import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
 import './Lanyard.css';
 
-// Assets - paths relative to page (about.html in same dir as lanyard folder)
-// Note: + in filename must be encoded as %2B for URL
+// Assets - paths relative to page (about.html)
+// Logo in lanyard folder so path is reliable (Group+74.webp -> Group%2B74.webp)
 const lanyardTexture = 'lanyard/lanyard.png';
-const cardFaceTexture = 'Group%2B74.webp';
+const cardFaceTexture = 'lanyard/Group%2B74.webp';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
