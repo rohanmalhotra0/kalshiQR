@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Footer from '@/components/Footer';
-import CodeSwap from '@/components/CodeSwap';
 
 export default function HomePage() {
   return (
@@ -25,11 +24,6 @@ export default function HomePage() {
             <p className="note">Unemployment and recession markets</p>
           </div>
         </div>
-      </section>
-
-      <section className="container">
-        <h2 className="section-title" style={{ textAlign: 'center' }}>Code Highlights</h2>
-        <CodeSwap />
       </section>
 
       <section className="container" style={{ maxWidth: 760 }}>
