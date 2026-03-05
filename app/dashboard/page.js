@@ -1,0 +1,53 @@
+'use client';
+
+import Footer from '@/components/Footer';
+import { calculateDashboard, parseInputs } from '@/lib/model';
+import { Suspense, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
+
+function DashboardClient() {
+  const searchParams = useSearchParams();
+  const inputs = useMemo(() => parseInputs(Object.fromEntries(searchParams.entries())), [searchParams]);
+  const m = useMemo(() => calculateDashboard(inputs), [inputs]);
+
+  return (
+    <div className="container" style={{ maxWidth: 1100 }}>
+      <h1 className="section-title">Dashboard</h1>
+      <p className="note">
+        Inputs: industry={inputs.industry}, company={inputs.company_size}, level={inputs.job_level}, salary=${inputs.salary.toLocaleString()}, paths={inputs.n_paths}, horizon={inputs.horizon_years}y
+      </p>
+
+      <div className="metric-grid">
+        <div className="metric"><div className="label">Average income (no hedge)</div><div className="value">${m.meanNo.toLocaleString()}</div></div>
+        <div className="metric"><div className="label">Average income (with hedge)</div><div className="value">${m.meanHedge.toLocaleString()}</div></div>
+        <div className="metric"><div className="label">Worst 5% outcomes</div><div className="value">${m.worstNo.toLocaleString()} → ${m.worstHedge.toLocaleString()}</div></div>
+        <div className="metric"><div className="label">Big drop chance</div><div className="value">{m.tailNo.toFixed(1)}% → {m.tailHedge.toFixed(1)}%</div></div>
+        <div className="metric"><div className="label">Contracts to buy</div><div className="value">{m.contracts.toLocaleString()}</div></div>
+        <div className="metric"><div className="label">Upfront hedge cost</div><div className="value">${m.totalCost.toLocaleString()}</div></div>
+      </div>
+
+      <div className="card" style={{ marginTop: '1.25rem' }}>
+        <p>
+          <strong>Bottom line:</strong> Buy <strong>{m.contracts.toLocaleString()} contracts</strong> that pay out if US unemployment exceeds {m.hedgeThreshold.toFixed(1)}%.
+          Upfront cost is <strong>${m.totalCost.toLocaleString()}</strong>. If triggered, payout is <strong>${m.payout.toLocaleString()}</strong>.
+          In this model run, trigger chance is about <strong>{m.triggerRate.toFixed(1)}%</strong>.
+        </p>
+      </div>
+
+      <div className="card" style={{ marginTop: '1rem' }}>
+        <h3>Model assumptions</h3>
+        <p className="note">Contract sizing is input-driven: <code>contracts = salary * 6 / 12</code> (no fixed 60,000).</p>
+      </div>
+
+      <Footer />
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="container"><p className="note">Loading dashboard...</p></div>}>
+      <DashboardClient />
+    </Suspense>
+  );
+}

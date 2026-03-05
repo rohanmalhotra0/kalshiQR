@@ -1,19 +1,14 @@
-# Local env with API keys (never commit)
 .env
-
-# Python
 __pycache__/
 *.py[cod]
 *.pyo
 .venv/
 venv/
 
-# LaTeX build artifacts (keep .tex and .pdf)
+node_modules/
+.next/
+out/
+
 paper/*.aux
 paper/*.log
 paper/missfont.log
-
-# Build output
-site/
-static/lanyard/
-static/card-swap/
