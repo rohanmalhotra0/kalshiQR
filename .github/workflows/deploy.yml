@@ -50,11 +50,13 @@ jobs:
           cp pages/paper.html site/paper.html
           cp pages/documentation.html site/documentation.html
           cp pages/about.html site/about.html
+          cp pages/contact.html site/contact.html
           cp live-demo.html site/live-demo.html
           cp static/live_demo_pipeline.js site/
           cp static/waves.js site/
           cp static/favicon.png site/
           cp static/apple-touch-icon.png site/
+          cp "static/Group+74.webp" site/
           cp paper/currentModel.pdf site/
           touch site/.nojekyll
           grep -q "Get Started" site/index.html && echo "OK: index.html is the landing page"
