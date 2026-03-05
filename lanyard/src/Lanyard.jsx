@@ -2,20 +2,20 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { Canvas, extend, useFrame } from '@react-three/fiber';
-import { useGLTF, useTexture } from '@react-three/drei';
+import { useTexture } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
 import './Lanyard.css';
 
 // Assets - paths relative to page (about.html in same dir as lanyard folder)
-const cardGLB = 'lanyard/card.glb';
+// Note: + in filename must be encoded as %2B for URL
 const lanyardTexture = 'lanyard/lanyard.png';
-const cardFaceTexture = 'Group+74.webp';
+const cardFaceTexture = 'Group%2B74.webp';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], fov = 20, transparent = true, cardImage }) {
+export default function Lanyard({ position = [0, 0, 10], gravity = [0, -40, 0], fov = 28, transparent = true, cardImage }) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
 
   useEffect(() => {
@@ -25,12 +25,15 @@ export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], 
   }, []);
 
   return (
-    <div className="lanyard-wrapper" style={{ height: '400px', width: '100%' }}>
+    <div className="lanyard-wrapper" style={{ height: '520px', width: '100%' }}>
       <Canvas
         camera={{ position, fov }}
         gl={{ alpha: transparent, antialias: true }}
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
       >
+        <ambientLight intensity={0.8} />
+        <directionalLight position={[5, 5, 5]} intensity={1.2} />
+        <directionalLight position={[-3, 2, 2]} intensity={0.6} />
         <Physics gravity={gravity}>
           <Band maxSpeed={50} minSpeed={0} isMobile={isMobile} cardImage={cardImage || cardFaceTexture} />
         </Physics>
@@ -57,7 +60,6 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardImage }) {
     angularDamping: 4,
     linearDamping: 4,
   };
-  const { nodes, materials } = useGLTF(cardGLB);
   const texture = useTexture(lanyardTexture);
   const cardTexture = useTexture(cardImage);
   const [curve] = useState(
@@ -122,10 +124,7 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardImage }) {
   curve.curveType = 'chordal';
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
-  // Find card geometry from GLB (node may be named card, Card, etc.)
-  const cardNode = nodes?.card || nodes?.Card || Object.values(nodes || {}).find((n) => n?.isMesh);
-  const cardGeometry = cardNode?.geometry;
-
+  // Use plane for reliable texture display (GLB UVs may not match our logo)
   return (
     <>
       <RigidBody ref={fixed} type="fixed" />
@@ -159,29 +158,18 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardImage }) {
         }
       >
         <CuboidCollider args={[0.8, 1.125, 0.01]} />
-        {cardGeometry ? (
-          <mesh geometry={cardGeometry}>
-            <meshPhysicalMaterial
-              map={cardTexture}
-              clearcoat={1}
-              clearcoatRoughness={0.15}
-              metalness={0.5}
-              roughness={0.3}
-            />
-          </mesh>
-        ) : (
-          <mesh>
-            <planeGeometry args={[1.6, 2.25]} />
-            <meshPhysicalMaterial
-              map={cardTexture}
-              side={THREE.DoubleSide}
-              clearcoat={1}
-              clearcoatRoughness={0.15}
-              metalness={0.5}
-              roughness={0.3}
-            />
-          </mesh>
-        )}
+        <mesh>
+          <planeGeometry args={[1.6, 2.25]} />
+          <meshPhysicalMaterial
+            map={cardTexture}
+            color="#ffffff"
+            side={THREE.DoubleSide}
+            clearcoat={0.3}
+            clearcoatRoughness={0.2}
+            metalness={0.05}
+            roughness={0.4}
+          />
+        </mesh>
       </RigidBody>
     </>
   );

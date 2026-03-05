@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team & Contact — NYU BnF x Kalshi</title>
+  <title>About Us — NYU BnF x Kalshi</title>
   <link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -55,14 +55,27 @@
       font-weight: 600;
     }
     .cta a:hover { filter: brightness(1.1); }
-    .contact-section { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center; }
+    .contact-section { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+    .contact-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
     .contact-info {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.5rem;
       text-align: left;
-      display: inline-block;
+      flex: 1;
+      min-width: 200px;
+    }
+    .lanyard-wrap {
+      flex: 1;
+      min-width: 280px;
+      max-width: 400px;
     }
     .contact-info a { color: var(--accent); text-decoration: none; }
     .contact-info a:hover { text-decoration: underline; }
@@ -77,12 +90,12 @@
       <a href="quiz.html">Quiz</a>
       <a href="live-demo.html">Live Demo</a>
       <a href="documentation.html">Documentation</a>
-      <a href="about.html">Team & Contact</a>
+      <a href="about.html">About Us</a>
     </div>
   </nav>
 
   <div class="container">
-    <h1>Team & Contact</h1>
+    <h1>About Us</h1>
     <p class="subtitle">NYU Blockchain & Fintech — Our Team</p>
 
     <div class="team-card">
@@ -93,13 +106,17 @@
     </div>
 
     <section class="contact-section">
-      <h2 style="font-size:1.25rem;margin-bottom:1rem;">Contact</h2>
-      <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:0.5rem;">Drag the badge!</p>
-      <div id="lanyard-root" style="min-height:400px;width:100%;max-width:400px;margin:0 auto 2rem;"></div>
-      <div class="contact-info">
-        <p><strong>NYU Blockchain & Fintech</strong></p>
-        <p><a href="https://www.nyubnf.com" target="_blank" rel="noopener">nyubnf.com</a></p>
-        <p><a href="https://github.com/nyu-bnf/modelKalshi" target="_blank" rel="noopener">GitHub</a></p>
+      <h2 style="font-size:1.25rem;margin-bottom:1rem;text-align:center;">Contact</h2>
+      <div class="contact-row">
+        <div class="contact-info">
+          <p><strong>NYU Blockchain & Fintech</strong></p>
+          <p><a href="https://www.nyubnf.com" target="_blank" rel="noopener">nyubnf.com</a></p>
+          <p><a href="https://github.com/nyu-bnf/modelKalshi" target="_blank" rel="noopener">GitHub</a></p>
+        </div>
+        <div class="lanyard-wrap">
+          <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:0.5rem;text-align:center;">Drag the badge!</p>
+          <div id="lanyard-root" style="min-height:400px;width:100%;"></div>
+        </div>
       </div>
     </section>
   </div>
