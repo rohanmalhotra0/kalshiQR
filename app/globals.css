@@ -377,43 +377,6 @@ button {
   color: var(--text);
 }
 
-.contact-card {
-  margin-top: 1rem;
-}
-
-.contact-grid {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.contact-item {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.75rem 0.9rem;
-  background: #fff;
-}
-
-.contact-label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 0.2rem;
-}
-
-.contact-value {
-  color: var(--text);
-}
-
-.contact-value a {
-  color: var(--text);
-  text-decoration: none;
-}
-
-.contact-value a:hover {
-  text-decoration: underline;
-}
-
 .loading-shell {
   display: flex;
   align-items: center;

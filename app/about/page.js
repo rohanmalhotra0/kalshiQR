@@ -19,31 +19,6 @@ export default function AboutPage() {
         </p>
       </div>
 
-      <div className="card contact-card">
-        <h3>Contact Us</h3>
-        <p className="note" style={{ marginBottom: '1rem' }}>
-          Reach the team through the channels below.
-        </p>
-        <div className="contact-grid">
-          <div className="contact-item">
-            <p className="contact-label">Organization</p>
-            <p className="contact-value">Offset</p>
-          </div>
-          <div className="contact-item">
-            <p className="contact-label">Website</p>
-            <p className="contact-value">
-              <a href="https://www.nyubnf.com" target="_blank" rel="noreferrer">nyubnf.com</a>
-            </p>
-          </div>
-          <div className="contact-item">
-            <p className="contact-label">Project Repository</p>
-            <p className="contact-value">
-              <a href="https://github.com/nyu-bnf/modelKalshi" target="_blank" rel="noreferrer">github.com/nyu-bnf/modelKalshi</a>
-            </p>
-          </div>
-        </div>
-      </div>
-
       <Footer />
     </div>
   );
