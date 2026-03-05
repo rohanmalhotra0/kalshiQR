@@ -15,21 +15,42 @@ const loadingPhases = [
 const fmtCurrency = (v) => `$${Math.round(v).toLocaleString()}`;
 const fmtPct = (v) => `${Number(v).toFixed(1)}%`;
 
-function useTypewriter(text, speedMs = 28) {
+function useTypewriterRotation(lines, typingMs = 34, deletingMs = 20, holdMs = 1300) {
+  const [lineIdx, setLineIdx] = useState(0);
   const [value, setValue] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    let idx = 0;
-    setValue('');
-    const id = setInterval(() => {
-      idx += 1;
-      setValue(text.slice(0, idx));
-      if (idx >= text.length) {
-        clearInterval(id);
+    const full = lines[lineIdx] ?? '';
+    let nextDelay = typingMs;
+
+    if (!deleting && value.length < full.length) {
+      nextDelay = typingMs;
+    } else if (!deleting && value.length === full.length) {
+      nextDelay = holdMs;
+    } else if (deleting) {
+      nextDelay = deletingMs;
+    }
+
+    const id = setTimeout(() => {
+      if (!deleting && value.length < full.length) {
+        setValue(full.slice(0, value.length + 1));
+        return;
       }
-    }, speedMs);
-    return () => clearInterval(id);
-  }, [text, speedMs]);
+      if (!deleting && value.length === full.length) {
+        setDeleting(true);
+        return;
+      }
+      if (deleting && value.length > 0) {
+        setValue(full.slice(0, value.length - 1));
+        return;
+      }
+      setDeleting(false);
+      setLineIdx((prev) => (prev + 1) % lines.length);
+    }, nextDelay);
+
+    return () => clearTimeout(id);
+  }, [value, deleting, lineIdx, lines, typingMs, deletingMs, holdMs]);
 
   return value;
 }
@@ -263,7 +284,12 @@ function MonteCarloSampleChart({ sample }) {
 function DashboardClient() {
   const searchParams = useSearchParams();
   const inputs = useMemo(() => parseInputs(Object.fromEntries(searchParams.entries())), [searchParams]);
-  const typedTitle = useTypewriter('Hedge your income against job loss');
+  const typedTitle = useTypewriterRotation([
+    'Hedge your income against job loss',
+    'Run Monte Carlo risk scenarios',
+    'Size contracts from your inputs',
+    'See downside protection clearly',
+  ]);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

@@ -181,8 +181,8 @@ a {
 }
 
 .faq-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: #f6fdf9;
+  border: 1px solid rgba(0, 168, 84, 0.28);
   border-radius: 12px;
   margin-bottom: 0.75rem;
 }
@@ -190,6 +190,7 @@ a {
 .faq-item summary {
   cursor: pointer;
   font-weight: 600;
+  color: var(--text-muted);
   padding: 1rem 1.1rem;
 }
 
