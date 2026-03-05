@@ -101,7 +101,7 @@ export default function HomePage() {
             <p>No. This is a research tool from NYU BnF. Always do your own research and seek professional advice if needed.</p>
           </details>
         </section>
-        <div className="container"><Footer /></div>
+        <Footer />
       </div>
     </div>
   );
