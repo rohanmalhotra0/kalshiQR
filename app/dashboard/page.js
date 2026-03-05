@@ -12,6 +12,9 @@ const loadingPhases = [
   'Preparing charts and recommendation',
 ];
 
+const fmtCurrency = (v) => `$${Math.round(v).toLocaleString()}`;
+const fmtPct = (v) => `${Number(v).toFixed(1)}%`;
+
 function useTypewriter(text, speedMs = 28) {
   const [value, setValue] = useState('');
 
@@ -103,7 +106,8 @@ function HistogramChart({ histogram, meanNo, meanHedge, baselineIncome }) {
         <line x1={xOf(safeBaseline)} x2={xOf(safeBaseline)} y1="0" y2={h} stroke="rgba(150,150,150,0.65)" />
       </svg>
       <p className="note" style={{ marginTop: '0.7rem' }}>
-        Bars show frequency; solid lines smooth the same distributions. Dashed vertical lines mark average no-hedge and with-hedge outcomes, and the solid gray vertical line marks full-employment baseline income.
+        Across all simulated paths, average income is {fmtCurrency(safeMeanNo)} without hedge vs {fmtCurrency(safeMeanHedge)} with hedge.
+        The solid gray vertical marker is full-employment baseline income at {fmtCurrency(safeBaseline)}.
       </p>
     </div>
   );
@@ -121,6 +125,13 @@ function PercentileChart({ percentiles }) {
   const noPath = toPath(pointsNo, w, h, 1, 99, minY, maxY);
   const withPath = toPath(pointsWith, w, h, 1, 99, minY, maxY);
 
+  const p10No = percentiles.no_hedge[2];
+  const p10With = percentiles.with_hedge[2];
+  const p50No = percentiles.no_hedge[4];
+  const p50With = percentiles.with_hedge[4];
+  const p90No = percentiles.no_hedge[6];
+  const p90With = percentiles.with_hedge[6];
+
   return (
     <div className="card" style={{ marginTop: '1rem' }}>
       <h3>Percentile Curve</h3>
@@ -137,7 +148,8 @@ function PercentileChart({ percentiles }) {
         <span style={{ color: 'rgb(0,168,84)', fontWeight: 700 }}>With hedge</span>
       </p>
       <p className="note" style={{ marginTop: '0.45rem' }}>
-        Reading left to right: each point is the income cutoff at that percentile. A higher green curve means the hedge improves outcomes across more of the distribution, especially in downside tails.
+        At P10: {fmtCurrency(p10No)} to {fmtCurrency(p10With)}; at median: {fmtCurrency(p50No)} to {fmtCurrency(p50With)}; at P90: {fmtCurrency(p90No)} to {fmtCurrency(p90With)}.
+        Higher green values mean better outcomes at that percentile.
       </p>
     </div>
   );
@@ -150,6 +162,10 @@ function SurvivalChart({ survival }) {
   const points = survival.year.map((x, i) => [x, survival.still_employed_pct[i]]);
   const path = toPath(points, w, h, 0, Math.max(...survival.year), 0, 100);
 
+  const start = survival.still_employed_pct[0];
+  const end = survival.still_employed_pct[survival.still_employed_pct.length - 1];
+  const years = survival.year[survival.year.length - 1];
+
   return (
     <div className="card" style={{ marginTop: '1rem' }}>
       <h3>Employment Survival by Year</h3>
@@ -160,7 +176,8 @@ function SurvivalChart({ survival }) {
         <path d={path} stroke="rgb(245,158,11)" strokeWidth="3" fill="none" />
       </svg>
       <p className="note" style={{ marginTop: '0.7rem' }}>
-        This curve shows the percent of simulated careers that have not yet seen a first job-loss event by each year. Flatter curves imply lower cumulative job-loss frequency over time.
+        This starts at {fmtPct(start)} and ends at {fmtPct(end)} by year {years}.
+        Interpreting this plainly: about {fmtPct(100 - end)} of simulated careers see at least one job-loss event by the end of the horizon.
       </p>
     </div>
   );
@@ -177,6 +194,9 @@ function TriggerChart({ maxUnemployment, hedgeThreshold, triggerRate }) {
   const curve = toPath(points, w, h, minX, maxX, 0, maxY);
   const barW = w / maxUnemployment.x.length;
   const xOf = (v) => ((v - minX) / Math.max(1e-9, maxX - minX)) * w;
+
+  const peakIdx = maxUnemployment.count.reduce((best, v, i, arr) => (v > arr[best] ? i : best), 0);
+  const peakX = maxUnemployment.x[peakIdx];
 
   return (
     <div className="card" style={{ marginTop: '1rem' }}>
@@ -199,7 +219,8 @@ function TriggerChart({ maxUnemployment, hedgeThreshold, triggerRate }) {
         <line x1={xOf(hedgeThreshold)} x2={xOf(hedgeThreshold)} y1="0" y2={h} stroke="rgba(0,168,84,0.95)" strokeDasharray="6 5" />
       </svg>
       <p className="note" style={{ marginTop: '0.7rem' }}>
-        Bars and line show how high unemployment peaks across simulations. The dashed line is the payout trigger ({hedgeThreshold.toFixed(1)}%). It is crossed in about {triggerRate.toFixed(1)}% of scenarios.
+        The most common max-unemployment region in this run is around {peakX.toFixed(2)}%.
+        The hedge pays when max unemployment crosses {hedgeThreshold.toFixed(1)}%, which happens in about {fmtPct(triggerRate)} of paths.
       </p>
     </div>
   );
@@ -218,6 +239,12 @@ function MonteCarloSampleChart({ sample }) {
   const noPath = toPath(pointsNo, w, h, minX, maxX, minY, maxY);
   const withPath = toPath(pointsWith, w, h, minX, maxX, minY, maxY);
 
+  const avgNo = sample.no_hedge.reduce((a, b) => a + b, 0) / sample.no_hedge.length;
+  const avgWith = sample.with_hedge.reduce((a, b) => a + b, 0) / sample.with_hedge.length;
+  const sampleDelta = avgWith - avgNo;
+  const minNo = Math.min(...sample.no_hedge);
+  const maxNo = Math.max(...sample.no_hedge);
+
   return (
     <div className="card" style={{ marginTop: '1rem' }}>
       <h3>Monte Carlo Sample Paths (Outcomes)</h3>
@@ -226,7 +253,8 @@ function MonteCarloSampleChart({ sample }) {
         <path d={withPath} stroke="rgba(0,168,84,0.9)" strokeWidth="2" fill="none" />
       </svg>
       <p className="note" style={{ marginTop: '0.7rem' }}>
-        This is a sampled slice of simulated path outcomes. Gray is per-path total income without hedge, green is with hedge after premium and payouts.
+        This chart shows sampled path-by-path outcomes from the simulation. In this sample, average income moves from {fmtCurrency(avgNo)} to {fmtCurrency(avgWith)} (delta {fmtCurrency(sampleDelta)}).
+        The no-hedge sample spans from {fmtCurrency(minNo)} to {fmtCurrency(maxNo)}.
       </p>
     </div>
   );
@@ -350,6 +378,7 @@ function DashboardClient() {
             meanHedge={result.meanHedge}
             baselineIncome={result.baselineIncome}
           />
+          <MonteCarloSampleChart sample={result.monteCarloSample} />
           <PercentileChart percentiles={result.percentiles} />
           <SurvivalChart survival={result.survival} />
           <TriggerChart
@@ -357,7 +386,6 @@ function DashboardClient() {
             hedgeThreshold={result.hedgeThreshold}
             triggerRate={result.triggerRate}
           />
-          <MonteCarloSampleChart sample={result.monteCarloSample} />
 
           <div className="card" style={{ marginTop: '1.25rem' }}>
             <p>
