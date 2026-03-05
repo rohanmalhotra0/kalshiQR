@@ -12,6 +12,13 @@ const loadingPhases = [
   'Preparing charts and recommendation',
 ];
 
+const rotatingHeadlines = [
+  'Hedge your income against job loss',
+  'Run Monte Carlo risk scenarios',
+  'Size contracts from your inputs',
+  'See downside protection clearly',
+];
+
 const fmtCurrency = (v) => `$${Math.round(v).toLocaleString()}`;
 const fmtPct = (v) => `${Number(v).toFixed(1)}%`;
 
@@ -284,12 +291,7 @@ function MonteCarloSampleChart({ sample }) {
 function DashboardClient() {
   const searchParams = useSearchParams();
   const inputs = useMemo(() => parseInputs(Object.fromEntries(searchParams.entries())), [searchParams]);
-  const typedTitle = useTypewriterRotation([
-    'Hedge your income against job loss',
-    'Run Monte Carlo risk scenarios',
-    'Size contracts from your inputs',
-    'See downside protection clearly',
-  ]);
+  const typedTitle = useTypewriterRotation(rotatingHeadlines);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
