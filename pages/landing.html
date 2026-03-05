@@ -14,8 +14,8 @@
       --surface2: #f1f5f9;
       --text: #0f172a;
       --text-muted: #64748b;
-      --accent: #00D26A;
-      --accent-glow: rgba(0, 210, 106, 0.35);
+      --accent: #00a854;
+      --accent-glow: rgba(0, 168, 84, 0.35);
       --border: #e2e8f0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,8 +38,8 @@
     .overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 210, 106, 0.06), transparent),
-                  radial-gradient(ellipse 60% 40% at 80% 50%, rgba(0, 210, 106, 0.03), transparent);
+      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 168, 84, 0.04), transparent),
+                  radial-gradient(ellipse 60% 40% at 80% 50%, rgba(0, 168, 84, 0.02), transparent);
       pointer-events: none;
       z-index: 0;
     }
@@ -107,7 +107,7 @@
       font-weight: 600;
       font-family: inherit;
       color: white;
-      background: linear-gradient(135deg, var(--accent) 0%, #00b359 100%);
+      background: linear-gradient(135deg, var(--accent) 0%, #008f47 100%);
       border: none;
       border-radius: 12px;
       text-decoration: none;
@@ -240,16 +240,16 @@
   <script>
     particlesJS('particles-js', {
       particles: {
-        number: { value: 240, density: { enable: true, value_area: 800 } },
-        color: { value: '#00D26A' },
+        number: { value: 320, density: { enable: true, value_area: 500 } },
+        color: { value: '#00a854' },
         shape: { type: 'circle' },
-        opacity: { value: 0.4, random: true },
-        size: { value: 3, random: { enable: true, minimumValue: 1 } },
+        opacity: { value: 0.7, random: { enable: true, minimumValue: 0.5 } },
+        size: { value: 4, random: { enable: true, minimumValue: 2 } },
         links: {
           enable: true,
-          distance: 150,
-          color: '#00D26A',
-          opacity: 0.2,
+          distance: 140,
+          color: '#00a854',
+          opacity: 0.5,
           width: 1
         },
         move: {
