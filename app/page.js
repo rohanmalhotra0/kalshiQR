@@ -1,15 +1,70 @@
+'use client';
+
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import HeroWaves from '@/components/HeroWaves';
+import { useEffect, useState } from 'react';
+
+const rotatingHeadlines = [
+  'Hedge your income against job loss',
+  'Run Monte Carlo risk scenarios',
+  'Size contracts from your inputs',
+  'See downside protection clearly',
+];
+
+function useTypewriterRotation(lines, typingMs = 34, deletingMs = 20, holdMs = 1300) {
+  const [lineIdx, setLineIdx] = useState(0);
+  const [value, setValue] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const full = lines[lineIdx] ?? '';
+    let nextDelay = typingMs;
+
+    if (!deleting && value.length < full.length) {
+      nextDelay = typingMs;
+    } else if (!deleting && value.length === full.length) {
+      nextDelay = holdMs;
+    } else if (deleting) {
+      nextDelay = deletingMs;
+    }
+
+    const id = setTimeout(() => {
+      if (!deleting && value.length < full.length) {
+        setValue(full.slice(0, value.length + 1));
+        return;
+      }
+      if (!deleting && value.length === full.length) {
+        setDeleting(true);
+        return;
+      }
+      if (deleting && value.length > 0) {
+        setValue(full.slice(0, value.length - 1));
+        return;
+      }
+      setDeleting(false);
+      setLineIdx((prev) => (prev + 1) % lines.length);
+    }, nextDelay);
+
+    return () => clearTimeout(id);
+  }, [value, deleting, lineIdx, lines, typingMs, deletingMs, holdMs]);
+
+  return value;
+}
 
 export default function HomePage() {
+  const typedHeadline = useTypewriterRotation(rotatingHeadlines);
+
   return (
     <div className="landing-page-shell">
       <HeroWaves className="landing-waves" />
       <div className="landing-content">
         <section className="hero">
           <div className="hero-content">
-            <h1>Hedge your income against job loss</h1>
+            <h1>
+              {typedHeadline}
+              <span style={{ opacity: 0.7 }}>|</span>
+            </h1>
             <p>
               Use prediction markets to protect your finances. Run a simulation and get a personalized contract recommendation in seconds.
             </p>
