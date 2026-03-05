@@ -57,7 +57,7 @@ function App() {
         height={280}
         cardDistance={50}
         verticalDistance={60}
-        delay={4000}
+        delay={2500}
         pauseOnHover={true}
         skewAmount={6}
         easing="elastic"
