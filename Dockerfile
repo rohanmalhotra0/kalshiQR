@@ -23,4 +23,4 @@ ENV PORT=10000
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "npm run start -- -p ${PORT}"]
+CMD ["sh", "-c", "npm run start -- -H 0.0.0.0 -p ${PORT}"]
