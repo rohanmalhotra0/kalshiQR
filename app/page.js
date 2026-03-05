@@ -12,7 +12,7 @@ const rotatingHeadlines = [
   'See downside protection clearly',
 ];
 
-function useTypewriterRotation(lines, typingMs = 34, deletingMs = 20, holdMs = 1300) {
+function useTypewriterRotation(lines, typingMs = 72, deletingMs = 46, holdMs = 1800) {
   const [lineIdx, setLineIdx] = useState(0);
   const [value, setValue] = useState('');
   const [deleting, setDeleting] = useState(false);

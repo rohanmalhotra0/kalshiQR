@@ -22,7 +22,7 @@ const rotatingHeadlines = [
 const fmtCurrency = (v) => `$${Math.round(v).toLocaleString()}`;
 const fmtPct = (v) => `${Number(v).toFixed(1)}%`;
 
-function useTypewriterRotation(lines, typingMs = 36, deletingMs = 20, holdMs = 900) {
+function useTypewriterRotation(lines, typingMs = 72, deletingMs = 46, holdMs = 1800) {
   const [lineIdx, setLineIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
   const [mode, setMode] = useState('typing'); // typing | hold | deleting
