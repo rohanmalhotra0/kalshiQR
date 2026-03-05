@@ -1,113 +1,81 @@
+'use client';
+
 import Footer from '@/components/Footer';
+import { useEffect } from 'react';
 
 export default function DocumentationPage() {
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.MathJax?.typesetPromise) {
+      window.MathJax.typesetPromise();
+    }
+  }, []);
+
   return (
     <div className="container" style={{ maxWidth: 960 }}>
       <h1 className="section-title">Documentation</h1>
       <p className="note" style={{ marginBottom: '1rem' }}>
-        End-to-end technical documentation for the production model pipeline used by
-        <code> /dashboard</code>.
+        Pipeline, equations, and dynamic model settings used in production.
       </p>
 
       <div className="card" style={{ marginBottom: '0.8rem' }}>
-        <h3>1) System architecture</h3>
-        <p style={{ marginBottom: '0.55rem' }}>
-          User inputs are collected in the dashboard input form, sent as query params to <code>/api/simulate</code>, and then passed to the
-          Python model runner at <code>legacy-python/run_pipeline_json.py</code>.
+        <h3>Pipeline Diagram</h3>
+        <div className="pipeline-flow">
+          <div className="pipeline-box">Personal Data</div>
+          <div className="pipeline-arrow">↓</div>
+          <div className="pipeline-box">Hazard Model</div>
+          <div className="pipeline-arrow">↓</div>
+          <div className="pipeline-box">Job Loss Simulation</div>
+          <div className="pipeline-arrow">↓</div>
+          <div className="pipeline-box">Monte Carlo</div>
+          <div className="pipeline-arrow">↓</div>
+          <div className="pipeline-box">Optimal Hedge</div>
+        </div>
+        <p className="note" style={{ marginTop: '0.7rem' }}>
+          Research-style TikZ source used for paper-quality diagrams:
         </p>
-        <p className="note">
-          High-level flow: personal profile → hazard model → Poisson job-loss process → Monte Carlo income distribution →
-          hedge metrics + chart data → UI recommendation.
-        </p>
+        <pre className="math-code">
+{String.raw`\begin{tikzpicture}[
+node distance=2cm,
+box/.style={rectangle, draw, rounded corners, minimum width=3cm, minimum height=1cm, align=center}
+]
+\node (personal) [box] {Personal Data\\(salary, industry, tenure)};
+\node (hazard) [box, below of=personal] {Hazard Model\\$\lambda_t = \alpha + \beta_1 U_t + \beta_2 r_t$};
+\node (simulation) [box, below of=hazard] {Job Loss Simulation\\$N_t \sim Poisson(\lambda_t)$};
+\node (mc) [box, below of=simulation] {Monte Carlo Paths\\$N = 5000$};
+\node (hedge) [box, below of=mc] {Optimal Hedge\\$h^* = \frac{Cov(L,H)}{Var(H)}$};
+\draw[->] (personal) -- (hazard);
+\draw[->] (hazard) -- (simulation);
+\draw[->] (simulation) -- (mc);
+\draw[->] (mc) -- (hedge);
+\end{tikzpicture}`}
+        </pre>
       </div>
 
       <div className="card" style={{ marginBottom: '0.8rem' }}>
-        <h3>2) Model inputs</h3>
-        <p style={{ marginBottom: '0.55rem' }}>
-          Primary runtime inputs:
-        </p>
+        <h3>How the model works</h3>
+        <p className="note">{String.raw`\[\lambda_t = \alpha + \beta_1 U_t + \beta_2 r_t + \beta_3 I_t\]`}</p>
         <p className="note">
-          <code>industry</code>, <code>company_size</code>, <code>job_level</code>, <code>tenure_years</code>, <code>salary</code>,{' '}
-          <code>n_paths</code>, <code>horizon_years</code>.
+          where <code>U_t</code> is unemployment rate, <code>r_t</code> is interest rate, and <code>I_t</code> is industry risk.
         </p>
-        <p className="note" style={{ marginTop: '0.5rem' }}>
-          Optional data enrichment via environment keys: <code>FRED_API_KEY</code> and <code>BLS_API_KEY</code>.
-        </p>
-      </div>
-
-      <div className="card" style={{ marginBottom: '0.8rem' }}>
-        <h3>3) Hazard model (job-loss intensity)</h3>
-        <p style={{ marginBottom: '0.55rem' }}>
-          The hazard component models monthly job-loss probability with logistic regression:
-        </p>
-        <p className="note" style={{ marginBottom: '0.55rem' }}>
-          <code>P(loss) = sigmoid(beta0 + beta_u * unemployment + beta_i * industry_risk + beta_r * interest_rate)</code>
-        </p>
+        <p className="note" style={{ marginTop: '0.6rem' }}>{String.raw`\[N_t \sim Poisson(\lambda_t)\]`}</p>
+        <p className="note">{String.raw`\[E_t = \begin{cases}1 & \text{employed} \\ 0 & \text{unemployed}\end{cases}\]`}</p>
+        <p className="note" style={{ marginTop: '0.6rem' }}>{String.raw`\[dW_t = S E_t dt\]`}</p>
+        <p className="note">where <code>S</code> is salary.</p>
+        <p className="note" style={{ marginTop: '0.6rem' }}>{String.raw`\[W_t^{(1)}, W_t^{(2)}, ..., W_t^{(N)} \quad,\quad N = 5000\]`}</p>
+        <p className="note">We simulate 5000 career paths over a 10-year horizon by default.</p>
+        <p className="note" style={{ marginTop: '0.6rem' }}>{String.raw`\[h^* = \frac{Cov(L,H)}{Var(H)}\]`}</p>
         <p className="note">
-          This probability is converted to weekly Poisson intensity using:
-          <code> lambda = -log(1 - p_monthly) / 4.33</code>, then capped for realism.
-        </p>
-      </div>
-
-      <div className="card" style={{ marginBottom: '0.8rem' }}>
-        <h3>4) Monte Carlo engine</h3>
-        <p style={{ marginBottom: '0.55rem' }}>
-          For each path, the simulator:
-        </p>
-        <p className="note">
-          (a) simulates unemployment (mean-reverting AR process), (b) samples job-loss jump events via Poisson intensity,
-          (c) draws unemployment duration from an exponential distribution, (d) computes salary path, and (e) applies hedge
-          payoff when unemployment stress threshold is breached.
-        </p>
-        <p className="note" style={{ marginTop: '0.5rem' }}>
-          Current hedge trigger in pipeline: unemployment spike above <code>8.0%</code>.
-        </p>
-      </div>
-
-      <div className="card" style={{ marginBottom: '0.8rem' }}>
-        <h3>5) Hedge sizing and risk metrics</h3>
-        <p style={{ marginBottom: '0.55rem' }}>
-          Contract count defaults to 6-month income coverage:
-          <code> contracts = salary * 6 / 12</code>.
-        </p>
-        <p className="note">
-          Dashboard reports mean income, expected shortfall (worst 5%), probability of {'>'}50% income drop, trigger rate,
-          and variance/tail-risk change between no-hedge and with-hedge distributions.
-        </p>
-      </div>
-
-      <div className="card" style={{ marginBottom: '0.8rem' }}>
-        <h3>6) Charts returned by Python</h3>
-        <p style={{ marginBottom: '0.55rem' }}>
-          The API response includes chart-ready arrays generated server-side:
-        </p>
-        <p className="note">
-          <code>histogram</code> (bin centers + counts for no-hedge / with-hedge) and <code>percentiles</code> (1, 5, 10, 25, 50, 75, 90, 95, 99).
-        </p>
-      </div>
-
-      <div className="card" style={{ marginBottom: '0.8rem' }}>
-        <h3>7) API contract</h3>
-        <p className="note" style={{ marginBottom: '0.45rem' }}>
-          Endpoint: <code>GET /api/simulate</code>
-        </p>
-        <p className="note" style={{ marginBottom: '0.45rem' }}>
-          Returns JSON: inputs, contracts, contractPrice, totalCost, payout, triggerRate, mean/worst/tail metrics, histogram, percentiles.
-        </p>
-        <p className="note">
-          On failure, returns <code>500</code> with <code>{'{ error, details }'}</code>.
+          where <code>L</code> is income loss and <code>H</code> is hedge payoff.
         </p>
       </div>
 
       <div className="card">
-        <h3>8) Limitations and interpretation</h3>
-        <p className="note" style={{ marginBottom: '0.45rem' }}>
-          This is a research model, not financial advice. Outputs are scenario-based and sensitive to hazard coefficients,
-          unemployment dynamics, and hedge trigger assumptions.
-        </p>
-        <p className="note">
-          Use for decision support and stress testing, not as a guaranteed forecast of personal outcomes.
-        </p>
+        <h3>Dynamic input example</h3>
+        <p className="note">For the default dashboard-like case (Tech, Startup, Entry, salary 120000, paths 5000, horizon 10):</p>
+        <p className="note" style={{ marginTop: '0.6rem' }}>{String.raw`\[S = 120000\]`}</p>
+        <p className="note">{String.raw`\[T = 10 \text{ years}\]`}</p>
+        <p className="note">{String.raw`\[N = 5000\]`}</p>
+        <p className="note">{String.raw`\[W_t^{(1)}, W_t^{(2)}, ..., W_t^{(5000)}\]`}</p>
       </div>
 
       <Footer />

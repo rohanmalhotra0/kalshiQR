@@ -364,6 +364,12 @@ function DashboardClient() {
     };
   }, [inputs]);
 
+  useEffect(() => {
+    if (!loading && !error && result && typeof window !== 'undefined' && window.MathJax?.typesetPromise) {
+      window.MathJax.typesetPromise();
+    }
+  }, [loading, error, result, inputs]);
+
   return (
     <div className="container" style={{ maxWidth: 1100 }}>
       <h1 className="section-title" style={{ marginBottom: '0.35rem' }}>
@@ -393,6 +399,22 @@ function DashboardClient() {
       )}
       {!loading && !error && result && (
         <>
+          <div className="card" style={{ marginBottom: '1rem' }}>
+            <h3>Model Inputs in Equations</h3>
+            <p className="note">
+              {String.raw`\[S = `}{inputs.salary}{String.raw`\]`}
+            </p>
+            <p className="note">
+              {String.raw`\[T = `}{inputs.horizon_years}{String.raw`\text{ years}\]`}
+            </p>
+            <p className="note">
+              {String.raw`\[N = `}{inputs.n_paths}{String.raw`\]`}
+            </p>
+            <p className="note">
+              {String.raw`\[W_t^{(1)}, W_t^{(2)}, ..., W_t^{(`}{inputs.n_paths}{String.raw`)}\]`}
+            </p>
+          </div>
+
           <div className="metric-grid">
             <div className="metric"><div className="label">Average income (no hedge)</div><div className="value">${Math.round(result.meanNo).toLocaleString()}</div></div>
             <div className="metric"><div className="label">Average income (with hedge)</div><div className="value">${Math.round(result.meanHedge).toLocaleString()}</div></div>
