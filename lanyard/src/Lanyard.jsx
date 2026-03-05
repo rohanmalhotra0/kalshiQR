@@ -15,7 +15,7 @@ const cardFaceTexture = 'Group%2B74.webp';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-export default function Lanyard({ position = [0, 0, 10], gravity = [0, -40, 0], fov = 28, transparent = true, cardImage }) {
+export default function Lanyard({ position = [0, 0, 4], gravity = [0, -40, 0], fov = 38, transparent = true, cardImage }) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function Lanyard({ position = [0, 0, 10], gravity = [0, -40, 0], 
   }, []);
 
   return (
-    <div className="lanyard-wrapper" style={{ height: '520px', width: '100%' }}>
+    <div className="lanyard-wrapper" style={{ height: '420px', width: '100%', minWidth: '320px' }}>
       <Canvas
         camera={{ position, fov }}
         gl={{ alpha: transparent, antialias: true }}
@@ -35,7 +35,9 @@ export default function Lanyard({ position = [0, 0, 10], gravity = [0, -40, 0], 
         <directionalLight position={[5, 5, 5]} intensity={1.2} />
         <directionalLight position={[-3, 2, 2]} intensity={0.6} />
         <Physics gravity={gravity}>
-          <Band maxSpeed={50} minSpeed={0} isMobile={isMobile} cardImage={cardImage || cardFaceTexture} />
+          <group scale={3}>
+            <Band maxSpeed={50} minSpeed={0} isMobile={isMobile} cardImage={cardImage || cardFaceTexture} />
+          </group>
         </Physics>
       </Canvas>
     </div>
