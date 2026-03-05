@@ -44,6 +44,8 @@ def main():
 
     histogram = None
     percentiles = None
+    survival = None
+    max_unemployment = None
     if len(incomes_no) > 0 and len(incomes_with) > 0:
         bins = 24
         min_v = float(min(np.min(incomes_no), np.min(incomes_with)))
@@ -64,6 +66,29 @@ def main():
             "with_hedge": [float(v) for v in np.percentile(incomes_with, pcts).tolist()],
         }
 
+    if len(results) > 0:
+        horizon_years = int(out.get('inputs', {}).get('horizon_years', args.horizon_years))
+        years = list(range(0, horizon_years + 1))
+        first_losses = [getattr(r, 'job_loss_week', None) for r in results]
+        still_employed = []
+        for y in years:
+            cut = y * 52
+            alive = sum(1 for w in first_losses if (w is None or w > cut))
+            still_employed.append(100.0 * alive / len(first_losses))
+        survival = {
+            "year": [int(v) for v in years],
+            "still_employed_pct": [float(v) for v in still_employed],
+        }
+
+        u_max = np.array([float(np.max(getattr(r, 'unemployment_path', np.array([0.0])))) for r in results], dtype=float)
+        if len(u_max) > 0:
+            hist_u, edges_u = np.histogram(u_max, bins=18, range=(float(np.min(u_max)), float(np.max(u_max))))
+            centers_u = ((edges_u[:-1] + edges_u[1:]) / 2.0).tolist()
+            max_unemployment = {
+                "x": [float(v) for v in centers_u],
+                "count": [int(v) for v in hist_u.tolist()],
+            }
+
     payload = {
         'inputs': out.get('inputs', {}),
         'contracts': int(out.get('n_contracts') or out.get('optimal_contracts') or 0),
@@ -78,8 +103,11 @@ def main():
         'tailHedge': float(rh.tail_prob_50pct_drop) * 100,
         'varianceReduction': float(out.get('variance_reduction_pct', 0.0)),
         'riskLevel': float(getattr(out.get('params'), 'beta0', -6.5)),
+        'baselineIncome': float(args.salary * args.horizon_years),
         'histogram': histogram,
         'percentiles': percentiles,
+        'survival': survival,
+        'maxUnemployment': max_unemployment,
     }
     payload['totalCost'] = int(round(payload['contracts'] * payload['contractPrice']))
     payload['payout'] = int(payload['contracts'])

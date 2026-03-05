@@ -25,7 +25,7 @@ function toPath(points, width, height, minX, maxX, minY, maxY) {
     .join(' ');
 }
 
-function HistogramChart({ histogram }) {
+function HistogramChart({ histogram, meanNo, meanHedge, baselineIncome }) {
   if (!histogram?.x?.length) return null;
 
   const w = 700;
@@ -36,13 +36,20 @@ function HistogramChart({ histogram }) {
     ...histogram.with_hedge,
   );
   const barW = w / histogram.x.length;
+  const pointsNo = histogram.x.map((x, i) => [x, histogram.no_hedge[i]]);
+  const pointsWith = histogram.x.map((x, i) => [x, histogram.with_hedge[i]]);
+  const minX = Math.min(...histogram.x);
+  const maxX = Math.max(...histogram.x);
+  const noPath = toPath(pointsNo, w, h, minX, maxX, 0, maxY);
+  const withPath = toPath(pointsWith, w, h, minX, maxX, 0, maxY);
+  const xOf = (v) => ((v - minX) / Math.max(1e-9, maxX - minX)) * w;
+  const safeMeanNo = Number.isFinite(meanNo) ? meanNo : minX;
+  const safeMeanHedge = Number.isFinite(meanHedge) ? meanHedge : minX;
+  const safeBaseline = Number.isFinite(baselineIncome) ? baselineIncome : maxX;
 
   return (
     <div className="card" style={{ marginTop: '1rem' }}>
       <h3>Income Distribution (Monte Carlo)</h3>
-      <p className="note" style={{ marginBottom: '0.75rem' }}>
-        Gray bars show no-hedge outcomes; green bars show with-hedge outcomes.
-      </p>
       <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 220 }}>
         {histogram.no_hedge.map((v, i) => {
           const bh = (v / maxY) * h;
@@ -70,7 +77,15 @@ function HistogramChart({ histogram }) {
             />
           );
         })}
+        <path d={noPath} stroke="rgba(90,90,90,0.95)" strokeWidth="2" fill="none" />
+        <path d={withPath} stroke="rgba(0,168,84,0.95)" strokeWidth="2" fill="none" />
+        <line x1={xOf(safeMeanNo)} x2={xOf(safeMeanNo)} y1="0" y2={h} stroke="rgba(90,90,90,0.7)" strokeDasharray="5 4" />
+        <line x1={xOf(safeMeanHedge)} x2={xOf(safeMeanHedge)} y1="0" y2={h} stroke="rgba(0,168,84,0.8)" strokeDasharray="4 3" />
+        <line x1={xOf(safeBaseline)} x2={xOf(safeBaseline)} y1="0" y2={h} stroke="rgba(150,150,150,0.65)" />
       </svg>
+      <p className="note" style={{ marginTop: '0.7rem' }}>
+        Bars show frequency; solid lines smooth the same distributions. Dashed vertical lines mark average no-hedge and with-hedge outcomes, and the solid gray vertical line marks full-employment baseline income.
+      </p>
     </div>
   );
 }
@@ -101,6 +116,71 @@ function PercentileChart({ percentiles }) {
         <span style={{ color: 'rgb(140,140,140)', fontWeight: 700 }}>No hedge</span>{' '}
         vs{' '}
         <span style={{ color: 'rgb(0,168,84)', fontWeight: 700 }}>With hedge</span>
+      </p>
+      <p className="note" style={{ marginTop: '0.45rem' }}>
+        Reading left to right: each point is the income cutoff at that percentile. A higher green curve means the hedge improves outcomes across more of the distribution, especially in downside tails.
+      </p>
+    </div>
+  );
+}
+
+function SurvivalChart({ survival }) {
+  if (!survival?.year?.length) return null;
+  const w = 700;
+  const h = 220;
+  const points = survival.year.map((x, i) => [x, survival.still_employed_pct[i]]);
+  const path = toPath(points, w, h, 0, Math.max(...survival.year), 0, 100);
+
+  return (
+    <div className="card" style={{ marginTop: '1rem' }}>
+      <h3>Employment Survival by Year</h3>
+      <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 220 }}>
+        <line x1="0" x2={w} y1={h} y2={h} stroke="rgba(150,150,150,0.4)" />
+        <line x1="0" x2={w} y1={h * 0.5} y2={h * 0.5} stroke="rgba(150,150,150,0.25)" />
+        <line x1="0" x2={w} y1={0} y2={0} stroke="rgba(150,150,150,0.25)" />
+        <path d={path} stroke="rgb(245,158,11)" strokeWidth="3" fill="none" />
+      </svg>
+      <p className="note" style={{ marginTop: '0.7rem' }}>
+        This curve shows the percent of simulated careers that have not yet seen a first job-loss event by each year. Flatter curves imply lower cumulative job-loss frequency over time.
+      </p>
+    </div>
+  );
+}
+
+function TriggerChart({ maxUnemployment, hedgeThreshold, triggerRate }) {
+  if (!maxUnemployment?.x?.length) return null;
+  const w = 700;
+  const h = 220;
+  const maxY = Math.max(1, ...maxUnemployment.count);
+  const points = maxUnemployment.x.map((x, i) => [x, maxUnemployment.count[i]]);
+  const minX = Math.min(...maxUnemployment.x);
+  const maxX = Math.max(...maxUnemployment.x);
+  const curve = toPath(points, w, h, minX, maxX, 0, maxY);
+  const barW = w / maxUnemployment.x.length;
+  const xOf = (v) => ((v - minX) / Math.max(1e-9, maxX - minX)) * w;
+
+  return (
+    <div className="card" style={{ marginTop: '1rem' }}>
+      <h3>Hedge Trigger Distribution</h3>
+      <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 220 }}>
+        {maxUnemployment.count.map((v, i) => {
+          const bh = (v / maxY) * h;
+          return (
+            <rect
+              key={`u-${maxUnemployment.x[i]}`}
+              x={i * barW + 1}
+              y={h - bh}
+              width={Math.max(1, barW - 2)}
+              height={bh}
+              fill="rgba(0,168,84,0.35)"
+            />
+          );
+        })}
+        <path d={curve} stroke="rgba(0,168,84,0.95)" strokeWidth="2.2" fill="none" />
+        <line x1={xOf(hedgeThreshold)} x2={xOf(hedgeThreshold)} y1="0" y2={h} stroke="rgba(0,168,84,0.95)" strokeDasharray="6 5" />
+      </svg>
+      <p className="note" style={{ marginTop: '0.7rem' }}>
+        Bars and line show how high unemployment peaks across simulations. The dashed line is the payout trigger ({hedgeThreshold.toFixed(1)}%). It is crossed in about {triggerRate.toFixed(1)}% of scenarios.
       </p>
     </div>
   );
@@ -214,8 +294,19 @@ function DashboardClient() {
             <div className="metric"><div className="label">Upfront hedge cost</div><div className="value">${result.totalCost.toLocaleString()}</div></div>
           </div>
 
-          <HistogramChart histogram={result.histogram} />
+          <HistogramChart
+            histogram={result.histogram}
+            meanNo={result.meanNo}
+            meanHedge={result.meanHedge}
+            baselineIncome={result.baselineIncome}
+          />
           <PercentileChart percentiles={result.percentiles} />
+          <SurvivalChart survival={result.survival} />
+          <TriggerChart
+            maxUnemployment={result.maxUnemployment}
+            hedgeThreshold={result.hedgeThreshold}
+            triggerRate={result.triggerRate}
+          />
 
           <div className="card" style={{ marginTop: '1.25rem' }}>
             <p>

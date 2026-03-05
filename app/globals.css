@@ -43,58 +43,39 @@ a {
   padding: 7rem 2rem 3rem;
 }
 
+.landing-page-shell {
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-content {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-waves {
+  position: absolute !important;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.75;
+}
+
 .hero-content {
   position: relative;
   z-index: 1;
 }
 
 .hero-waves {
-  position: absolute;
-  inset: 0;
+  z-index: 0;
+}
+
+.waves-canvas {
+  display: block;
   width: 100%;
   height: 100%;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(0, 168, 84, 0.06) 0%, rgba(0, 168, 84, 0.02) 45%, rgba(0, 168, 84, 0) 100%);
-}
-
-.wave {
-  position: absolute;
-  left: -15%;
-  width: 130%;
-  height: 55%;
-  bottom: -10%;
-}
-
-.wave path {
-  fill: rgba(160, 160, 160, 0.35);
-}
-
-.wave-back {
-  animation: wave-drift-a 20s ease-in-out infinite alternate;
-}
-
-.wave-mid {
-  animation: wave-drift-b 15s ease-in-out infinite alternate;
-}
-
-.wave-front {
-  animation: wave-drift-c 11s ease-in-out infinite alternate;
-}
-
-@keyframes wave-drift-a {
-  from { transform: translateX(-4%) translateY(3px); }
-  to { transform: translateX(3%) translateY(-3px); }
-}
-
-@keyframes wave-drift-b {
-  from { transform: translateX(3%); }
-  to { transform: translateX(-3%); }
-}
-
-@keyframes wave-drift-c {
-  from { transform: translateX(-2%) translateY(2px); }
-  to { transform: translateX(2%) translateY(-2px); }
 }
 
 .hero h1 {

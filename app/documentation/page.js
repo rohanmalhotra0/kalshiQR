@@ -6,13 +6,13 @@ export default function DocumentationPage() {
       <h1 className="section-title">Documentation</h1>
       <p className="note" style={{ marginBottom: '1rem' }}>
         End-to-end technical documentation for the production model pipeline used by
-        <code> /dashboard</code> and <code>/live-demo</code>.
+        <code> /dashboard</code>.
       </p>
 
       <div className="card" style={{ marginBottom: '0.8rem' }}>
         <h3>1) System architecture</h3>
         <p style={{ marginBottom: '0.55rem' }}>
-          User inputs are collected in the quiz, sent as query params to <code>/api/simulate</code>, and then passed to the
+          User inputs are collected in the dashboard input form, sent as query params to <code>/api/simulate</code>, and then passed to the
           Python model runner at <code>legacy-python/run_pipeline_json.py</code>.
         </p>
         <p className="note">

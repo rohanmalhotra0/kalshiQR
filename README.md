@@ -7,7 +7,7 @@ Users enter profile + macro assumptions, then the app runs the Python hazard/Poi
 ## Product Overview
 
 - **Goal:** size a hedge for labor-market stress scenarios using prediction-market style contracts.
-- **Primary flow:** `Quiz -> Dashboard` (with optional `Live Demo` explanation view).
+- **Primary flow:** `Dashboard input form -> Dashboard results`.
 - **Core output:** contracts to buy, upfront cost, projected payout behavior, and tail-risk comparisons.
 
 ## Tech Stack
@@ -22,7 +22,6 @@ Users enter profile + macro assumptions, then the app runs the Python hazard/Poi
 - `/` landing page (hero + product summary)
 - `/quiz` user input form
 - `/dashboard` model results page
-- `/live-demo` step-by-step model explanation
 - `/documentation` project docs
 - `/about` team/contact page
 - `/paper` paper viewer
@@ -30,7 +29,7 @@ Users enter profile + macro assumptions, then the app runs the Python hazard/Poi
 ## How Calculations Work
 
 1. Frontend collects inputs (industry, company size, level, tenure, salary, paths, horizon).
-2. `Dashboard`/`Live Demo` call `/api/simulate` with query params.
+2. Dashboard pages call `/api/simulate` with query params.
 3. API route spawns Python and runs:
    - hazard model
    - Poisson job-loss process

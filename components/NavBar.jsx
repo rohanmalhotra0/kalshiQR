@@ -2,8 +2,7 @@ import Link from 'next/link';
 
 const links = [
   ['Paper', '/paper'],
-  ['Quiz', '/quiz'],
-  ['Live Demo', '/live-demo'],
+  ['Dashboard', '/quiz'],
   ['Documentation', '/documentation'],
   ['About Us', '/about'],
 ];
