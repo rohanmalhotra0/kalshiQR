@@ -191,6 +191,50 @@
       color: var(--text-muted);
       line-height: 1.5;
     }
+    .faqs {
+      position: relative;
+      z-index: 2;
+      max-width: 640px;
+      margin: 0 auto 4rem;
+      padding: 0 2rem;
+    }
+    .faqs h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+    .faq-item summary {
+      padding: 1rem 1.25rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      list-style: none;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '+';
+      float: right;
+      color: var(--accent);
+      font-size: 1.25rem;
+    }
+    .faq-item[open] summary::after { content: '−'; }
+    .faq-item p {
+      padding: 0 1.25rem 1.25rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0;
+    }
     footer {
       position: relative;
       z-index: 2;
@@ -215,6 +259,7 @@
       <a href="live-demo.html">Live Demo</a>
       <a href="documentation.html">Documentation</a>
       <a href="about.html">Our Team</a>
+      <a href="#faqs">FAQs</a>
     </div>
   </nav>
 
@@ -250,8 +295,28 @@
     </div>
   </section>
 
+  <section class="faqs" id="faqs">
+    <h2>FAQs</h2>
+    <details class="faq-item">
+      <summary>What is this?</summary>
+      <p>We help you hedge your income against job loss using prediction markets. Enter your profile (industry, salary, etc.) and we run a Monte Carlo simulation to recommend how many Kalshi unemployment contracts to buy.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How does the hedge work?</summary>
+      <p>You buy contracts that pay out if US unemployment exceeds a threshold (e.g., 8%). If you lose your job when unemployment is high, the payout helps cover lost income. We size the hedge to match ~6 months of pay.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What markets does it use?</summary>
+      <p>We use Kalshi’s unemployment and recession markets. These are regulated prediction markets where you can trade on economic outcomes.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Is this financial advice?</summary>
+      <p>No. This is a research tool from NYU BnF. Always do your own research and consider consulting a financial advisor before making investment decisions.</p>
+    </details>
+  </section>
+
   <footer>
-    <p><a href="paper.html">Paper</a> · <a href="quiz.html">Quiz</a> · <a href="live-demo.html">Live Demo</a> · <a href="https://github.com/nyu-bnf/modelKalshi">GitHub</a></p>
+    <p><a href="paper.html">Paper</a> · <a href="quiz.html">Quiz</a> · <a href="live-demo.html">Live Demo</a> · <a href="#faqs">FAQs</a> · <a href="https://github.com/nyu-bnf/modelKalshi">GitHub</a></p>
     <p style="margin-top:0.5rem;">NYU BnF x Kalshi — Hedge your income against job loss</p>
   </footer>
 
