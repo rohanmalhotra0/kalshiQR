@@ -95,10 +95,6 @@ export default function QuizPage() {
         </div>
       </div>
 
-      <p className="note" style={{ marginTop: '1rem' }}>
-        Contract count is computed from your salary (6-month coverage) and is no longer fixed.
-      </p>
-
       <Footer />
     </div>
   );
