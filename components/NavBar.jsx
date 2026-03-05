@@ -9,14 +9,16 @@ const links = [
 
 export default function NavBar() {
   return (
-    <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
-      <Link href="/" style={{ fontWeight: 700, textDecoration: 'none' }}>NYU BnF x Kalshi</Link>
-      <div style={{ display: 'flex', gap: '1.2rem', flexWrap: 'wrap' }}>
+    <nav className="site-nav">
+      <div className="site-nav-inner">
+        <Link href="/" className="site-brand">NYU BnF x Kalshi</Link>
+        <div className="site-nav-links">
         {links.map(([label, href]) => (
-          <Link key={href} href={href} style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            <Link key={href} href={href} className="site-nav-link">
             {label}
           </Link>
         ))}
+        </div>
       </div>
     </nav>
   );
