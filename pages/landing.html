@@ -316,11 +316,12 @@
         detectsOn: 'window',
         events: {
           onHover: { enable: true, mode: 'grab' },
-          onClick: { enable: true, mode: 'push' }
+          onClick: { enable: true, mode: 'bubble' }
         },
         modes: {
           grab: { distance: 180, line_linked: { opacity: 0.8 } },
-          push: { particles_nb: 6 }
+          push: { particles_nb: 6 },
+          bubble: { distance: 250, size: 50, duration: 1.5, opacity: 0.8, speed: 3 }
         }
       },
       retina_detect: true
